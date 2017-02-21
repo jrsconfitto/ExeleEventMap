@@ -1,5 +1,3 @@
-/// <reference path="C:\src\PIWebAPIEFSample\PIWebAPIEFSample\libraries/jquery-3.1.1.intellisense.js" />
-
 //need to get unique templates, need to get attributes of template, need to calculate duration
 
 //next need to return the templates, return two attributes and more
