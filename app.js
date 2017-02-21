@@ -294,8 +294,6 @@ var eventsModule = function (flinks) {
             cell.append("title")
                 .text(function (d) { return d.data.name + "\n" + format(d.value) + ' duration (mins)' + '\n' + 'Start: ' + d.data.start + '; End: ' + d.data.end });
             
-            d3.select(window).on("click", function() { zoom(root); });
-
             d3.selectAll('input[type="radio"]')
                 .data([sumByDuration, sumByCount], function(d) {
                   return d ? d.name : this.value;  
@@ -310,28 +308,6 @@ var eventsModule = function (flinks) {
                         .attr("width", function(d) { return d.x1 - d.x0; })
                         .attr("height", function(d) { return d.y1 - d.y0; });
                 });
-
-            function zoom(d) {
-              var kx = width / d.dx, ky = height / d.dy;
-              x.domain([d.x, d.x + d.dx]);
-              y.domain([d.y, d.y + d.dy]);
-
-              var t = svg.selectAll("g.cell").transition()
-                  .duration(d3.event.altKey ? 7500 : 750)
-                  .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
-
-              t.select("rect")
-                  .attr("width", function(d) { return kx * d.dx - 1; })
-                  .attr("height", function(d) { return ky * d.dy - 1; })
-
-              t.select("text")
-                  .attr("x", function(d) { return kx * d.dx / 2; })
-                  .attr("y", function(d) { return ky * d.dy / 2; })
-                  .style("opacity", function(d) { return kx * d.dx > d.w ? 1 : 0; });
-
-              node = d;
-              d3.event.stopPropagation();
-            }
         }
     }
 }();
