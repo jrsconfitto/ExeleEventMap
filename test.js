@@ -208,8 +208,7 @@ var eventsModule = function (flinks) {
         GetEFAttributesValuesFromTemplate: (templateName) =>GetTemplateAttributes(templateName),
         // Creates an element object provided a path
         Update: (APIServer, elementPath) => {
-             let elementPath2 = '\\\\PISRV01\\Mineral Processing\\Toll Ore Delivery\\T-101';
-            let url = APIServer + '//'+ "elements?path=" + elementPath2;
+            let url = APIServer + '//'+ "elements?path=" + elementPath;
             makeDataCall(url, 'get').then(results => {
                 myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
                 console.log(myel.name);

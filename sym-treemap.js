@@ -18,7 +18,6 @@
 
             // Get path from first data source
             var dataPath = this.scope.symbol.DataSources[0].substr(3, 9999);
-            dataPath = dataPath.replace(/\\|\\/g,"\\\\");
 
             // Remove attribute from element path
             var attributePipeLocation = dataPath.indexOf("|");
