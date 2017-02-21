@@ -44,6 +44,7 @@
     var def = {
         typeName: 'treemap',
         datasourceBehavior: PV.Extensibility.Enums.DatasourceBehaviors.Multiple,
+        iconUrl: 'Images/treemap.svg',
         visObjectType: symbolVis,
         getDefaultConfig: function () {
             return {
