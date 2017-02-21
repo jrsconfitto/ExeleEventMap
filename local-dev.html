@@ -1,0 +1,27 @@
+﻿<html>
+<head>
+    <script src="/libraries/jquery-3.1.1.min.js"></script>
+    <script src="/libraries/d3.min.js"></script>
+    <title>EF page</title>
+    <meta charset="utf-8" />
+    <style>
+        svg {
+            font: 10px sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <p>
+        <button type="button" id="loadAFconfig">Load af database + server</button>
+        <button type="button" id="elementPath">Load af database + server</button>
+        <button type="button" id="getEFs">get EFs off element</button>
+        <button type="button" id="getTemplateAttributes">get attributes</button>
+        <button type="button" id="buildTreemap">Build treemap</button>
+    </p>
+
+    <!-- THE TREEMAP -->
+    <svg id="treemap" width="960" height="570"></svg>
+
+    <script src="app.js"></script>
+</body>
+</html>
