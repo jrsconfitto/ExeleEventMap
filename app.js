@@ -292,7 +292,9 @@ var eventsModule = function (flinks) {
                 .text(function (d) { return d; });
 
             cell.append("title")
-                .text(function (d) { return d.data.name + "\n" + format(d.value) + ' duration (mins)' + '\n' + 'Start: ' + d.data.start + '; End: ' + d.data.end });
+                .text(function (d) {
+                  return d.data.name + "\n" + format(d.value) + ' duration (mins)' + '\n' + 'Start: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
+                });
             
             d3.selectAll('input[type="radio"]')
                 .data([sumByDuration, sumByCount], function(d) {
