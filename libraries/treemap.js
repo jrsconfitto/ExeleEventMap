@@ -51,8 +51,7 @@ function treemap() {
               .data(root.leaves())
               .enter().append("g")
                 .attr("transform", function (d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
-                .on('click', function (d)
-                {                    
+                .on('click', function (d) {
                     //the webID is the unique identifier for each Event Frames.
                     let efID = d.data.ef.webId;
                     console.log("You clicked on ef with ID", efID);
@@ -82,22 +81,22 @@ function treemap() {
 
             cell.append("title")
                 .text(function (d) {
-                  return d.data.name + "\n" + format(d.value) + ' duration (mins)' + '\n' + 'Start: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
+                    return d.data.name + "\n" + format(d.value) + ' duration (mins)' + '\n' + 'Start: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
                 });
-            
-            d3.selectAll('input[type="radio"]')
-                .data([sumByDuration, sumByCount], function(d) {
-                  return d ? d.name : this.value;  
-                })
-                .on('change', function(sumFunc) {
-                  treemap(root.sum(sumFunc));
 
-                  cell.transition()
-                        .duration(250)
-                        .attr("transform", function(d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
-                      .select("rect")
-                        .attr("width", function(d) { return d.x1 - d.x0; })
-                        .attr("height", function(d) { return d.y1 - d.y0; });
+            d3.selectAll('input[type="radio"]')
+                .data([sumByDuration, sumByCount], function (d) {
+                    return d ? d.name : this.value;
+                })
+                .on('change', function (sumFunc) {
+                    treemap(root.sum(sumFunc));
+
+                    cell.transition()
+                          .duration(250)
+                          .attr("transform", function (d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
+                        .select("rect")
+                          .attr("width", function (d) { return d.x1 - d.x0; })
+                          .attr("height", function (d) { return d.y1 - d.y0; });
                 });
         });
     }
