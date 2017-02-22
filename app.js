@@ -8,30 +8,41 @@ var afDatabase = "Mineral Processing";
 var databaseRootURLComplete;
 var elementPath = '\\\\DAN-AF-DEV\\Mineral Processing\\Toll Ore Delivery\\T-101'
 
-
 var eventsModule = function (flinks) {
     let templates = [];
     let efDataHolder = {};
     let myel = {};
 
+    // Modeled after the example given in Mike Bostock's fantastic "Towards Reusable Charts": https://bost.ocks.org/mike/chart/
+    //
+    // This pattern allows us to create (lots of) treemaps easily and update their data (and other attributes) by calling this function with new data (or new chart attributes).
     function treemap() {
         var width = 960,
             height = 570;
 
+        // A helper method that allows us to set the width of the chart.
+        // This passes back itself to allow function chaining. Ex: var myTreeMap = treemap().width(900).height(400);
         treemap.width = function (value) {
             if (!arguments.length) return width
             width = value
             return treemap;
         };
 
+        // Same as above, but for height
         treemap.height = function (value) {
             if (!arguments.length) return height
             height = value
             return treemap;
         };
 
+        // This is the main logic of the treemap, it modifies the data (should be a d3.hierarchy of some sort), applies
+        // it to the passed selection (i.e. where the visualization should go), and constructs the treemap visualization.
         function treemap(selection) {
-            selection.each(function (data, i) {
+            // d3 selections are the main way to apply data to HTML elements: https://github.com/d3/d3-selection/blob/master/README.md
+            //
+            // The following code applies the data tied to the passed in selection(s) and is where we actually build the
+            // treemap.
+            selection.each(function (data) {
                 // Use `.get(0)` to get the actual element referenced by the jQuery object and pass it into d3's
                 // `select` function. d3 and jQuery don't always play along perfectly.
                 var fader = function (color) { return d3.interpolateRgb(color, "#fff")(0.2); },
@@ -45,15 +56,11 @@ var eventsModule = function (flinks) {
                     .round(true)
                     .paddingInner(1);
 
-                console.log("Using the following data", data);
-
                 // Format the data for use in the treemap
                 treemap(data);
 
-                console.log("Using other data", data);
-                            
                 var svg = d3.select(this);
-                            
+
                 var cell = svg.selectAll("g")
                   .data(data.leaves())
                   .enter().append("g")
@@ -64,7 +71,7 @@ var eventsModule = function (flinks) {
                         //the webID is the unique identifier for each Event Frames.
                         let efID = d.data.ef.webId;
                         console.log("You clicked on ef with ID", efID);
-    //                     GetSingleEFAttributes(efID);
+                        GetSingleEFAttributes(efID);
                     });
 
                 cell.append("rect")
@@ -167,8 +174,8 @@ var eventsModule = function (flinks) {
             });
         }
         //reference the treeview and build it here
-         var $treemapEl = $('svg#treemap');
-         eventsModule.BuildTreemap($treemapEl);
+        var $treemapEl = $('svg#treemap');
+        eventsModule.BuildTreemap($treemapEl);
     }
 
     // give a templateName, obtains the attributes.
@@ -195,7 +202,7 @@ var eventsModule = function (flinks) {
         .catch(error=>console.log(error));
     }
     //get a singleEf 
-    function GetSingleEFAttributes(id){
+    function GetSingleEFAttributes(id) {
 
         let efURL = _WebAPIServer + "streamsets/" + id + "/value";
 
@@ -203,13 +210,13 @@ var eventsModule = function (flinks) {
         .then(results=> {
             let attributes = [];
             results.Items.forEach(attribute=> {
-                attributes.push( {
+                attributes.push({
                     Name: attribute.Name,
                     Value: attribute.Value.Value,
                 });
             });
             console.log(attributes);
-          
+
         })
         .catch(error=>console.log(error));
 
@@ -299,7 +306,7 @@ var eventsModule = function (flinks) {
     }
 
     function sumByDuration(d) {
-      return (d.endTime - d.startTime) / 1000 / 60;
+        return (d.endTime - d.startTime) / 1000 / 60;
     }
 
     function sumByCount(d) {
@@ -316,7 +323,7 @@ var eventsModule = function (flinks) {
         // Creates an element object provided a path
         Update: (APIServer, elementPath) => {
             //let elementPath = '\\\\PISRV01\\Mineral Processing\\Toll Ore Delivery\\T-101'
-            let url = APIServer + '//'+ "elements?path=" + elementPath;
+            let url = APIServer + '//' + "elements?path=" + elementPath;
             makeDataCall(url, 'get').then(results => {
                 myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
                 console.log(myel.name);
