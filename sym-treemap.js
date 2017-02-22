@@ -57,7 +57,8 @@
                 Height: 300,
                 Width: 600
             };
-        }
+        },
+        configTitle: 'Format Symbol'
     };
     PV.symbolCatalog.register(def);
     
