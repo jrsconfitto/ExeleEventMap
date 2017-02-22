@@ -2,7 +2,7 @@
 //
 // Much of this is formed on the foundation of Mike Bostock's wonderful
 // Towards Reusable Charts article: https://bost.ocks.org/mike/chart/
-function treemap() {
+treemap = function () {
     var width = 960,
         height = 570;
 
@@ -15,11 +15,11 @@ function treemap() {
     treemap.height = function (value) {
         if (!arguments.length) return height
         height = value
-        return myTreemap;
+        return treemap;
     };
 
     function treemap(selection) {
-        selection.each(function () {
+        selection.each(function (data, i) {
             // Use `.get(0)` to get the actual element referenced by the jQuery object and pass it into d3's
             // `select` function. d3 and jQuery don't always play along perfectly.
             var fader = function (color) { return d3.interpolateRgb(color, "#fff")(0.2); },
@@ -33,29 +33,26 @@ function treemap() {
                 .round(true)
                 .paddingInner(1);
 
-            // Extract the right data from the Treemap
-            //
-            // d3 requires hierarchical data. From the documentation:
-            //
-            //  Before you can compute a hierarchical layout, you need a root node. If your data
-            //  is already in a hierarchical format, such as JSON, you can pass it directly to
-            //  d3.hierarchy; otherwise, you can rearrange tabular data, such as comma-separated
-            //  values (CSV), into a hierarchy using d3.stratify.
-            var root = EFsToHierarchy();
+            console.log("Using the following data", data);
 
-            console.log("Using the following data", root);
+            // Format the data for use in the treemap
+            treemap(data);
 
-            treemap(root);
-
+            console.log("Using other data", data);
+                        
+            var svg = d3.select(this);
+                        
             var cell = svg.selectAll("g")
-              .data(root.leaves())
+              .data(data.leaves())
               .enter().append("g")
-                .attr("transform", function (d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
+                .attr("transform", function (d) {
+                    return "translate(" + d.x0 + "," + d.y0 + ")";
+                })
                 .on('click', function (d) {
                     //the webID is the unique identifier for each Event Frames.
                     let efID = d.data.ef.webId;
                     console.log("You clicked on ef with ID", efID);
-                    GetSingleEFAttributes(efID);
+//                     GetSingleEFAttributes(efID);
                 });
 
             cell.append("rect")
@@ -84,20 +81,20 @@ function treemap() {
                     return d.data.name + "\n" + format(d.value) + ' duration (mins)' + '\n' + 'Start: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
                 });
 
-            d3.selectAll('input[type="radio"]')
-                .data([sumByDuration, sumByCount], function (d) {
-                    return d ? d.name : this.value;
-                })
-                .on('change', function (sumFunc) {
-                    treemap(root.sum(sumFunc));
+//             d3.selectAll('input[type="radio"]')
+//                 .data([sumByDuration, sumByCount], function (d) {
+//                     return d ? d.name : this.value;
+//                 })
+//                 .on('change', function (sumFunc) {
+//                     treemap(root.sum(sumFunc));
 
-                    cell.transition()
-                          .duration(250)
-                          .attr("transform", function (d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
-                        .select("rect")
-                          .attr("width", function (d) { return d.x1 - d.x0; })
-                          .attr("height", function (d) { return d.y1 - d.y0; });
-                });
+//                     cell.transition()
+//                           .duration(250)
+//                           .attr("transform", function (d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
+//                         .select("rect")
+//                           .attr("width", function (d) { return d.x1 - d.x0; })
+//                           .attr("height", function (d) { return d.y1 - d.y0; });
+//                 });
         });
     }
 
