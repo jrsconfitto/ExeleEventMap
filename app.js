@@ -334,8 +334,8 @@ var eventsModule = function (flinks) {
         },
         // Builds a treemap under the passed element
         BuildTreemap: ($treemapElement) => {
-            var width = +$treemapElement.attr("width"),
-                height = +$treemapElement.attr("height");
+            var width = +$treemapElement.width(),
+                height = +$treemapElement.height();
 
             var myTreemap = treemap()
                 .width(width)
