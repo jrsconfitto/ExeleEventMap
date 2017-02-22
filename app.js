@@ -49,7 +49,8 @@ var eventsModule = function (flinks) {
                     color = d3.scaleOrdinal(d3.schemeCategory20.map(fader)),
                     format = d3.format(",d");
 
-                // Put it into a d3 treemap
+                // Create a function that will format the treemap's data according to the
+                // way we want it displayed
                 var treemap = d3.treemap()
                     .tile(d3.treemapResquarify)
                     .size([width, height])
