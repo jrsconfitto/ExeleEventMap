@@ -1,4 +1,4 @@
-﻿(function (PV) {
+(function (PV) {
     'use strict';
 
     // Create visualization object
@@ -6,10 +6,13 @@
     PV.deriveVisualizationFromBase(symbolVis);
 
     // Symbol initialization
-    symbolVis.prototype.init = function (scope, element) {
+    symbolVis.prototype.init = function (scope, element, timeProvider) {
         this.onDataUpdate = dataUpdate;
         this.onConfigChange = configChanged;
         this.onResize = resize;
+       // 'this.timeProvider = timeProvider;
+      
+
 
         function dataUpdate(data) {
 
@@ -26,12 +29,15 @@
             }
 
             // Update treemap
-            eventsModule.Update(apiUrl, dataPath)
+            eventsModule.Update(apiUrl, dataPath, timeProvider.displayTime.start, timeProvider.displayTime.end)
 
         }
 
+        timeProvider.onDisplayTimeChanged.subscribe();
+
         function configChanged(newConfig, oldConfig) {
             // ...
+            var b = 1;
         }
 
         function resize(width, height) {
@@ -43,6 +49,7 @@
     // Create symbol definition object
     var def = {
         typeName: 'treemap',
+        inject: ['timeProvider'],
         datasourceBehavior: PV.Extensibility.Enums.DatasourceBehaviors.Multiple,
         iconUrl: 'Images/treemap.svg',
         visObjectType: symbolVis,
