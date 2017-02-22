@@ -8,12 +8,120 @@ var afDatabase = "Mineral Processing";
 var databaseRootURLComplete;
 var elementPath = '\\\\DAN-AF-DEV\\Mineral Processing\\Toll Ore Delivery\\T-101'
 
-
 var eventsModule = function (flinks) {
     let templates = [];
     let efDataHolder = {};
     let myel = {};
-   
+
+    // Modeled after the example given in Mike Bostock's fantastic "Towards Reusable Charts": https://bost.ocks.org/mike/chart/
+    //
+    // This pattern allows us to create (lots of) treemaps easily and update their data (and other attributes) by calling this function with new data (or new chart attributes).
+    function treemap() {
+        var width = 960,
+            height = 570;
+
+        // A helper method that allows us to set the width of the chart.
+        // This passes back itself to allow function chaining. Ex: var myTreeMap = treemap().width(900).height(400);
+        treemap.width = function (value) {
+            if (!arguments.length) return width
+            width = value
+            return treemap;
+        };
+
+        // Same as above, but for height
+        treemap.height = function (value) {
+            if (!arguments.length) return height
+            height = value
+            return treemap;
+        };
+
+        // This is the main logic of the treemap, it modifies the data (should be a d3.hierarchy of some sort), applies
+        // it to the passed selection (i.e. where the visualization should go), and constructs the treemap visualization.
+        function treemap(selection) {
+            // d3 selections are the main way to apply data to HTML elements: https://github.com/d3/d3-selection/blob/master/README.md
+            //
+            // The following code applies the data tied to the passed in selection(s) and is where we actually build the
+            // treemap.
+            selection.each(function (data) {
+                // Use `.get(0)` to get the actual element referenced by the jQuery object and pass it into d3's
+                // `select` function. d3 and jQuery don't always play along perfectly.
+                var fader = function (color) { return d3.interpolateRgb(color, "#fff")(0.2); },
+                    color = d3.scaleOrdinal(d3.schemeCategory20.map(fader)),
+                    format = d3.format(",d");
+
+                // Create a function that will format the treemap's data according to the
+                // way we want it displayed
+                var treemap = d3.treemap()
+                    .tile(d3.treemapResquarify)
+                    .size([width, height])
+                    .round(true)
+                    .paddingInner(1);
+
+                // Format the data for use in the treemap
+                treemap(data);
+
+                var svg = d3.select(this);
+
+                var cell = svg.selectAll("g")
+                  .data(data.leaves())
+                  .enter().append("g")
+                    .attr("transform", function (d) {
+                        return "translate(" + d.x0 + "," + d.y0 + ")";
+                    })
+                    .on('click', function (d) {
+                        //the webID is the unique identifier for each Event Frames.
+                        let efID = d.data.ef.webId;
+                        console.log("You clicked on ef with ID", efID);
+                        GetSingleEFAttributes(efID);
+                    });
+
+                cell.append("rect")
+                    .attr("id", function (d) { return d.data.id; })
+                    .attr("width", function (d) { return d.x1 - d.x0; })
+                    .attr("height", function (d) { return d.y1 - d.y0; })
+                    .attr("fill", function (d) { return color(d.parent.data.id); })
+                    .attr("data-web-id", function (d) { return d.data.ef.webId; });
+
+                cell.append("clipPath")
+                    .attr("id", function (d) { return "clip-" + d.data.id; })
+                  .append("use")
+                    .attr("xlink:href", function (d) { return "#" + d.data.id; });
+
+                cell.append("text")
+                    .attr("clip-path", function (d) { return "url(#clip-" + d.data.id + ")"; })
+                  .selectAll("tspan")
+                    .data(function (d) { return d.data.name.split(/(?=[A-Z][^A-Z])/g); })
+                  .enter().append("tspan")
+                    .attr("x", 4)
+                    .attr("y", function (d, i) { return 13 + i * 10; })
+                    .text(function (d) { return d; });
+
+                cell.append("title")
+                    .text(function (d) {
+                        return d.data.name + "\n" + format(d.value) + ' duration (mins)' + '\n' + 'Start: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
+                    });
+
+                d3.selectAll('input[type="radio"]')
+                    .data([sumByDuration, sumByCount], function (d) {
+                        return d ? d.name : this.value;
+                    })
+                    .on('change', function (sumFunc) {
+                        treemap(root.sum(sumFunc));
+
+                        cell.transition()
+                              .duration(250)
+                              .attr("transform", function (d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
+                            .select("rect")
+                              .attr("width", function (d) { return d.x1 - d.x0; })
+                              .attr("height", function (d) { return d.y1 - d.y0; });
+                    });
+            });
+        }
+
+        // Return a treemap function that someone can call to add data to
+        return treemap;
+    }
+
     function myEventFrame(name, TemplateName, startTime, endTime, templatelink, webId) {
         this.name = name;
         this.templateName = TemplateName;
@@ -67,8 +175,8 @@ var eventsModule = function (flinks) {
             });
         }
         //reference the treeview and build it here
-         var $treemapEl = $('svg#treemap');
-         eventsModule.BuildTreemap($treemapEl);
+        var $treemapEl = $('svg#treemap');
+        eventsModule.BuildTreemap($treemapEl);
     }
 
     // give a templateName, obtains the attributes.
@@ -95,7 +203,7 @@ var eventsModule = function (flinks) {
         .catch(error=>console.log(error));
     }
     //get a singleEf 
-    function GetSingleEFAttributes(id){
+    function GetSingleEFAttributes(id) {
 
         let efURL = _WebAPIServer + "streamsets/" + id + "/value";
 
@@ -103,13 +211,13 @@ var eventsModule = function (flinks) {
         .then(results=> {
             let attributes = [];
             results.Items.forEach(attribute=> {
-                attributes.push( {
+                attributes.push({
                     Name: attribute.Name,
                     Value: attribute.Value.Value,
                 });
             });
             console.log(attributes);
-          
+
         })
         .catch(error=>console.log(error));
 
@@ -199,7 +307,7 @@ var eventsModule = function (flinks) {
     }
 
     function sumByDuration(d) {
-      return (d.endTime - d.startTime) / 1000 / 60;
+        return (d.endTime - d.startTime) / 1000 / 60;
     }
 
     function sumByCount(d) {
@@ -216,7 +324,7 @@ var eventsModule = function (flinks) {
         // Creates an element object provided a path
         Update: (APIServer, elementPath, startTime, endTime) => {
             //let elementPath = '\\\\PISRV01\\Mineral Processing\\Toll Ore Delivery\\T-101'
-            let url = APIServer + '//'+ "elements?path=" + elementPath;
+            let url = APIServer + '//' + "elements?path=" + elementPath;
             makeDataCall(url, 'get').then(results => {
                 myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
                 console.log(myel.name);
@@ -227,22 +335,12 @@ var eventsModule = function (flinks) {
         },
         // Builds a treemap under the passed element
         BuildTreemap: ($treemapElement) => {
-            // Use `.get(0)` to get the actual element referenced by the jQuery object and pass it into d3's
-            // `select` function. d3 and jQuery don't always play along perfectly.
-            var svg = d3.select($treemapElement.get(0)),
-                width = +$treemapElement.attr("width"),
-                height = +$treemapElement.attr("height");
+            var width = +$treemapElement.width(),
+                height = +$treemapElement.height();
 
-            var fader = function (color) { return d3.interpolateRgb(color, "#fff")(0.2); },
-                color = d3.scaleOrdinal(d3.schemeCategory20.map(fader)),
-                format = d3.format(",d");
-
-            // Put it into a d3 treemap
-            var treemap = d3.treemap()
-                .tile(d3.treemapResquarify)
-                .size([width, height])
-                .round(true)
-                .paddingInner(1);
+            var myTreemap = treemap()
+                .width(width)
+                .height(height);
 
             // Extract the right data from the Treemap
             //
@@ -253,63 +351,12 @@ var eventsModule = function (flinks) {
             //  d3.hierarchy; otherwise, you can rearrange tabular data, such as comma-separated
             //  values (CSV), into a hierarchy using d3.stratify.
             var root = EFsToHierarchy();
+            var selection = d3.select($treemapElement.get(0));
 
-            console.log("Using the following data", root);
-
-            treemap(root);
-
-            var cell = svg.selectAll("g")
-              .data(root.leaves())
-              .enter().append("g")
-                .attr("transform", function (d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
-                .on('click', function (d)
-                {                    
-                    //the webID is the unique identifier for each Event Frames.
-                    let efID = d.data.ef.webId;
-                    console.log("You clicked on ef with ID", efID);
-                    GetSingleEFAttributes(efID);
-                });
-
-            cell.append("rect")
-                .attr("id", function (d) { return d.data.id; })
-                .attr("width", function (d) { return d.x1 - d.x0; })
-                .attr("height", function (d) { return d.y1 - d.y0; })
-                .attr("fill", function (d) { return color(d.parent.data.id); })
-                .attr("data-web-id", function (d) { return d.data.ef.webId; });
-
-            cell.append("clipPath")
-                .attr("id", function (d) { return "clip-" + d.data.id; })
-              .append("use")
-                .attr("xlink:href", function (d) { return "#" + d.data.id; });
-
-            cell.append("text")
-                .attr("clip-path", function (d) { return "url(#clip-" + d.data.id + ")"; })
-              .selectAll("tspan")
-                .data(function (d) { return d.data.name.split(/(?=[A-Z][^A-Z])/g); })
-              .enter().append("tspan")
-                .attr("x", 4)
-                .attr("y", function (d, i) { return 13 + i * 10; })
-                .text(function (d) { return d; });
-
-            cell.append("title")
-                .text(function (d) {
-                  return d.data.name + "\n" + format(d.value) + ' duration (mins)' + '\n' + 'Start: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
-                });
-            
-            d3.selectAll('input[type="radio"]')
-                .data([sumByDuration, sumByCount], function(d) {
-                  return d ? d.name : this.value;  
-                })
-                .on('change', function(sumFunc) {
-                  treemap(root.sum(sumFunc));
-
-                  cell.transition()
-                        .duration(250)
-                        .attr("transform", function(d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
-                      .select("rect")
-                        .attr("width", function(d) { return d.x1 - d.x0; })
-                        .attr("height", function(d) { return d.y1 - d.y0; });
-                });
+            // Draw the treemap
+            selection
+                .datum(root)
+                .call(myTreemap);
         }
     }
 }();
