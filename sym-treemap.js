@@ -10,9 +10,7 @@
         this.onDataUpdate = dataUpdate;
         this.onConfigChange = configChanged;
         this.onResize = resize;
-       // 'this.timeProvider = timeProvider;
-      
-
+     
 
         function dataUpdate(data) {
 
@@ -28,16 +26,16 @@
                 dataPath = dataPath.substr(0, attributePipeLocation)
             }
 
-            // Update treemap
+            // Update treemap, providing URL, elementPath, start and end times
             eventsModule.Update(apiUrl, dataPath, timeProvider.displayTime.start, timeProvider.displayTime.end)
 
         }
-
+        // sample event from trend 
         timeProvider.onDisplayTimeChanged.subscribe();
 
         function configChanged(newConfig, oldConfig) {
             // ...
-            var b = 1;
+           
         }
 
         function resize(width, height) {
