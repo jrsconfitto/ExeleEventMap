@@ -63,8 +63,13 @@ var eventsModule = function (flinks) {
                     .on('click', function (d) {
                         //the webID is the unique identifier for each Event Frames.
                         let efID = d.data.ef.webId;
-                        console.log("You clicked on ef with ID", efID);
-                        GetSingleEFAttributes(efID);
+//                         console.log("You clicked on ef with ID", efID);
+//                         GetSingleEFAttributes(efID);
+                        
+                        // Fire a jQuery event notifying that an EF in the treemap was clicked
+                        $(this).trigger('efClick', {
+                            ef: d.data.ef
+                        });
                     });
 
                 cell.append("rect")
