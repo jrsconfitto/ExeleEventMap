@@ -140,16 +140,18 @@ var eventsModule = function (flinks) {
     }
 
     // given webID of element, retrieve EF on it within the ST and ET
-    function GetEventFramesByElementID(elementIDbase, startTime, endtime, successPromise, failPromise) {
+    function GetEventFramesByElementID(elementIDbase, symbolElement, startTime, endtime, successPromise, failPromise) {
         url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
+        this.symbolElement = symbolElement;
+        
         // gets all of the EF within the provided start and endtimes given the webID of an element.  Then extracts the frames
         makeDataCall(url, 'get').then(results => {
-            ExtractEF(results, successPromise);
+            ExtractEF(results, this.symbolElement, successPromise);
         }).catch(error=>failPromise(error));
     }
 
     //given webAPI results, extract the results, create EFs, and put them into efDataHolder;
-    function ExtractEF(results, successPromise) {
+    function ExtractEF(results, symbolElement, successPromise) {
         items = results.Items;
         //clear the cache of events
         efDataHolder = {};
@@ -172,8 +174,7 @@ var eventsModule = function (flinks) {
             });
         }
         //reference the treeview and build it here
-        var $treemapEl = $('svg#treemap');
-        eventsModule.BuildTreemap($treemapEl);
+        eventsModule.BuildTreemap(symbolElement);
     }
 
     // give a templateName, obtains the attributes.
@@ -321,39 +322,47 @@ var eventsModule = function (flinks) {
         // gets all of the EF attributes givena  template, need to extended to use attribute name
         GetEFAttributesValuesFromTemplate: (apiServer, templateName) =>GetTemplateAttributes(apiServer, templateName),
         // Creates an element object provided a path
-        Update: (APIServer, elementPath, startTime, endTime) => {
+        Update: (APIServer, elementPath, symbolElement, startTime, endTime) => {
             //let elementPath = '\\\\PISRV01\\Mineral Processing\\Toll Ore Delivery\\T-101'
             let url = APIServer + '//' + "elements?path=" + elementPath;
+            this.symbolElement = symbolElement;
+        
             makeDataCall(url, 'get').then(results => {
                 myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
                 console.log(myel.name);
-                GetEventFramesByElementID(myel.framesLink, startTime, endTime, null, null);
+                console.log(this.symbolElement);
+                GetEventFramesByElementID(myel.framesLink, this.symbolElement, startTime, endTime, null, null);
             }).catch(error=> {
                 console.log(error)
             });
         },
         // Builds a treemap under the passed element
-        BuildTreemap: ($treemapElement) => {
-            var width = +$treemapElement.width(),
-                height = +$treemapElement.height();
-
+        BuildTreemap: ($symbolElement) => {
+            // Find the svg that will contain our treemap by looking for an 'svg' element within the passed
+            // symbol element. Chain select statements to select the svg within the original symbol element.
+            var treemapSelection = d3.select($symbolElement.get(0)).select('svg');
+            
+            // Calculate the width and height from the treemap element's node
+            var selectionBox = treemapSelection.node().getBoundingClientRect();
+            
+            // Set the treemap's width and height based on the calculated values above
             var myTreemap = treemap()
-                .width(width)
-                .height(height);
+                .width(selectionBox.width)
+                .height(selectionBox.height);
 
-            // Extract the right data from the Treemap
+            // Extract the right Event Frames data for the Treemap
             //
-            // d3 requires hierarchical data. From the documentation:
+            // d3 requires hierarchical data for a treemap, this means that the data should be organized in a 
+            // tree-like structure with nodes that may have children. From the documentation:
             //
-            //  Before you can compute a hierarchical layout, you need a root node. If your data
-            //  is already in a hierarchical format, such as JSON, you can pass it directly to
-            //  d3.hierarchy; otherwise, you can rearrange tabular data, such as comma-separated
-            //  values (CSV), into a hierarchy using d3.stratify.
+            //   Before you can compute a hierarchical layout, you need a root node. If your data
+            //   is already in a hierarchical format, such as JSON, you can pass it directly to
+            //   d3.hierarchy; otherwise, you can rearrange tabular data, such as comma-separated
+            //   values (CSV), into a hierarchy using d3.stratify.
             var root = EFsToHierarchy();
-            var selection = d3.select($treemapElement.get(0));
-
-            // Draw the treemap
-            selection
+            
+            // Draw the treemap within the selected element using the data in `root`
+            treemapSelection
                 .datum(root)
                 .call(myTreemap);
         }

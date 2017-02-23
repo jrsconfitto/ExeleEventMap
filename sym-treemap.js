@@ -26,7 +26,7 @@
             }
 
             // Update treemap, providing URL, elementPath, start and end times
-            eventsModule.Update(apiUrl, dataPath, timeProvider.displayTime.start, timeProvider.displayTime.end)
+            eventsModule.Update(apiUrl, dataPath, this.elem, timeProvider.displayTime.start, timeProvider.displayTime.end)
 
         }
         // sample event from trend 

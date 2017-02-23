@@ -1,5 +1,4 @@
-﻿
-function updateTreemap() {
+﻿function updateTreemap() {
 
     // Get parameters from fields on page
     var apiServer = document.getElementById("tUrl").value;
@@ -8,7 +7,7 @@ function updateTreemap() {
     var tEnd = document.getElementById("tEnd").value;
 
     // Update treemap using selected parameters
-    eventsModule.Update(apiServer, elementPath, tStart, tEnd);
+    eventsModule.Update(apiServer, elementPath, $('.exele-treemap-symbol'), tStart, tEnd);
 
 }
 
