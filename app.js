@@ -337,9 +337,9 @@ var eventsModule = function (flinks) {
             });
         },
         // Builds a treemap under the passed element
-        BuildTreemap: ($treemapElement) => {
-            var width = +$treemapElement.width(),
-                height = +$treemapElement.height();
+        BuildTreemap: ($symbolElement) => {
+            var width = +$symbolElement.width(),
+                height = +$symbolElement.height();
 
             var myTreemap = treemap()
                 .width(width)
@@ -356,8 +356,8 @@ var eventsModule = function (flinks) {
             var root = EFsToHierarchy();
             
             // Find the svg that will contain our treemap by looking for an 'svg' element within the passed
-            // symbol element.
-            var treemapSelection = d3.select($treemapElement.get(0)).select('svg');
+            // symbol element. Chain select statements to select the svg within the original symbol element.
+            var treemapSelection = d3.select($symbolElement.get(0)).select('svg');
 
             // Draw the treemap
             treemapSelection
