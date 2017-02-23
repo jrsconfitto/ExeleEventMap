@@ -147,7 +147,8 @@ var eventsModule = function (flinks) {
         // gets all of the EF within the provided start and endtimes given the webID of an element.  Then extracts the frames
         makeDataCall(url, 'get').then(results => {
             ExtractEF(results, this.symbolElement, successPromise);
-        }).catch(error=>failPromise(error));
+        })
+            //.catch(error=>failPromise(error));
     }
 
     //given webAPI results, extract the results, create EFs, and put them into efDataHolder;
@@ -199,7 +200,7 @@ var eventsModule = function (flinks) {
                 }
                 GetAttributesValues(apiServer, "Net Wet Weight (Mine)", templateName);
             })
-        .catch(error=>console.log(error));
+        //.catch(error=>console.log(error));
     }
     //get a singleEf 
     function GetSingleEFAttributes(apiServer, id) {
@@ -220,7 +221,7 @@ var eventsModule = function (flinks) {
             console.log(attributes);
 
         })
-        .catch(error=>console.log(error));
+       // .catch(error=>console.log(error));
 
     }
 
@@ -243,7 +244,7 @@ var eventsModule = function (flinks) {
         });
         makeDataCall(apiServer + "batch", "POST", JSON.stringify(bulkQuery), null, null)
         .then(results=>ProcessAttributeResults(results, templateName, attributeName))
-        .catch(error=> console.log(error));
+        //.catch(error=> console.log(error));
     }
 
     // takes batch call results, and adds values to the correct EF
@@ -332,9 +333,10 @@ var eventsModule = function (flinks) {
                 console.log(myel.name);
                 console.log(this.symbolElement);
                 GetEventFramesByElementID(myel.framesLink, this.symbolElement, startTime, endTime, null, null);
-            }).catch(error=> {
+            })
+               /*.catch(error=> {
                 console.log(error)
-            });
+            }); */
         },
         // Builds a treemap under the passed element
         BuildTreemap: ($symbolElement) => {
