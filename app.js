@@ -363,7 +363,7 @@ var eventsModule = function (flinks) {
 
 // creates an internal element object that the module uses
 $('#elementPath').click(function () {
-    eventsModule.Update(_WebAPIServer, elementPath);
+    eventsModule.Update(_WebAPIServer, elementPath, "*-1mo", "*");
 });
 
 
