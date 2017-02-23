@@ -47,7 +47,7 @@
     // This function returns selection of Event Frame templates available
     // This can be used to populate a selection menu to drill down
     function templates(){
-        return ["tv1", "tv2", "tv7"];
+        return eventsModule.GetEFTemplates();
     }
 
     // Create symbol definition object
@@ -66,7 +66,7 @@
             };
         },
         configTitle: 'Format Symbol',
-        Templates: templates(),
+        Templates: templates,
     };
     PV.symbolCatalog.register(def);
     

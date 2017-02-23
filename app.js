@@ -139,6 +139,17 @@ var eventsModule = function (flinks) {
         this.framesLink = framesLink;
     }
 
+    function GetTemplates()
+    {
+        let templates=[];
+            for(let template in efDataHolder)
+            {
+            templates.push[template]
+        }
+        return name;
+
+    }
+
     // given webID of element, retrieve EF on it within the ST and ET
     function GetEventFramesByElementID(elementIDbase, symbolElement, startTime, endtime, successPromise, failPromise) {
         url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
@@ -333,6 +344,10 @@ var eventsModule = function (flinks) {
             }).catch(error=> {
                 console.log(error)
             });
+        },
+        GetEFTemplates: ()=>
+        {
+          return  GetTemplates();
         },
         // Builds a treemap under the passed element
         BuildTreemap: ($symbolElement) => {
