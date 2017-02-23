@@ -60,11 +60,11 @@
                 DataShape: 'Value',
                 Height: 300,
                 Width: 600, 
-                attributeSelected: "none"                           
+                TemplateSelected: "none"                           
             };
         },
         configTitle: 'Format Symbol',
-        primaryAttributeTemplates: templates(),
+        Templates: templates(),
       
 
     };
