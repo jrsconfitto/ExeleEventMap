@@ -140,16 +140,18 @@ var eventsModule = function (flinks) {
     }
 
     // given webID of element, retrieve EF on it within the ST and ET
-    function GetEventFramesByElementID(elementIDbase, startTime, endtime, successPromise, failPromise) {
+    function GetEventFramesByElementID(elementIDbase, symbolElement, startTime, endtime, successPromise, failPromise) {
         url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
+        this.symbolElement = symbolElement;
+        
         // gets all of the EF within the provided start and endtimes given the webID of an element.  Then extracts the frames
         makeDataCall(url, 'get').then(results => {
-            ExtractEF(results, successPromise);
+            ExtractEF(results, this.symbolElement, successPromise);
         }).catch(error=>failPromise(error));
     }
 
     //given webAPI results, extract the results, create EFs, and put them into efDataHolder;
-    function ExtractEF(results, successPromise) {
+    function ExtractEF(results, symbolElement, successPromise) {
         items = results.Items;
         //clear the cache of events
         efDataHolder = {};
@@ -172,8 +174,7 @@ var eventsModule = function (flinks) {
             });
         }
         //reference the treeview and build it here
-        var $treemapEl = $('svg#treemap');
-        eventsModule.BuildTreemap($treemapEl);
+        eventsModule.BuildTreemap(symbolElement);
     }
 
     // give a templateName, obtains the attributes.
@@ -330,7 +331,7 @@ var eventsModule = function (flinks) {
                 myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
                 console.log(myel.name);
                 console.log(this.symbolElement);
-                GetEventFramesByElementID(myel.framesLink, startTime, endTime, null, null);
+                GetEventFramesByElementID(myel.framesLink, this.symbolElement, startTime, endTime, null, null);
             }).catch(error=> {
                 console.log(error)
             });
@@ -353,7 +354,8 @@ var eventsModule = function (flinks) {
             //  d3.hierarchy; otherwise, you can rearrange tabular data, such as comma-separated
             //  values (CSV), into a hierarchy using d3.stratify.
             var root = EFsToHierarchy();
-            var selection = d3.select($treemapElement.get(0));
+            
+            var selection = d3.select('svg', $treemapElement.get(0));
 
             // Draw the treemap
             selection
