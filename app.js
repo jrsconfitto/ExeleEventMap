@@ -338,28 +338,30 @@ var eventsModule = function (flinks) {
         },
         // Builds a treemap under the passed element
         BuildTreemap: ($symbolElement) => {
-            var width = +$symbolElement.width(),
-                height = +$symbolElement.height();
-
-            var myTreemap = treemap()
-                .width(width)
-                .height(height);
-
-            // Extract the right data from the Treemap
-            //
-            // d3 requires hierarchical data. From the documentation:
-            //
-            //  Before you can compute a hierarchical layout, you need a root node. If your data
-            //  is already in a hierarchical format, such as JSON, you can pass it directly to
-            //  d3.hierarchy; otherwise, you can rearrange tabular data, such as comma-separated
-            //  values (CSV), into a hierarchy using d3.stratify.
-            var root = EFsToHierarchy();
-            
             // Find the svg that will contain our treemap by looking for an 'svg' element within the passed
             // symbol element. Chain select statements to select the svg within the original symbol element.
             var treemapSelection = d3.select($symbolElement.get(0)).select('svg');
+            
+            // Calculate the width and height from the treemap element's node
+            var selectionBox = treemapSelection.node().getBoundingClientRect();
+            
+            // Set the treemap's width and height based on the calculated values above
+            var myTreemap = treemap()
+                .width(selectionBox.width)
+                .height(selectionBox.height);
 
-            // Draw the treemap
+            // Extract the right Event Frames data for the Treemap
+            //
+            // d3 requires hierarchical data for a treemap, this means that the data should be organized in a 
+            // tree-like structure with nodes that may have children. From the documentation:
+            //
+            //   Before you can compute a hierarchical layout, you need a root node. If your data
+            //   is already in a hierarchical format, such as JSON, you can pass it directly to
+            //   d3.hierarchy; otherwise, you can rearrange tabular data, such as comma-separated
+            //   values (CSV), into a hierarchy using d3.stratify.
+            var root = EFsToHierarchy();
+            
+            // Draw the treemap within the selected element using the data in `root`
             treemapSelection
                 .datum(root)
                 .call(myTreemap);
