@@ -1,10 +1,28 @@
 ﻿
-var apiServer = "https://dan-af-dev/piwebapi";
-var elementPath = '\\\\DAN-AF-DEV\\Mineral Processing\\Toll Ore Delivery\\T-101';
-var tStart = "*-1mo";
-var tEnd = "*";
+function updateTreemap() {
 
-// creates an internal element object that the module uses
-$('#btnUpdate').click(function () {
+    // Get parameters from fields on page
+    var apiServer = document.getElementById("tUrl").value;
+    var elementPath = document.getElementById("tElem").value;
+    var tStart = document.getElementById("tStart").value;
+    var tEnd = document.getElementById("tEnd").value;
+
+    // Update treemap using selected parameters
     eventsModule.Update(apiServer, elementPath, tStart, tEnd);
-});
+
+}
+
+function startDev() {
+ 
+    // Update treemap once when page loads
+    updateTreemap();
+
+    // Update treemap every 5 seconds (mimic PI Vision behavior)
+    setInterval(function () {
+        updateTreemap();
+    }, 5000);
+
+}
+
+// Start development when page is loaded
+window.onload = startDev;
