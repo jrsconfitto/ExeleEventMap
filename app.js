@@ -64,8 +64,13 @@ var eventsModule = function () {
                     .on('click', function (d) {
                         //the webID is the unique identifier for each Event Frames.
                         let efID = d.data.ef.webId;
-                        console.log("You clicked on ef with ID", efID);
-                        GetSingleEFAttributes(efID);
+//                         console.log("You clicked on ef with ID", efID);
+//                         GetSingleEFAttributes(efID);
+                        
+                        // Fire a jQuery event notifying that an EF in the treemap was clicked
+                        $(this).trigger('efClick', {
+                            ef: d.data.ef
+                        });
                     });
 
                 cell.append("rect")
@@ -91,7 +96,7 @@ var eventsModule = function () {
 
                 cell.append("title")
                     .text(function (d) {
-                        return d.data.name + "\n" + format(d.value) + ' duration (mins)' + '\n' + 'Start: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
+                        return d.data.name + '\nDuration: ' + format(d.value) + ' minutes' + '\nStart: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
                     });
 
                 d3.selectAll('input[type="radio"]')
