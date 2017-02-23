@@ -329,8 +329,6 @@ var eventsModule = function (flinks) {
         
             makeDataCall(url, 'get').then(results => {
                 myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
-                console.log(myel.name);
-                console.log(this.symbolElement);
                 GetEventFramesByElementID(myel.framesLink, this.symbolElement, startTime, endTime, null, null);
             }).catch(error=> {
                 console.log(error)
