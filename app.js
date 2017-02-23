@@ -355,7 +355,9 @@ var eventsModule = function (flinks) {
             //  values (CSV), into a hierarchy using d3.stratify.
             var root = EFsToHierarchy();
             
-            var selection = d3.select('svg', $treemapElement.get(0));
+            // Find the svg that will contain our treemap by looking for an 'svg' element within the passed
+            // symbol element.
+            var treemapSelection = d3.select('svg', $treemapElement.get(0));
 
             // Draw the treemap
             selection
