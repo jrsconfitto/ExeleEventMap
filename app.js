@@ -1,12 +1,3 @@
-//need to get unique templates, need to get attributes of template, need to calculate duration
-
-//next need to return the templates, return two attributes and more
-
-var _WebAPIServer = "https://dan-af-dev/piwebapi";
-var afServer = "dan-af-dev"
-var afDatabase = "Mineral Processing";
-var databaseRootURLComplete;
-var elementPath = '\\\\DAN-AF-DEV\\Mineral Processing\\Toll Ore Delivery\\T-101'
 
 var eventsModule = function (flinks) {
     let templates = [];
@@ -185,8 +176,8 @@ var eventsModule = function (flinks) {
         eventsModule.BuildTreemap($treemapEl);
     }
 
-    // give a templateName, obtains the attribute templates
-    function GetTemplateAttributes(templateName) {
+    // give a templateName, obtains the attributes.
+    function GetTemplateAttributes(apiServer, templateName) {
         if (efDataHolder[templateName] === undefined) {
             alert("template not found");
             return;
@@ -205,15 +196,15 @@ var eventsModule = function (flinks) {
                         // console.log(attriubte);
                     })
                 }
-                GetAttributesValues("Net Wet Weight (Mine)", templateName);
+                GetAttributesValues(apiServer, "Net Wet Weight (Mine)", templateName);
             })
         .catch(error=>console.log(error));
     }
-    // given the webID of an EF, obtain the attribute values
-    function GetSingleEFAttributes(id) {
-        // use stream set for this
-        let efURL = _WebAPIServer + "streamsets/" + id + "/value";
-    
+    //get a singleEf 
+    function GetSingleEFAttributes(apiServer, id) {
+
+        let efURL = apiServer + "streamsets/" + id + "/value";
+
         makeDataCall(efURL, "GET", null, null, null)
         .then(results=> {
             let attributes = [];
@@ -232,8 +223,8 @@ var eventsModule = function (flinks) {
 
     }
 
-    // get the attribute values for each EF in the holder given an attributeName and template
-    function GetAttributesValues(attributeName, templateName) {
+    // get the attribute values for each EF given an attributeName and template
+    function GetAttributesValues(apiServer, attributeName, templateName) {
         var templateUsed = efDataHolder[templateName];
         //we can make sure the attribute is found on the template...example check
         // var found = templateUsed.attributesTemplates.find(att=>att.Name.toUpperCase() === attributeName.toUpperCase());
@@ -242,14 +233,14 @@ var eventsModule = function (flinks) {
         var bulkQuery = {};
         templateUsed.frames.forEach(EF => {
             let attributeURL;
-            attributeURL = encodeURI(_WebAPIServer + "streamsets/" + EF.id + "/value?nameFilter=" + attributeName + "&selectedFields=Items.Value.Value");
+
+            attributeURL = encodeURI(apiServer + "streamsets/" + EF.id + "/value?nameFilter=" + attributeName + "&selectedFields=Items.Value.Value");
             bulkQuery[EF.id] = {
                 "Method": "GET",
                 "Resource": attributeURL
             };
         });
-        // execute the bulk query and call ProcessAttributeREsults
-        makeDataCall(_WebAPIServer + "batch", "POST", JSON.stringify(bulkQuery), null, null)
+        makeDataCall(apiServer + "batch", "POST", JSON.stringify(bulkQuery), null, null)
         .then(results=>ProcessAttributeResults(results, templateName, attributeName))
         .catch(error=> console.log(error));
     }
@@ -328,7 +319,7 @@ var eventsModule = function (flinks) {
             GetEventFramesByElementID(myel.framesLink, '*-7d', '*', successPromise, errorPromise);
         },
         // gets all of the EF attributes givena  template, need to extended to use attribute name
-        GetEFAttributesValuesFromTemplate: (templateName) =>GetTemplateAttributes(templateName),
+        GetEFAttributesValuesFromTemplate: (apiServer, templateName) =>GetTemplateAttributes(apiServer, templateName),
         // Creates an element object provided a path
         Update: (APIServer, elementPath, startTime, endTime) => {
             //let elementPath = '\\\\PISRV01\\Mineral Processing\\Toll Ore Delivery\\T-101'
@@ -368,17 +359,6 @@ var eventsModule = function (flinks) {
         }
     }
 }();
-
-// creates an internal element object that the module uses
-$('#elementPath').click(function () {
-    eventsModule.Update(_WebAPIServer, elementPath);
-});
-
-
-$('#buildTreemap').click(() => {
-    var $treemapEl = $('svg#treemap');
-    eventsModule.BuildTreemap($treemapEl);
-});
 
 var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
     return $.ajax({
