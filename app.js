@@ -357,7 +357,7 @@ var eventsModule = function (flinks) {
             
             // Find the svg that will contain our treemap by looking for an 'svg' element within the passed
             // symbol element.
-            var treemapSelection = d3.select('svg', $treemapElement.get(0));
+            var treemapSelection = d3.select($treemapElement.get(0)).select('svg');
 
             // Draw the treemap
             treemapSelection
