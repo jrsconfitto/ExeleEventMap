@@ -90,7 +90,7 @@ var eventsModule = function (flinks) {
 
                 cell.append("title")
                     .text(function (d) {
-                        return d.data.name + "\n" + format(d.value) + ' duration (mins)' + '\n' + 'Start: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
+                        return d.data.name + '\nDuration: ' + format(d.value) + ' minutes' + '\nStart: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
                     });
 
                 d3.selectAll('input[type="radio"]')
