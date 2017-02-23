@@ -9,8 +9,7 @@
     symbolVis.prototype.init = function (scope, element, timeProvider) {
         this.onDataUpdate = dataUpdate;
         this.onConfigChange = configChanged;
-        this.onResize = resize;
-     
+        this.onResize = resize;      
 
         function dataUpdate(data) {
 
@@ -43,6 +42,11 @@
         }
 
     };
+    function templates(){
+
+        return ["tv1", "tv2", "tv7"];
+    }
+
 
     // Create symbol definition object
     var def = {
@@ -55,10 +59,14 @@
             return {
                 DataShape: 'Value',
                 Height: 300,
-                Width: 600
+                Width: 600, 
+                attributeSelected: "none"                           
             };
         },
-        configTitle: 'Format Symbol'
+        configTitle: 'Format Symbol',
+        primaryAttributeTemplates: templates(),
+      
+
     };
     PV.symbolCatalog.register(def);
     
