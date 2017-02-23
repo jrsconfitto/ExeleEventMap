@@ -1,9 +1,10 @@
 
-var eventsModule = function (flinks) {
+var eventsModule = function () {
     let templates = [];
     let efDataHolder = {};
     let myel = {};
-
+    let symbolElement = {};
+    let webAPIServerURL= "";
     // Modeled after the example given in Mike Bostock's fantastic "Towards Reusable Charts": https://bost.ocks.org/mike/chart/
     //
     // This pattern allows us to create (lots of) treemaps easily and update their data (and other attributes) by calling this function with new data (or new chart attributes).
@@ -122,7 +123,6 @@ var eventsModule = function (flinks) {
         if (endTime === "9999-12-31T23:59:59Z") {
             this.EndTime = new Date()          
             this.InProcess = true;
-
         } else {
             this.EndTime = new Date(endTime);
             this.InProcess = false;
@@ -140,7 +140,7 @@ var eventsModule = function (flinks) {
     }
 
     // given webID of element, retrieve EF on it within the ST and ET
-    function GetEventFramesByElementID(elementIDbase, symbolElement, startTime, endtime, successPromise, failPromise) {
+    function GetEventFramesByElementID(elementIDbase, startTime, endtime, successPromise, failPromise) {
         url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
         this.symbolElement = symbolElement;
         
@@ -152,7 +152,7 @@ var eventsModule = function (flinks) {
     }
 
     //given webAPI results, extract the results, create EFs, and put them into efDataHolder;
-    function ExtractEF(results, symbolElement, successPromise) {
+    function ExtractEF(results, successPromise) {
         items = results.Items;
         //clear the cache of events
         efDataHolder = {};
@@ -179,7 +179,7 @@ var eventsModule = function (flinks) {
     }
 
     // give a templateName, obtains the attributes.
-    function GetTemplateAttributes(apiServer, templateName) {
+    function GetTemplateAttributes(templateName) {
         if (efDataHolder[templateName] === undefined) {
             alert("template not found");
             return;
@@ -203,9 +203,8 @@ var eventsModule = function (flinks) {
         //.catch(error=>console.log(error));
     }
     //get a singleEf 
-    function GetSingleEFAttributes(apiServer, id) {
-
-        let efURL = apiServer + "streamsets/" + id + "/value";
+    function GetSingleEFAttributes(id) {
+        let efURL = webAPIServerURL + "/streamsets/" + id + "/value";
 
         makeDataCall(efURL, "GET", null, null, null)
         .then(results=> {
@@ -219,14 +218,12 @@ var eventsModule = function (flinks) {
             });
             // probably should return the attribute array here
             console.log(attributes);
-
         })
        // .catch(error=>console.log(error));
-
     }
 
     // get the attribute values for each EF given an attributeName and template
-    function GetAttributesValues(apiServer, attributeName, templateName) {
+    function GetAttributesValues(attributeName, templateName) {
         var templateUsed = efDataHolder[templateName];
         //we can make sure the attribute is found on the template...example check
         // var found = templateUsed.attributesTemplates.find(att=>att.Name.toUpperCase() === attributeName.toUpperCase());
@@ -236,13 +233,13 @@ var eventsModule = function (flinks) {
         templateUsed.frames.forEach(EF => {
             let attributeURL;
 
-            attributeURL = encodeURI(apiServer + "streamsets/" + EF.id + "/value?nameFilter=" + attributeName + "&selectedFields=Items.Value.Value");
+            attributeURL = encodeURI(webAPIServerURL + "/streamsets/" + EF.id + "/value?nameFilter=" + attributeName + "&selectedFields=Items.Value.Value");
             bulkQuery[EF.id] = {
                 "Method": "GET",
                 "Resource": attributeURL
             };
         });
-        makeDataCall(apiServer + "batch", "POST", JSON.stringify(bulkQuery), null, null)
+        makeDataCall(webAPIServerURL + "batch", "POST", JSON.stringify(bulkQuery), null, null)
         .then(results=>ProcessAttributeResults(results, templateName, attributeName))
         //.catch(error=> console.log(error));
     }
@@ -315,6 +312,15 @@ var eventsModule = function (flinks) {
         return 1;
     }
 
+    // sets the treesmobl
+    function SetSymbol(treeSymbolElement)
+    {
+        symbolElement = treeSymbolElement;
+    }
+    // sets the WebAPI server
+    function SetWebAPIURL(url) {
+        webAPIServerURL = url;
+    }
     return {
         // gets all of the EF for a given element provided an element link and timerange
         GetEFByElement: (successPromise, errorPromise) => {
@@ -323,16 +329,18 @@ var eventsModule = function (flinks) {
         // gets all of the EF attributes givena  template, need to extended to use attribute name
         GetEFAttributesValuesFromTemplate: (apiServer, templateName) =>GetTemplateAttributes(apiServer, templateName),
         // Creates an element object provided a path
-        Update: (APIServer, elementPath, symbolElement, startTime, endTime) => {
-            //let elementPath = '\\\\PISRV01\\Mineral Processing\\Toll Ore Delivery\\T-101'
+        Update: (APIServer, elementPath, symbolElement, startTime, endTime) => {          
+             // store the symbol and the apiserver as private variables in the module, we should initiallize first.
+            SetSymbol(symbolElement);
+            SetWebAPIURL(APIServer);
+
             let url = APIServer + '//' + "elements?path=" + elementPath;
-            this.symbolElement = symbolElement;
-        
+               
             makeDataCall(url, 'get').then(results => {
                 myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
                 console.log(myel.name);
                 console.log(this.symbolElement);
-                GetEventFramesByElementID(myel.framesLink, this.symbolElement, startTime, endTime, null, null);
+                GetEventFramesByElementID(myel.framesLink, startTime, endTime, null, null);
             })
                /*.catch(error=> {
                 console.log(error)
