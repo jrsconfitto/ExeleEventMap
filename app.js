@@ -330,12 +330,15 @@ var eventsModule = function (flinks) {
         // gets all of the EF attributes givena  template, need to extended to use attribute name
         GetEFAttributesValuesFromTemplate: (templateName) =>GetTemplateAttributes(templateName),
         // Creates an element object provided a path
-        Update: (APIServer, elementPath, startTime, endTime) => {
+        Update: (APIServer, elementPath, symbolElement, startTime, endTime) => {
             //let elementPath = '\\\\PISRV01\\Mineral Processing\\Toll Ore Delivery\\T-101'
             let url = APIServer + '//' + "elements?path=" + elementPath;
+            this.symbolElement = symbolElement;
+        
             makeDataCall(url, 'get').then(results => {
                 myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
                 console.log(myel.name);
+                console.log(this.symbolElement);
                 GetEventFramesByElementID(myel.framesLink, startTime, endTime, null, null);
             }).catch(error=> {
                 console.log(error)
