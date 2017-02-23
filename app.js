@@ -122,14 +122,14 @@ var eventsModule = function (flinks) {
         // Return a treemap function that someone can call to add data to
         return treemap;
     }
-
+    // creates an eventframe object that is used by the holder
     function myEventFrame(name, TemplateName, startTime, endTime, templatelink, webId) {
         this.name = name;
         this.templateName = TemplateName;
         this.StartTime = new Date(startTime);
+        // checks if the EF is still open, and if so, set the endtime to *, and inprocess to true
         if (endTime === "9999-12-31T23:59:59Z") {
-            this.EndTime = new Date()
-            //.toISOString();
+            this.EndTime = new Date()          
             this.InProcess = true;
 
         } else {
@@ -140,6 +140,7 @@ var eventsModule = function (flinks) {
         this.webId = webId;
     }
 
+    // holds an AF element
     function myElement(name, Path, webID, framesLink) {
         this.name = name;
         this.path = Path;
@@ -147,9 +148,10 @@ var eventsModule = function (flinks) {
         this.framesLink = framesLink;
     }
 
-    //given webID of element, retrieve EF on it within the ST and ET
+    // given webID of element, retrieve EF on it within the ST and ET
     function GetEventFramesByElementID(elementIDbase, startTime, endtime, successPromise, failPromise) {
         url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
+        // gets all of the EF within the provided start and endtimes given the webID of an element.  Then extracts the frames
         makeDataCall(url, 'get').then(results => {
             ExtractEF(results, successPromise);
         }).catch(error=>failPromise(error));
@@ -162,14 +164,17 @@ var eventsModule = function (flinks) {
         efDataHolder = {};
         for (let item in items) {
             let apiFrameResult = items[item];
+            // create a simple EF object
             let EF = new myEventFrame(apiFrameResult.Name, apiFrameResult.TemplateName, apiFrameResult.StartTime, apiFrameResult.EndTime,
                 apiFrameResult.Links.Template, apiFrameResult.WebId);
+            // if the EF template is not a property of the object, add it
             if (efDataHolder[EF.templateName] === undefined) {
                 efDataHolder[EF.templateName] = {
                     "Links": apiFrameResult.Links.Template,
                     "frames": []
                 }
             }
+            // for all EF, add an arry of the EF with properties of id and the actual EF object
             efDataHolder[EF.templateName].frames.push({
                 id: EF.webId,
                 ef: EF
@@ -180,7 +185,7 @@ var eventsModule = function (flinks) {
         eventsModule.BuildTreemap($treemapEl);
     }
 
-    // give a templateName, obtains the attributes.
+    // give a templateName, obtains the attribute templates
     function GetTemplateAttributes(templateName) {
         if (efDataHolder[templateName] === undefined) {
             alert("template not found");
@@ -190,6 +195,7 @@ var eventsModule = function (flinks) {
         //adds the attributeTemplates items to the template
         var tempURL = efDataHolder[templateName].Links;
         makeDataCall(tempURL, 'get').then(results =>
+        // get the attribute templates and add them to the template
             makeDataCall(results.Links.AttributeTemplates)).then(attTemplate=> {
                 let attributes = attTemplate.Items;
                 if (efDataHolder[templateName].attributesTemplates === undefined) {
@@ -203,20 +209,22 @@ var eventsModule = function (flinks) {
             })
         .catch(error=>console.log(error));
     }
-    //get a singleEf 
+    // given the webID of an EF, obtain the attribute values
     function GetSingleEFAttributes(id) {
-
+        // use stream set for this
         let efURL = _WebAPIServer + "streamsets/" + id + "/value";
-
+    
         makeDataCall(efURL, "GET", null, null, null)
         .then(results=> {
             let attributes = [];
+            // add to the attributes array an object with the attribute name, and value.
             results.Items.forEach(attribute=> {
                 attributes.push({
                     Name: attribute.Name,
                     Value: attribute.Value.Value,
                 });
             });
+            // probably should return the attribute array here
             console.log(attributes);
 
         })
@@ -224,22 +232,23 @@ var eventsModule = function (flinks) {
 
     }
 
-    // get the attribute values for each EF given an attributeName and template
+    // get the attribute values for each EF in the holder given an attributeName and template
     function GetAttributesValues(attributeName, templateName) {
         var templateUsed = efDataHolder[templateName];
         //we can make sure the attribute is found on the template...example check
         // var found = templateUsed.attributesTemplates.find(att=>att.Name.toUpperCase() === attributeName.toUpperCase());
 
+        // build up a bulk query that requires the ef webID and the attribute ID
         var bulkQuery = {};
         templateUsed.frames.forEach(EF => {
             let attributeURL;
-
             attributeURL = encodeURI(_WebAPIServer + "streamsets/" + EF.id + "/value?nameFilter=" + attributeName + "&selectedFields=Items.Value.Value");
             bulkQuery[EF.id] = {
                 "Method": "GET",
                 "Resource": attributeURL
             };
         });
+        // execute the bulk query and call ProcessAttributeREsults
         makeDataCall(_WebAPIServer + "batch", "POST", JSON.stringify(bulkQuery), null, null)
         .then(results=>ProcessAttributeResults(results, templateName, attributeName))
         .catch(error=> console.log(error));
@@ -250,16 +259,14 @@ var eventsModule = function (flinks) {
         for (let result in results) {
             if (results[result].Status == 200) {
                 // const attribute = new Set([{ attributeName: results[result].Content.Items[0].Value.Value }]);
+                
                 const attributeMap = new Map();
+                // add attribute values to the map.  
                 attributeMap.set(attributeName, results[result].Content.Items[0].Value.Value);
+                // find the correct EF, and add the attribute value to it
                 efDataHolder[templateName].frames.find(ef=>ef.id === result).attributeValuesMap = attributeMap;
             }
-        }
-        let sumOfAttributeValues = efDataHolder[templateName].frames.reduce(function (aggregate, frame) {
-            return aggregate + frame.attributeValuesMap.get(attributeName);
-        }, 0);
-        console.log(`The sum of the attributes for ${attributeName} is ${sumOfAttributeValues}`);
-
+        }     
     }
 
     // This converts EFs in `efDataHolder` to hierarchical data useful for treemaps
