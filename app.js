@@ -61,7 +61,8 @@ var eventsModule = function (flinks) {
                 treemap(data);
 
                 var svg = d3.select(this);
-
+                // this code selects all of the d3 elements and removes everything.  Ideally, we use enter(), update() and exit()
+                svg.selectAll("*").remove();
                 var cell = svg.selectAll("g")
                   .data(data.leaves())
                   .enter().append("g")
