@@ -1,10 +1,22 @@
 ﻿
-var apiServer = "https://dan-af-dev/piwebapi";
-var elementPath = '\\\\DAN-AF-DEV\\Mineral Processing\\Toll Ore Delivery\\T-101';
-var tStart = "*-1mo";
-var tEnd = "*";
+function updateTreemap() {
 
-// creates an internal element object that the module uses
-$('#btnUpdate').click(function () {
+    var apiServer = document.getElementById("tUrl").value;
+    var elementPath = document.getElementById("tElem").value;
+    var tStart = document.getElementById("tStart").value;
+    var tEnd = document.getElementById("tEnd").value;
+
     eventsModule.Update(apiServer, elementPath, tStart, tEnd);
-});
+}
+
+function startDev() {
+ 
+    updateTreemap();
+
+    setInterval(function () {
+        updateTreemap();
+    }, 5000);
+
+}
+
+window.onload = startDev;
