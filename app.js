@@ -360,7 +360,7 @@ var eventsModule = function (flinks) {
             var treemapSelection = d3.select('svg', $treemapElement.get(0));
 
             // Draw the treemap
-            selection
+            treemapSelection
                 .datum(root)
                 .call(myTreemap);
         }
