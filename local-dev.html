@@ -5,6 +5,8 @@
     <link rel="stylesheet" type="text/css" href="treemap.css">
     <title>EF page</title>
     <meta charset="utf-8" />
+    <script src="local-dev.js"></script>
+    <script src="app.js"></script>
     <style>
         svg {
             font: 10px sans-serif;
@@ -25,7 +27,9 @@
         <svg id="treemap" width="960" height="570"></svg>
     </div>
 
-    <script src="local-dev.js"></script>
-    <script src="app.js"></script>
+    <link rel="import"
+          href="/sym-treemap-template.html"
+          onload="handleLoad(event)"
+          onerror="handleError(event)">
 </body>
 </html>
