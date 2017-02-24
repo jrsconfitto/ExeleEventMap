@@ -1,13 +1,18 @@
 
 var eventsModule = function () {
+    //****Private variables
     let templates = [];
     let efDataHolder = {};
     let myel = {};
     let symbolElement = {};
-    let webAPIServerURL= "";
+    let webAPIServerURL = "";
+
+    //**********Private Methods***********
+
     // Modeled after the example given in Mike Bostock's fantastic "Towards Reusable Charts": https://bost.ocks.org/mike/chart/
     //
     // This pattern allows us to create (lots of) treemaps easily and update their data (and other attributes) by calling this function with new data (or new chart attributes).
+    
     function treemap() {
         var width = 960,
             height = 570;
@@ -158,20 +163,33 @@ var eventsModule = function () {
         this.framesLink = framesLink;
     }
 
-    // given webID of element, retrieve EF on it within the ST and ET
-    function GetEventFramesByElementID(elementIDbase, startTime, endtime, successPromise, failPromise) {
-        url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
-        this.symbolElement = symbolElement;
+    // main fnction that builds up the EF data
+    // gets the element, gets the EF on the elemen
+    function GetEFData(elementPath, startTime, endTime) {
+        // First make a call to get the element using PI Web API
+        let url = webAPIServerURL + '//' + "elements?path=" + elementPath;
+        makeDataCall(url, 'get', null, PathResults, error);
 
-        // gets all of the EF within the provided start and endtimes given the webID of an element.  Then extracts the frames
-        makeDataCall(url, 'get').then(results => {
-            ExtractEF(results, this.symbolElement, successPromise);
-        })
-            //.catch(error=>failPromise(error));
+        // get the results, create a mock element, and call function to get the EF
+        function PathResults(results) {
+            myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);           
+            GETEFByElemntID(myel.framesLink, startTime, endTime, ExtractEF);
+        }
+         // get the resulting EF within the time range, and calls ExtractEF when completed
+        function GETEFByElemntID(elementIDbase, startTime, endtime, sucessCallBack) {
+            url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
+            this.symbolElement = symbolElement;
+            makeDataCall(url, 'get', null, sucessCallBack, error);
+        }
+        function error(result) {
+            console.log(error);
+        }
+
     }
 
+
     //given webAPI results, extract the results, create EFs, and put them into efDataHolder;
-    function ExtractEF(results, successPromise) {
+    function ExtractEF(results) {
         items = results.Items;
         //clear the cache of events
         efDataHolder = {};
@@ -196,6 +214,8 @@ var eventsModule = function () {
         //reference the treeview and build it here
         eventsModule.BuildTreemap(symbolElement);
     }
+
+
 
     // give a templateName, obtains the attributes.
     function GetTemplateAttributes(templateName) {
@@ -340,11 +360,9 @@ var eventsModule = function () {
     function SetWebAPIURL(url) {
         webAPIServerURL = url;
     }
-    return {
-        // gets all of the EF for a given element provided an element link and timerange
-        GetEFByElement: (successPromise, errorPromise) => {
-            GetEventFramesByElementID(myel.framesLink, '*-7d', '*', successPromise, errorPromise);
-        },
+    // ----------public methods---------------------------------------------
+    //----------------------------------------------------------------------
+    return {       
         // gets all of the EF attributes givena  template, need to extended to use attribute name
         GetEFAttributesValuesFromTemplate: (apiServer, templateName) =>GetTemplateAttributes(apiServer, templateName),
         // Creates an element object provided a path
@@ -352,18 +370,8 @@ var eventsModule = function () {
              // store the symbol and the apiserver as private variables in the module, we should initiallize first.
             SetSymbol(symbolElement);
             SetWebAPIURL(APIServer);
-
-            let url = APIServer + '//' + "elements?path=" + elementPath;
-               
-            makeDataCall(url, 'get').then(results => {
-                myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
-                console.log(myel.name);
-                console.log(this.symbolElement);
-                GetEventFramesByElementID(myel.framesLink, startTime, endTime, null, null);
-            })
-               /*.catch(error=> {
-                console.log(error)
-            }); */
+            // obtain the EF data
+            GetEFData(elementPath, startTime, endTime);               
         },
         // Builds a treemap under the passed element
         BuildTreemap: () => {
