@@ -317,7 +317,7 @@ var eventsModule = function () {
         return 1;
     }
 
-    // sets the treesmobl
+    // sets the tree symbol
     function SetSymbol(treeSymbolElement)
     {
         symbolElement = treeSymbolElement;
