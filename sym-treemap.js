@@ -12,7 +12,7 @@
         this.onResize = resize;      
         
         scope.obtainTemplates = function(){
-            return eventsModule.GetEFTemplates()} 
+            return eventsModule.GetEFTemplates()}
 
         function dataUpdate(data) {
 
@@ -77,8 +77,8 @@
         },
         configTitle: 'Format Symbol',
         Templates: templates,
-       Attributes: attributes,
-       
+        Attributes: attributes,
+        
     };
     PV.symbolCatalog.register(def);
     
