@@ -1,9 +1,12 @@
-﻿<html>
+<html>
 <head>
     <script src="/libraries/jquery-3.1.1.min.js"></script>
     <script src="/libraries/d3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="treemap.css">
     <title>EF page</title>
     <meta charset="utf-8" />
+    <script src="local-dev.js"></script>
+    <script src="app.js"></script>
     <style>
         svg {
             font: 10px sans-serif;
@@ -14,22 +17,20 @@
     </style>
 </head>
 <body>
+
     <p>
-        <button type="button" id="loadAFconfig">Load af database + server</button>
-        <button type="button" id="elementPath">Load af database + server</button>
-        <button type="button" id="getEFs">get EFs off element</button>
-        <button type="button" id="getTemplateAttributes">get attributes</button>
-        <button type="button" id="buildTreemap">Build treemap</button>
+        StartTime: <input id="tStart" type="text" value="*-1w"><br>
+        EndTime: <input id="tEnd" type="text" value="*"><br>
+        API Server: <input id="tUrl" type="text" value="https://dan-af-dev/piwebapi"><br>
+        Element Path: <input id="tElem" type="text" value="\\DAN-AF-DEV\Mineral Processing\Toll Ore Delivery\T-101"><br>
     </p>
 
-    <form>
-        <label><input type="radio" name="mode" value="sumByDuration" checked>Duration</label>
-        <label><input type="radio" name="mode" value="sumByCount">Count</label>
-    </form>
+    <link rel="import"
+          href="/sym-treemap-template.html"
+          onload="handleLoad(event)"
+          onerror="handleError(event)">
 
-    <!-- THE TREEMAP -->
-    <svg id="treemap" width="960" height="570"></svg>
+    <div id="imported-symbol"></div>
 
-    <script src="app.js"></script>
 </body>
 </html>
