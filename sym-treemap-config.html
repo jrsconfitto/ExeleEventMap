@@ -20,23 +20,15 @@
     <input type="checkbox" ng-model="config.ShowTime">
 </div>
 
-<div class="c-config-content">Select Template2:
-   <select ng-model="config.TemplateSelected">
-        <option  ng-repeat="t in runtimeData.obtainTemplates()" ng-value={{t}}>{{t}}</option>
-   </select>
-  
-</div>
-
-
 <div class="c-config-content">Select Template:
    <select ng-model="config.TemplateSelected">
-        <option ng-repeat="t in def.Templates()" ng-value={{t}}>{{t}}</option>
-   </select>
-  
+        <option  ng-repeat="t in runtimeData.obtainTemplates()" ng-value={{t}}>{{t}}</option>
+   </select>  
 </div>
 <div class="c-config-content">Select Attribute:
    <select ng-model="config.AttributeSelected">
-        <option ng-repeat="a in def.Attributes()" ng-value={{a}}>{{a}}</option>
-   </select>
-  
+        <option ng-repeat="a in runtimeData.obtainAttributes()" ng-value={{a}}>{{a}}</option>
+   </select>  
 </div>
+
+

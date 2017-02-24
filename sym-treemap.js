@@ -10,11 +10,18 @@
         this.onDataUpdate = dataUpdate;
         this.onConfigChange = configChanged;
         this.onResize = resize;      
-        
+        var mytemplate="";
+        // put runtimeData in scope
         var runtimeData = scope.runtimeData;
+        // method use to get the current EF
         runtimeData.obtainTemplates =   function()
         {
             return eventsModule.GetEFTemplates()
+        };
+        // method used to get the current attributes from the template
+        runtimeData.obtainAttributes= function()
+        {
+            return eventsModule.GetEFAttributesFromTemplate(mytemplate);
         };
 
         function dataUpdate(data) {
@@ -30,7 +37,6 @@
             if (attributePipeLocation > -1) {
                 dataPath = dataPath.substr(0, attributePipeLocation)
             }
-
             // Update treemap, providing URL, elementPath, start and end times
             eventsModule.Update(apiUrl, dataPath, this.elem, timeProvider.displayTime.start, timeProvider.displayTime.end)
 
@@ -39,27 +45,21 @@
         timeProvider.onDisplayTimeChanged.subscribe();
 
         function configChanged(newConfig, oldConfig) {
-            // ...
-           newConfig.TemplateSelect;
+            // set the template if the config changes
+            if(oldConfig.TemplateSelected != newConfig.TemplateSelected)
+            {
+                mytemplate=  newConfig.TemplateSelected;
+            }
         }
 
         function resize(width, height) {
             // ...
         }
-
     };
 
 
-    // This function returns selection of Event Frame templates available
-    // This can be used to populate a selection menu to drill down
-    function templates(){
-        return eventsModule.GetEFTemplates();
-    }
-    // this populates the attributes givena template is selected
-    function attributes(){
-       //     return ["attribute1", "attribute2"];
-        return eventsModule.GetEFAttributesFromTemplate(TemplateSelected);
-    }
+  
+  
 
     // Create symbol definition object
     var def = {
@@ -78,9 +78,9 @@
                 Test: ''                        
             };
         },
-        configTitle: 'Format Symbol',
-        Templates: templates,
-        Attributes: attributes,
+        configTitle: 'Format Symbol'
+        //Templates: templates,
+        //Attributes: attributes,
         
     };
     PV.symbolCatalog.register(def);
