@@ -51,11 +51,21 @@ var eventsModule = function (flinks) {
                 // Format the data for use in the treemap
                 treemap(data);
 
-                var svg = d3.select(this);
+                // Select the div tag that will be the parent of our treemap
+                var parentDiv = d3.select(this);
+
                 // this code selects all of the d3 elements and removes everything.  Ideally, we use enter(), update() and exit()
-                svg.selectAll("*").remove();
-                var cell = svg.selectAll("g")
-                  .data(data.leaves())
+                parentDiv.selectAll("*").remove();
+
+                // Since everything under the parent div was removed, add an svg element and set its height and width according
+                // to the settings passed into this chart earlier.
+                var svg = parentDiv.append('svg')
+                    .attr('width', width)
+                    .attr('height', height);
+
+                // This creates a cell ('g' element) for each box (i.e. EventFrame) to be put into the treemap
+                var cell = svg.selectAll('g')
+                    .data(data.leaves())
                   .enter().append("g")
                     .attr("transform", function (d) {
                         return "translate(" + d.x0 + "," + d.y0 + ")";
@@ -63,9 +73,9 @@ var eventsModule = function (flinks) {
                     .on('click', function (d) {
                         //the webID is the unique identifier for each Event Frames.
                         let efID = d.data.ef.webId;
-//                         console.log("You clicked on ef with ID", efID);
-//                         GetSingleEFAttributes(efID);
-                        
+                        //                         console.log("You clicked on ef with ID", efID);
+                        //                         GetSingleEFAttributes(efID);
+
                         // Fire a jQuery event notifying that an EF in the treemap was clicked
                         $(this).trigger('efClick', {
                             ef: d.data.ef
@@ -125,7 +135,7 @@ var eventsModule = function (flinks) {
         this.StartTime = new Date(startTime);
         // checks if the EF is still open, and if so, set the endtime to *, and inprocess to true
         if (endTime === "9999-12-31T23:59:59Z") {
-            this.EndTime = new Date()          
+            this.EndTime = new Date()
             this.InProcess = true;
 
         } else {
@@ -148,7 +158,7 @@ var eventsModule = function (flinks) {
     function GetEventFramesByElementID(elementIDbase, symbolElement, startTime, endtime, successPromise, failPromise) {
         url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
         this.symbolElement = symbolElement;
-        
+
         // gets all of the EF within the provided start and endtimes given the webID of an element.  Then extracts the frames
         makeDataCall(url, 'get').then(results => {
             ExtractEF(results, this.symbolElement, successPromise);
@@ -192,7 +202,7 @@ var eventsModule = function (flinks) {
         //adds the attributeTemplates items to the template
         var tempURL = efDataHolder[templateName].Links;
         makeDataCall(tempURL, 'get').then(results =>
-        // get the attribute templates and add them to the template
+            // get the attribute templates and add them to the template
             makeDataCall(results.Links.AttributeTemplates)).then(attTemplate=> {
                 let attributes = attTemplate.Items;
                 if (efDataHolder[templateName].attributesTemplates === undefined) {
@@ -256,14 +266,14 @@ var eventsModule = function (flinks) {
         for (let result in results) {
             if (results[result].Status == 200) {
                 // const attribute = new Set([{ attributeName: results[result].Content.Items[0].Value.Value }]);
-                
+
                 const attributeMap = new Map();
                 // add attribute values to the map.  
                 attributeMap.set(attributeName, results[result].Content.Items[0].Value.Value);
                 // find the correct EF, and add the attribute value to it
                 efDataHolder[templateName].frames.find(ef=>ef.id === result).attributeValuesMap = attributeMap;
             }
-        }     
+        }
     }
 
     // This converts EFs in `efDataHolder` to hierarchical data useful for treemaps
@@ -331,7 +341,7 @@ var eventsModule = function (flinks) {
             //let elementPath = '\\\\PISRV01\\Mineral Processing\\Toll Ore Delivery\\T-101'
             let url = APIServer + '//' + "elements?path=" + elementPath;
             this.symbolElement = symbolElement;
-        
+
             makeDataCall(url, 'get').then(results => {
                 myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
                 GetEventFramesByElementID(myel.framesLink, this.symbolElement, startTime, endTime, null, null);
@@ -343,15 +353,15 @@ var eventsModule = function (flinks) {
         BuildTreemap: ($symbolElement) => {
             // Find the svg that will contain our treemap by looking for an 'svg' element within the passed
             // symbol element. Chain select statements to select the svg within the original symbol element.
-            var treemapSelection = d3.select($symbolElement.get(0)).select('svg');
-            
-            // Calculate the width and height from the treemap element's node
-            var selectionBox = treemapSelection.node().getBoundingClientRect();
-            
+            var width = $symbolElement.width(),
+                height = $symbolElement.height();
+
+            var treemapSelection = d3.select($symbolElement.get(0));
+
             // Set the treemap's width and height based on the calculated values above
             var myTreemap = treemap()
-                .width(selectionBox.width)
-                .height(selectionBox.height);
+                .width(width)
+                .height(height);
 
             // Extract the right Event Frames data for the Treemap
             //
@@ -363,7 +373,7 @@ var eventsModule = function (flinks) {
             //   d3.hierarchy; otherwise, you can rearrange tabular data, such as comma-separated
             //   values (CSV), into a hierarchy using d3.stratify.
             var root = EFsToHierarchy();
-            
+
             // Draw the treemap within the selected element using the data in `root`
             treemapSelection
                 .datum(root)
