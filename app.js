@@ -138,15 +138,10 @@ var eventsModule = function (flinks) {
         this.webId = webID;
         this.framesLink = framesLink;
     }
-
+    // used to return all of the EF templates used
     function GetTemplates()
     {
-        let templates=[];
-            for(let template in efDataHolder)
-            {
-            templates.push[template]
-        }
-        return name;
+        return Object.keys(efDataHolder);
 
     }
 
