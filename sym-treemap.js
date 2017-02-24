@@ -10,7 +10,7 @@
         this.onDataUpdate = dataUpdate;
         this.onConfigChange = configChanged;
         this.onResize = resize;      
-
+        
         function dataUpdate(data) {
 
             // Set PI web API address
@@ -49,6 +49,11 @@
     function templates(){
         return eventsModule.GetEFTemplates();
     }
+    // this populates the attributes givena template is selected
+    function attributes(){
+            return ["attribute1", "attribute2"];
+       // return eventsModule.GetEFAttributesFromTemplate(TemplateSelected);
+    }
 
     // Create symbol definition object
     var def = {
@@ -62,11 +67,13 @@
                 DataShape: 'Value',
                 Height: 300,
                 Width: 600, 
-                TemplateSelected: "none"                           
+                TemplateSelected: "none" ,
+                AttributeSelected: "none"                          
             };
         },
         configTitle: 'Format Symbol',
         Templates: templates,
+        Attributes: attributes
     };
     PV.symbolCatalog.register(def);
     

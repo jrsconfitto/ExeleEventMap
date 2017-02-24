@@ -138,12 +138,18 @@ var eventsModule = function (flinks) {
         this.webId = webID;
         this.framesLink = framesLink;
     }
-    // used to return all of the EF templates used
+    // used to return all of the EF templates used as array
     function GetTemplates()
     {
         return Object.keys(efDataHolder);
-
     }
+    // use to return the attributes as array given a template
+    function GetEFAttributesFromTemplate(templateName)
+    {
+                return ["a","b","c"];
+    }
+
+
 
     // given webID of element, retrieve EF on it within the ST and ET
     function GetEventFramesByElementID(elementIDbase, symbolElement, startTime, endtime, successPromise, failPromise) {
@@ -340,9 +346,15 @@ var eventsModule = function (flinks) {
                 console.log(error)
             });
         },
+        // get EF templates
         GetEFTemplates: ()=>
         {
           return  GetTemplates();
+        },
+        // get the Attributes provide a tepmlate
+        GetEFAttributesFromTemplate: (templateName)=>{
+            return GetEFAttributesFromTemplate(templateName);
+
         },
         // Builds a treemap under the passed element
         BuildTreemap: ($symbolElement) => {
