@@ -168,21 +168,49 @@ var eventsModule = function () {
         return Object.keys(efDataHolder);
     }
     // use to return the attributes as array given a template
-    function GetEFAttributesFromTemplate(templateName)
+    function GetEFAttributesFromTemplate(templateName){
+
+          return  GetA(templateName, function(b){
+                return b;
+                      });
+    }
+   
+   function GetA(templateName, cb)
     {
-            if (templateName === "test template")
-            {
-                return ["test template attributes"];
+          //  let myPromise = new Promise(sucecss, failed)
 
-            }
-            else if (templateName==="Toll Ore Delivery")
-            {return ["my templates"]
-             }
-             else
-             {
-                 return ["none selected"];
-             }
+             if (efDataHolder[templateName] === undefined) {
+            console.log("template not found");
+            return ["none"];
+        }
+ 
+        function getATTs(results)
+        {
+            makeDataCall(results.Links.AttributeTemplate, 'get', null,getNames);
+        }
+        function getNames(results);
+        {
+            cb(["test-worked!"]);
 
+        }
+         var tempURL = efDataHolder[templateName].Links;
+        makeDataCall(tempURL, 'get',null, getATTs)
+        
+        //could use batch call to make this more efficient if desired
+        //adds the attributeTemplates items to the template
+     /*   var tempURL = efDataHolder[templateName].Links;
+        makeDataCall(tempURL, 'get',null, getATTs).then(results =>
+            // get the attribute templates and add them to the template
+            makeDataCall(results.Links.AttributeTemplates, 'get')).then(attTemplate=> {
+                let attributes = attTemplate.Items;
+                
+                    attributes.forEach(attribute=> {
+                        var b = attribute;
+                      
+                    });
+                    cb( ["5"]);
+                });
+                */
     }
 
 
@@ -244,7 +272,7 @@ var eventsModule = function () {
     // give a templateName, obtains the attributes.
     function GetTemplateAttributes(templateName) {
         if (efDataHolder[templateName] === undefined) {
-            alert("template not found");
+            console.log("template not found");
             return;
         }
         //could use batch call to make this more efficient if desired
