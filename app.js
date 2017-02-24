@@ -60,13 +60,17 @@ var eventsModule = function () {
 
                 // Since everything under the parent div was removed, add an svg element and set its height and width according
                 // to the settings passed into this chart earlier.
-                var svg = parentDiv.append('svg')
+                var svg = parentDiv.selectAll('svg')
+                    .data([data])
+                  .enter().append('svg')
                     .attr('width', width)
                     .attr('height', height);
 
                 // This creates a cell ('g' element) for each box (i.e. EventFrame) to be put into the treemap
                 var cell = svg.selectAll('g')
-                    .data(data.leaves())
+                    .data(function (d) {
+                        return d.leaves();
+                    })
                   .enter().append("g")
                     .attr("transform", function (d) {
                         return "translate(" + d.x0 + "," + d.y0 + ")";
