@@ -368,7 +368,7 @@ var eventsModule = function () {
             var width = $symbolElement.width(),
                 height = $symbolElement.height();
 
-            var treemapSelection = d3.select($symbolElement.get(0));
+            var treemapSelection = d3.select($symbolElement.get(0)).select('.exele-treemap');
 
             // Set the treemap's width and height based on the calculated values above
             var myTreemap = treemap()
