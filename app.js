@@ -1,12 +1,18 @@
 
-var eventsModule = function (flinks) {
+var eventsModule = function () {
+    //****Private variables
     let templates = [];
     let efDataHolder = {};
     let myel = {};
+    let symbolElement = {};
+    let webAPIServerURL = "";
+
+    //**********Private Methods***********
 
     // Modeled after the example given in Mike Bostock's fantastic "Towards Reusable Charts": https://bost.ocks.org/mike/chart/
     //
     // This pattern allows us to create (lots of) treemaps easily and update their data (and other attributes) by calling this function with new data (or new chart attributes).
+    
     function treemap() {
         var width = 960,
             height = 570;
@@ -51,11 +57,25 @@ var eventsModule = function (flinks) {
                 // Format the data for use in the treemap
                 treemap(data);
 
-                var svg = d3.select(this);
+                // Select the div tag that will be the parent of our treemap
+                var parentDiv = d3.select(this);
+
                 // this code selects all of the d3 elements and removes everything.  Ideally, we use enter(), update() and exit()
-                svg.selectAll("*").remove();
-                var cell = svg.selectAll("g")
-                  .data(data.leaves())
+                parentDiv.selectAll("*").remove();
+
+                // Since everything under the parent div was removed, add an svg element and set its height and width according
+                // to the settings passed into this chart earlier.
+                var svg = parentDiv.selectAll('svg')
+                    .data([data])
+                  .enter().append('svg')
+                    .attr('width', width)
+                    .attr('height', height);
+
+                // This creates a cell ('g' element) for each box (i.e. EventFrame) to be put into the treemap
+                var cell = svg.selectAll('g')
+                    .data(function (d) {
+                        return d.leaves();
+                    })
                   .enter().append("g")
                     .attr("transform", function (d) {
                         return "translate(" + d.x0 + "," + d.y0 + ")";
@@ -63,8 +83,13 @@ var eventsModule = function (flinks) {
                     .on('click', function (d) {
                         //the webID is the unique identifier for each Event Frames.
                         let efID = d.data.ef.webId;
-                        console.log("You clicked on ef with ID", efID);
-                        GetSingleEFAttributes(efID);
+                        //                         console.log("You clicked on ef with ID", efID);
+                        //                         GetSingleEFAttributes(efID);
+
+                        // Fire a jQuery event notifying that an EF in the treemap was clicked
+                        $(this).trigger('efClick', {
+                            ef: d.data.ef
+                        });
                     });
 
                 cell.append("rect")
@@ -120,9 +145,8 @@ var eventsModule = function (flinks) {
         this.StartTime = new Date(startTime);
         // checks if the EF is still open, and if so, set the endtime to *, and inprocess to true
         if (endTime === "9999-12-31T23:59:59Z") {
-            this.EndTime = new Date()          
+            this.EndTime = new Date()
             this.InProcess = true;
-
         } else {
             this.EndTime = new Date(endTime);
             this.InProcess = false;
@@ -163,19 +187,33 @@ var eventsModule = function (flinks) {
 
 
 
-    // given webID of element, retrieve EF on it within the ST and ET
-    function GetEventFramesByElementID(elementIDbase, symbolElement, startTime, endtime, successPromise, failPromise) {
-        url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
-        this.symbolElement = symbolElement;
-        
-        // gets all of the EF within the provided start and endtimes given the webID of an element.  Then extracts the frames
-        makeDataCall(url, 'get').then(results => {
-            ExtractEF(results, this.symbolElement, successPromise);
-        }).catch(error=>failPromise(error));
+    // main fnction that builds up the EF data
+    // gets the element, gets the EF on the elemen
+    function GetEFData(elementPath, startTime, endTime) {
+        // First make a call to get the element using PI Web API
+        let url = webAPIServerURL + '//' + "elements?path=" + elementPath;
+        makeDataCall(url, 'get', null, PathResults, error);
+
+        // get the results, create a mock element, and call function to get the EF
+        function PathResults(results) {
+            myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);           
+            GETEFByElemntID(myel.framesLink, startTime, endTime, ExtractEF);
+        }
+         // get the resulting EF within the time range, and calls ExtractEF when completed
+        function GETEFByElemntID(elementIDbase, startTime, endtime, sucessCallBack) {
+            url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
+            this.symbolElement = symbolElement;
+            makeDataCall(url, 'get', null, sucessCallBack, error);
+        }
+        function error(result) {
+            console.log(error);
+        }
+
     }
 
+
     //given webAPI results, extract the results, create EFs, and put them into efDataHolder;
-    function ExtractEF(results, symbolElement, successPromise) {
+    function ExtractEF(results) {
         items = results.Items;
         //clear the cache of events
         efDataHolder = {};
@@ -201,8 +239,10 @@ var eventsModule = function (flinks) {
         eventsModule.BuildTreemap(symbolElement);
     }
 
+
+
     // give a templateName, obtains the attributes.
-    function GetTemplateAttributes(apiServer, templateName) {
+    function GetTemplateAttributes(templateName) {
         if (efDataHolder[templateName] === undefined) {
             alert("template not found");
             return;
@@ -211,7 +251,7 @@ var eventsModule = function (flinks) {
         //adds the attributeTemplates items to the template
         var tempURL = efDataHolder[templateName].Links;
         makeDataCall(tempURL, 'get').then(results =>
-        // get the attribute templates and add them to the template
+            // get the attribute templates and add them to the template
             makeDataCall(results.Links.AttributeTemplates)).then(attTemplate=> {
                 let attributes = attTemplate.Items;
                 if (efDataHolder[templateName].attributesTemplates === undefined) {
@@ -223,12 +263,11 @@ var eventsModule = function (flinks) {
                 }
                 GetAttributesValues(apiServer, "Net Wet Weight (Mine)", templateName);
             })
-        .catch(error=>console.log(error));
+        //.catch(error=>console.log(error));
     }
     //get a singleEf 
-    function GetSingleEFAttributes(apiServer, id) {
-
-        let efURL = apiServer + "streamsets/" + id + "/value";
+    function GetSingleEFAttributes(id) {
+        let efURL = webAPIServerURL + "/streamsets/" + id + "/value";
 
         makeDataCall(efURL, "GET", null, null, null)
         .then(results=> {
@@ -242,14 +281,12 @@ var eventsModule = function (flinks) {
             });
             // probably should return the attribute array here
             console.log(attributes);
-
         })
-        .catch(error=>console.log(error));
-
+       // .catch(error=>console.log(error));
     }
 
     // get the attribute values for each EF given an attributeName and template
-    function GetAttributesValues(apiServer, attributeName, templateName) {
+    function GetAttributesValues(attributeName, templateName) {
         var templateUsed = efDataHolder[templateName];
         //we can make sure the attribute is found on the template...example check
         // var found = templateUsed.attributesTemplates.find(att=>att.Name.toUpperCase() === attributeName.toUpperCase());
@@ -259,15 +296,15 @@ var eventsModule = function (flinks) {
         templateUsed.frames.forEach(EF => {
             let attributeURL;
 
-            attributeURL = encodeURI(apiServer + "streamsets/" + EF.id + "/value?nameFilter=" + attributeName + "&selectedFields=Items.Value.Value");
+            attributeURL = encodeURI(webAPIServerURL + "/streamsets/" + EF.id + "/value?nameFilter=" + attributeName + "&selectedFields=Items.Value.Value");
             bulkQuery[EF.id] = {
                 "Method": "GET",
                 "Resource": attributeURL
             };
         });
-        makeDataCall(apiServer + "batch", "POST", JSON.stringify(bulkQuery), null, null)
+        makeDataCall(webAPIServerURL + "batch", "POST", JSON.stringify(bulkQuery), null, null)
         .then(results=>ProcessAttributeResults(results, templateName, attributeName))
-        .catch(error=> console.log(error));
+        //.catch(error=> console.log(error));
     }
 
     // takes batch call results, and adds values to the correct EF
@@ -275,14 +312,14 @@ var eventsModule = function (flinks) {
         for (let result in results) {
             if (results[result].Status == 200) {
                 // const attribute = new Set([{ attributeName: results[result].Content.Items[0].Value.Value }]);
-                
+
                 const attributeMap = new Map();
                 // add attribute values to the map.  
                 attributeMap.set(attributeName, results[result].Content.Items[0].Value.Value);
                 // find the correct EF, and add the attribute value to it
                 efDataHolder[templateName].frames.find(ef=>ef.id === result).attributeValuesMap = attributeMap;
             }
-        }     
+        }
     }
 
     // This converts EFs in `efDataHolder` to hierarchical data useful for treemaps
@@ -324,7 +361,7 @@ var eventsModule = function (flinks) {
           })
           .sum(sumByDuration)
           .sort(function (a, b) {
-              // Sorts by the height (greatest distance from descendant leaft)
+              // Sorts by the height (greatest distance from descendant leaf)
               // and then by value (which determines box sizes).
               return b.height - a.height || b.value - a.value;
           });
@@ -338,25 +375,27 @@ var eventsModule = function (flinks) {
         return 1;
     }
 
-    return {
-        // gets all of the EF for a given element provided an element link and timerange
-        GetEFByElement: (successPromise, errorPromise) => {
-            GetEventFramesByElementID(myel.framesLink, '*-7d', '*', successPromise, errorPromise);
-        },
+    // sets the tree symbol
+    function SetSymbol(treeSymbolElement)
+    {
+        symbolElement = treeSymbolElement;
+    }
+    // sets the WebAPI server
+    function SetWebAPIURL(url) {
+        webAPIServerURL = url;
+    }
+    // ----------public methods---------------------------------------------
+    //----------------------------------------------------------------------
+    return {       
         // gets all of the EF attributes givena  template, need to extended to use attribute name
         GetEFAttributesValuesFromTemplate: (apiServer, templateName) =>GetTemplateAttributes(apiServer, templateName),
         // Creates an element object provided a path
-        Update: (APIServer, elementPath, symbolElement, startTime, endTime) => {
-            //let elementPath = '\\\\PISRV01\\Mineral Processing\\Toll Ore Delivery\\T-101'
-            let url = APIServer + '//' + "elements?path=" + elementPath;
-            this.symbolElement = symbolElement;
-        
-            makeDataCall(url, 'get').then(results => {
-                myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
-                GetEventFramesByElementID(myel.framesLink, this.symbolElement, startTime, endTime, null, null);
-            }).catch(error=> {
-                console.log(error)
-            });
+        Update: (APIServer, elementPath, symbolElement, startTime, endTime) => {          
+             // store the symbol and the apiserver as private variables in the module, we should initiallize first.
+            SetSymbol(symbolElement);
+            SetWebAPIURL(APIServer);
+            // obtain the EF data
+            GetEFData(elementPath, startTime, endTime);               
         },
         // get EF templates
         GetEFTemplates: ()=>
@@ -369,18 +408,20 @@ var eventsModule = function (flinks) {
 
         },
         // Builds a treemap under the passed element
-        BuildTreemap: ($symbolElement) => {
-            // Find the svg that will contain our treemap by looking for an 'svg' element within the passed
-            // symbol element. Chain select statements to select the svg within the original symbol element.
-            var treemapSelection = d3.select($symbolElement.get(0)).select('svg');
-            
-            // Calculate the width and height from the treemap element's node
-            var selectionBox = treemapSelection.node().getBoundingClientRect();
-            
+        BuildTreemap: () => {
+            // Find the div that will contain our treemap by looking for an element going by our "exele-treemap" class
+            // within the symbol element.
+            var $treemapParentElement = $('.exele-treemap', symbolElement);
+
+            var width = $treemapParentElement.width(),
+                height = $treemapParentElement.height();
+
+            var treemapSelection = d3.select($treemapParentElement.get(0));
+
             // Set the treemap's width and height based on the calculated values above
             var myTreemap = treemap()
-                .width(selectionBox.width)
-                .height(selectionBox.height);
+                .width(width)
+                .height(height);
 
             // Extract the right Event Frames data for the Treemap
             //
@@ -392,7 +433,7 @@ var eventsModule = function (flinks) {
             //   d3.hierarchy; otherwise, you can rearrange tabular data, such as comma-separated
             //   values (CSV), into a hierarchy using d3.stratify.
             var root = EFsToHierarchy();
-            
+
             // Draw the treemap within the selected element using the data in `root`
             treemapSelection
                 .datum(root)

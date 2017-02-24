@@ -9,6 +9,7 @@
     symbolVis.prototype.init = function (scope, element, timeProvider) {
         this.onDataUpdate = dataUpdate;
         this.onConfigChange = configChanged;
+
         this.onResize = resize;      
         var mytemplate="";
         // put runtimeData in scope
@@ -23,6 +24,7 @@
         {
             return eventsModule.GetEFAttributesFromTemplate(mytemplate);
         };
+
 
         function dataUpdate(data) {
 
@@ -71,7 +73,7 @@
         getDefaultConfig: function () {
             return {
                 DataShape: 'Value',
-                Height: 300,
+                Height: 500,
                 Width: 600, 
                 TemplateSelected: "none" ,
                 AttributeSelected: "none" ,
