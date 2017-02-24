@@ -169,51 +169,10 @@ var eventsModule = function () {
     }
     // use to return the attributes as array given a template
     function GetEFAttributesFromTemplate(templateName){
-
-          return  GetA(templateName, function(b){
-                return b;
-                      });
+        return efDataHolder[templateName].attributeNames;                
     }
    
-   function GetA(templateName, cb)
-    {
-          //  let myPromise = new Promise(sucecss, failed)
-
-             if (efDataHolder[templateName] === undefined) {
-            console.log("template not found");
-            return ["none"];
-        }
- 
-        function getATTs(results)
-        {
-            makeDataCall(results.Links.AttributeTemplate, 'get', null,getNames);
-        }
-        function getNames(results);
-        {
-            cb(["test-worked!"]);
-
-        }
-         var tempURL = efDataHolder[templateName].Links;
-        makeDataCall(tempURL, 'get',null, getATTs)
-        
-        //could use batch call to make this more efficient if desired
-        //adds the attributeTemplates items to the template
-     /*   var tempURL = efDataHolder[templateName].Links;
-        makeDataCall(tempURL, 'get',null, getATTs).then(results =>
-            // get the attribute templates and add them to the template
-            makeDataCall(results.Links.AttributeTemplates, 'get')).then(attTemplate=> {
-                let attributes = attTemplate.Items;
-                
-                    attributes.forEach(attribute=> {
-                        var b = attribute;
-                      
-                    });
-                    cb( ["5"]);
-                });
-                */
-    }
-
-
+  
 
     // main fnction that builds up the EF data
     // gets the element, gets the EF on the elemen
@@ -251,10 +210,11 @@ var eventsModule = function () {
             let EF = new myEventFrame(apiFrameResult.Name, apiFrameResult.TemplateName, apiFrameResult.StartTime, apiFrameResult.EndTime,
                 apiFrameResult.Links.Template, apiFrameResult.WebId);
             // if the EF template is not a property of the object, add it
-            if (efDataHolder[EF.templateName] === undefined) {
+            if (efDataHolder[EF.templateName] === undefined) {               
+                
                 efDataHolder[EF.templateName] = {
                     "Links": apiFrameResult.Links.Template,
-                    "frames": []
+                    "frames": [],                   
                 }
             }
             // for all EF, add an arry of the EF with properties of id and the actual EF object
@@ -263,9 +223,31 @@ var eventsModule = function () {
                 ef: EF
             });
         }
+        GetAllTemplateAttributes();
         //reference the treeview and build it here
         eventsModule.BuildTreemap(symbolElement);
     }
+
+    // adds attribute names to the model
+    function GetAllTemplateAttributes() {
+        for (var templates in efDataHolder) {
+
+            var attributesNames = [];
+
+            makeDataCall(efDataHolder[templates].Links, 'get', null, getAtributeTemplates)
+
+            function getAtributeTemplates(results) {
+                makeDataCall(results.Links.AttributeTemplates, 'get', null, getNames);
+            }
+            function getNames(results) {
+
+                results.Items.forEach(attribute=> {
+                    attributesNames.push({ name: attribute.Name });
+                });
+                efDataHolder[templates].attributeNames = attributesNames;
+            }
+            }           
+        }
 
 
 
