@@ -11,8 +11,11 @@
         this.onConfigChange = configChanged;
         this.onResize = resize;      
         
-        scope.obtainTemplates = function(){
-            return eventsModule.GetEFTemplates()}
+        var runtimeData = scope.runtimeData;
+        runtimeData.obtainTemplates =   function()
+        {
+            return eventsModule.GetEFTemplates()
+        };
 
         function dataUpdate(data) {
 
