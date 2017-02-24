@@ -317,7 +317,7 @@ var eventsModule = function () {
           })
           .sum(sumByDuration)
           .sort(function (a, b) {
-              // Sorts by the height (greatest distance from descendant leaft)
+              // Sorts by the height (greatest distance from descendant leaf)
               // and then by value (which determines box sizes).
               return b.height - a.height || b.value - a.value;
           });
