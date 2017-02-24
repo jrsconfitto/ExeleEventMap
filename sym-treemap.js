@@ -9,7 +9,22 @@
     symbolVis.prototype.init = function (scope, element, timeProvider) {
         this.onDataUpdate = dataUpdate;
         this.onConfigChange = configChanged;
-        this.onResize = resize;
+
+        this.onResize = resize;      
+        var mytemplate="";
+        // put runtimeData in scope
+        var runtimeData = scope.runtimeData;
+        // method use to get the current EF
+        runtimeData.obtainTemplates =   function()
+        {
+            return eventsModule.GetEFTemplates()
+        };
+        // method used to get the current attributes from the template
+        runtimeData.obtainAttributes= function()
+        {
+            return eventsModule.GetEFAttributesFromTemplate(mytemplate);
+        };
+
 
         function dataUpdate(data) {
 
@@ -24,7 +39,6 @@
             if (attributePipeLocation > -1) {
                 dataPath = dataPath.substr(0, attributePipeLocation)
             }
-
             // Update treemap, providing URL, elementPath, start and end times
             eventsModule.Update(apiUrl, dataPath, this.elem, timeProvider.displayTime.start, timeProvider.displayTime.end)
 
@@ -33,22 +47,21 @@
         timeProvider.onDisplayTimeChanged.subscribe();
 
         function configChanged(newConfig, oldConfig) {
-            // ...
-           
+            // set the template if the config changes
+            if(oldConfig.TemplateSelected != newConfig.TemplateSelected)
+            {
+                mytemplate=  newConfig.TemplateSelected;
+            }
         }
 
         function resize(width, height) {
             // ...
         }
-
     };
 
 
-    // This function returns selection of Event Frame templates available
-    // This can be used to populate a selection menu to drill down
-    function templates(){
-        return ["tv1", "tv2", "tv7"];
-    }
+  
+  
 
     // Create symbol definition object
     var def = {
@@ -62,11 +75,15 @@
                 DataShape: 'Value',
                 Height: 500,
                 Width: 600, 
-                TemplateSelected: "none"                           
+                TemplateSelected: "none" ,
+                AttributeSelected: "none" ,
+                Test: ''                        
             };
         },
-        configTitle: 'Format Symbol',
-        Templates: templates(),
+        configTitle: 'Format Symbol'
+        //Templates: templates,
+        //Attributes: attributes,
+        
     };
     PV.symbolCatalog.register(def);
     

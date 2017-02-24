@@ -162,6 +162,30 @@ var eventsModule = function () {
         this.webId = webID;
         this.framesLink = framesLink;
     }
+    // used to return all of the EF templates used as array
+    function GetTemplates()
+    {
+        return Object.keys(efDataHolder);
+    }
+    // use to return the attributes as array given a template
+    function GetEFAttributesFromTemplate(templateName)
+    {
+            if (templateName === "test template")
+            {
+                return ["test template attributes"];
+
+            }
+            else if (templateName==="Toll Ore Delivery")
+            {return ["my templates"]
+             }
+             else
+             {
+                 return ["none selected"];
+             }
+
+    }
+
+
 
     // main fnction that builds up the EF data
     // gets the element, gets the EF on the elemen
@@ -372,6 +396,16 @@ var eventsModule = function () {
             SetWebAPIURL(APIServer);
             // obtain the EF data
             GetEFData(elementPath, startTime, endTime);               
+        },
+        // get EF templates
+        GetEFTemplates: ()=>
+        {
+          return  GetTemplates();
+        },
+        // get the Attributes provide a tepmlate
+        GetEFAttributesFromTemplate: (templateName)=>{
+            return GetEFAttributesFromTemplate(templateName);
+
         },
         // Builds a treemap under the passed element
         BuildTreemap: () => {
