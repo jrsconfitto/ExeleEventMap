@@ -9,7 +9,7 @@
     symbolVis.prototype.init = function (scope, element, timeProvider) {
         this.onDataUpdate = dataUpdate;
         this.onConfigChange = configChanged;
-        this.onResize = resize;      
+        this.onResize = resize;
 
         function dataUpdate(data) {
 
@@ -60,7 +60,7 @@
         getDefaultConfig: function () {
             return {
                 DataShape: 'Value',
-                Height: 300,
+                Height: 500,
                 Width: 600, 
                 TemplateSelected: "none"                           
             };
