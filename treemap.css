@@ -1,8 +1,14 @@
+.exele-treemap-symbol,
+.exele-treemap {
+    width: 100%;
+    height: 100%;
+}
+
+.exele-treemap {
+    text-align: left;
+}
+
 .exele-attribute-table {
     font: 10px sans-serif;
     display:inline;
-}
-
-.exele-treemap-svg {
-    float: left;
 }

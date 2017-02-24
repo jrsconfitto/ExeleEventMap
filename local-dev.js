@@ -9,12 +9,12 @@ function handleLoad(e) {
     $symbol.html(importedSymbol);
 
     // Update treemap once when page loads
-    updateTreemap($symbol);
+    updateTreemap();
 
     // Update treemap every 5 seconds (mimic PI Vision behavior)
     setInterval(function () {
-        updateTreemap(this);
-    }.bind($symbol), 5000);
+        updateTreemap();
+    }, 5000);
 
 }
 
