@@ -11,6 +11,9 @@
         this.onConfigChange = configChanged;
         this.onResize = resize;      
         
+        scope.obtainTemplates = function(){
+            return eventsModule.GetEFTemplates()} 
+
         function dataUpdate(data) {
 
             // Set PI web API address
@@ -34,7 +37,7 @@
 
         function configChanged(newConfig, oldConfig) {
             // ...
-           
+           newConfig.TemplateSelect;
         }
 
         function resize(width, height) {
@@ -51,8 +54,8 @@
     }
     // this populates the attributes givena template is selected
     function attributes(){
-            return ["attribute1", "attribute2"];
-       // return eventsModule.GetEFAttributesFromTemplate(TemplateSelected);
+       //     return ["attribute1", "attribute2"];
+        return eventsModule.GetEFAttributesFromTemplate(TemplateSelected);
     }
 
     // Create symbol definition object
@@ -68,12 +71,14 @@
                 Height: 300,
                 Width: 600, 
                 TemplateSelected: "none" ,
-                AttributeSelected: "none"                          
+                AttributeSelected: "none" ,
+                Test: ''                        
             };
         },
         configTitle: 'Format Symbol',
         Templates: templates,
-        Attributes: attributes
+       Attributes: attributes,
+       
     };
     PV.symbolCatalog.register(def);
     

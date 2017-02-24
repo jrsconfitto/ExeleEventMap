@@ -146,7 +146,19 @@ var eventsModule = function (flinks) {
     // use to return the attributes as array given a template
     function GetEFAttributesFromTemplate(templateName)
     {
-                return ["a","b","c"];
+            if (templateName === "test template")
+            {
+                return ["test template attributes"];
+
+            }
+            else if (templateName==="Toll Ore Delivery")
+            {return ["my templates"]
+             }
+             else
+             {
+                 return ["none selected"];
+             }
+
     }
 
 

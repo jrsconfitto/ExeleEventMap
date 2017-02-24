@@ -19,6 +19,15 @@
 <div class="c-config-content">Show Time:
     <input type="checkbox" ng-model="config.ShowTime">
 </div>
+
+<div class="c-config-content">Select Template2:
+   <select ng-model="config.TemplateSelected">
+        <option ng-init="Test = obtainTemplates()" ng-repeat="t in Test" ng-value={{t}}>{{t}}</option>
+   </select>
+  
+</div>
+
+
 <div class="c-config-content">Select Template:
    <select ng-model="config.TemplateSelected">
         <option ng-repeat="t in def.Templates()" ng-value={{t}}>{{t}}</option>
