@@ -168,24 +168,11 @@ var eventsModule = function () {
         return Object.keys(efDataHolder);
     }
     // use to return the attributes as array given a template
-    function GetEFAttributesFromTemplate(templateName)
-    {
-            if (templateName === "test template")
-            {
-                return ["test template attributes"];
-
-            }
-            else if (templateName==="Toll Ore Delivery")
-            {return ["my templates"]
-             }
-             else
-             {
-                 return ["none selected"];
-             }
-
+    function GetEFAttributesFromTemplate(templateName){
+        return efDataHolder[templateName].attributeNames;                
     }
-
-
+   
+  
 
     // main fnction that builds up the EF data
     // gets the element, gets the EF on the elemen
@@ -223,10 +210,11 @@ var eventsModule = function () {
             let EF = new myEventFrame(apiFrameResult.Name, apiFrameResult.TemplateName, apiFrameResult.StartTime, apiFrameResult.EndTime,
                 apiFrameResult.Links.Template, apiFrameResult.WebId);
             // if the EF template is not a property of the object, add it
-            if (efDataHolder[EF.templateName] === undefined) {
+            if (efDataHolder[EF.templateName] === undefined) {               
+                
                 efDataHolder[EF.templateName] = {
                     "Links": apiFrameResult.Links.Template,
-                    "frames": []
+                    "frames": [],                   
                 }
             }
             // for all EF, add an arry of the EF with properties of id and the actual EF object
@@ -235,16 +223,38 @@ var eventsModule = function () {
                 ef: EF
             });
         }
+        GetAllTemplateAttributes();
         //reference the treeview and build it here
         eventsModule.BuildTreemap(symbolElement);
     }
+
+    // adds attribute names to the model
+    function GetAllTemplateAttributes() {
+        for (var templates in efDataHolder) {
+
+            var attributesNames = [];
+
+            makeDataCall(efDataHolder[templates].Links, 'get', null, getAtributeTemplates)
+
+            function getAtributeTemplates(results) {
+                makeDataCall(results.Links.AttributeTemplates, 'get', null, getNames);
+            }
+            function getNames(results) {
+
+                results.Items.forEach(attribute=> {
+                    attributesNames.push({ name: attribute.Name });
+                });
+                efDataHolder[templates].attributeNames = attributesNames;
+            }
+            }           
+        }
 
 
 
     // give a templateName, obtains the attributes.
     function GetTemplateAttributes(templateName) {
         if (efDataHolder[templateName] === undefined) {
-            alert("template not found");
+            console.log("template not found");
             return;
         }
         //could use batch call to make this more efficient if desired
