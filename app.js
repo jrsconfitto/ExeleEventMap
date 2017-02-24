@@ -362,13 +362,15 @@ var eventsModule = function () {
             }); */
         },
         // Builds a treemap under the passed element
-        BuildTreemap: ($symbolElement) => {
-            // Find the svg that will contain our treemap by looking for an 'svg' element within the passed
-            // symbol element. Chain select statements to select the svg within the original symbol element.
-            var width = $symbolElement.width(),
-                height = $symbolElement.height();
+        BuildTreemap: () => {
+            // Find the div that will contain our treemap by looking for an element going by our "exele-treemap" class
+            // within the symbol element.
+            var $treemapParentElement = $('.exele-treemap', symbolElement);
 
-            var treemapSelection = d3.select($symbolElement.get(0)).select('.exele-treemap');
+            var width = $treemapParentElement.width(),
+                height = $treemapParentElement.height();
+
+            var treemapSelection = d3.select($treemapParentElement.get(0));
 
             // Set the treemap's width and height based on the calculated values above
             var myTreemap = treemap()
