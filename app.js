@@ -168,11 +168,11 @@ var eventsModule = function () {
     // used to return all of the EF templates used as array
     function GetTemplates()
     {
-        return Object.keys(efDataHolder);
+        return Object.keys(efDataHolder).unshift("None");
     }
     // use to return the attributes as array given a template
     function GetEFAttributesFromTemplate(templateName){
-        return efDataHolder[templateName].attributeNames;                
+        return efDataHolder[templateName].attributeNames.unshift("None");
     }
    
   
@@ -231,9 +231,12 @@ var eventsModule = function () {
         GetAllTemplateAttributes();
       
         // Get attribute value for provide attribute and template.
-        GetAttributesValues('Net Wet Weight (Mine)','Toll Ore Delivery' )
+        if (_attribute) {
+            GetAttributesValues(_attribute, _template);
+        }
         //reference the treeview and build it here
         eventsModule.BuildTreemap(symbolElement);
+
     }
 
     // adds attribute names to the model
