@@ -168,11 +168,22 @@ var eventsModule = function () {
     // used to return all of the EF templates used as array
     function GetTemplates()
     {
-        return Object.keys(efDataHolder).unshift("None");
+        templates = ["None"];
+        for(var t in efDataHolder){
+        templates.push(t);
+        }
+        return templates;     
     }
     // use to return the attributes as array given a template
     function GetEFAttributesFromTemplate(templateName){
-        return efDataHolder[templateName].attributeNames.unshift("None");
+        var attResults =["None"];
+        var attributes = [];
+        if (efDataHolder[templateName])
+        {
+            attributes = efDataHolder[templateName].attributeNames;
+        }
+      
+        return ["None"].concat(attributes);
     }
    
   
@@ -257,7 +268,7 @@ var eventsModule = function () {
             function getAttributeTemplateNames(results) {
                 // loops over results and puts names in array
                 results.Items.forEach(attribute=> {
-                    attributesNames.push({ name: attribute.Name });
+                    attributesNames.push(attribute.Name);
                 });
                 efDataHolder[templates].attributeNames = attributesNames;
             }
@@ -265,7 +276,7 @@ var eventsModule = function () {
         }
 
 
-
+    // this method is not used...--//--------
     // give a templateName, obtains the attributes.
     function GetTemplateAttributes(templateName) {
         if (efDataHolder[templateName] === undefined) {
