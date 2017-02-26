@@ -215,6 +215,7 @@ var eventsModule = function () {
 
     // given webAPI results, extract the results, create EFs, and put them into efDataHolder;
     // add the event get the attributes for the templates.  Ideally we cache this and do it once.
+    // This method also call methods to get all of the attribute Templates, attribute Values based on config, and builds the map
     function ExtractEF(results) {
         items = results.Items;
         //clear the cache of events
@@ -242,19 +243,17 @@ var eventsModule = function () {
         GetAllTemplateAttributes();
       
         // Get attribute value for provide attribute and template.
-        if (_attribute) {
+        if (_attribute != undefined &&_attribute != "None" && _template !="None") {
             GetAttributesValues(_attribute, _template);
         }
         //reference the treeview and build it here
         eventsModule.BuildTreemap(symbolElement);
-
     }
 
-    // adds attribute names to the model
+    // adds attribute names to the model such that the config panel displays the Values
     function GetAllTemplateAttributes() {
         // loop throught each template in efDataHolder
         for (let templates in efDataHolder) {
-
             // holds the attribute names
             let attributesNames = [];
 
@@ -272,8 +271,8 @@ var eventsModule = function () {
                 });
                 efDataHolder[templates].attributeNames = attributesNames;
             }
-            }           
-        }
+        }           
+    }
 
 
     // this method is not used...--//--------
@@ -304,7 +303,6 @@ var eventsModule = function () {
     //get a singleEf 
     function GetSingleEFAttributes(id) {
         let efURL = webAPIServerURL + "/streamsets/" + id + "/value";
-
         makeDataCall(efURL, "GET", null, null, null)
         .then(results=> {
             let attributes = [];
@@ -337,6 +335,7 @@ var eventsModule = function () {
                 "Resource": attributeURL
             };
         });
+        // use batch call and call method to add the attribute values as a map to thre tree
         makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
         .then(results=>ProcessAttributeResults(results, templateName, attributeName))
         //.catch(error=> console.log(error));
