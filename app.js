@@ -6,6 +6,9 @@ var eventsModule = function () {
     let myel = {};
     let symbolElement = {};
     let webAPIServerURL = "";
+    var _template = "";
+    var _attribute = "";
+
 
     //**********Private Methods***********
 
@@ -224,7 +227,11 @@ var eventsModule = function () {
                 ef: EF
             });
         }
+        // get the attribute tepmlates to cache them here to show in the grid, we should move to own cache
         GetAllTemplateAttributes();
+      
+        // Get attribute value for provide attribute and template.
+        GetAttributesValues('Net Wet Weight (Mine)','Toll Ore Delivery' )
         //reference the treeview and build it here
         eventsModule.BuildTreemap(symbolElement);
     }
@@ -296,8 +303,8 @@ var eventsModule = function () {
             });
             // probably should return the attribute array here
             console.log(attributes);
-        })
-       // .catch(error=>console.log(error));
+        }, error=>console.log(error));
+      
     }
 
     // get the attribute values for each EF given an attributeName and template
@@ -309,15 +316,14 @@ var eventsModule = function () {
         // build up a bulk query that requires the ef webID and the attribute ID
         var bulkQuery = {};
         templateUsed.frames.forEach(EF => {
-            let attributeURL;
-
+            var attributeURL;
             attributeURL = encodeURI(webAPIServerURL + "/streamsets/" + EF.id + "/value?nameFilter=" + attributeName + "&selectedFields=Items.Value.Value");
             bulkQuery[EF.id] = {
                 "Method": "GET",
                 "Resource": attributeURL
             };
         });
-        makeDataCall(webAPIServerURL + "batch", "POST", JSON.stringify(bulkQuery), null, null)
+        makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
         .then(results=>ProcessAttributeResults(results, templateName, attributeName))
         //.catch(error=> console.log(error));
     }
@@ -325,9 +331,7 @@ var eventsModule = function () {
     // takes batch call results, and adds values to the correct EF
     function ProcessAttributeResults(results, templateName, attributeName) {
         for (let result in results) {
-            if (results[result].Status == 200) {
-                // const attribute = new Set([{ attributeName: results[result].Content.Items[0].Value.Value }]);
-
+            if (results[result].Status == 200) {               
                 const attributeMap = new Map();
                 // add attribute values to the map.  
                 attributeMap.set(attributeName, results[result].Content.Items[0].Value.Value);
@@ -399,16 +403,27 @@ var eventsModule = function () {
     function SetWebAPIURL(url) {
         webAPIServerURL = url;
     }
+    //set the global template to display
+    function SetTemplate(template) {
+        _template = template;
+    }
+    function SetAttribute(attribute) {
+        _attribute = attribute;
+    }
+
     // ----------public methods---------------------------------------------
     //----------------------------------------------------------------------
     return {       
         // gets all of the EF attributes givena  template, need to extended to use attribute name
         GetEFAttributesValuesFromTemplate: (apiServer, templateName) =>GetTemplateAttributes(apiServer, templateName),
         // Creates an element object provided a path
-        Update: (APIServer, elementPath, symbolElement, startTime, endTime) => {          
+        Update: (APIServer, elementPath, symbolElement, startTime, endTime, template, attribute) => {          
              // store the symbol and the apiserver as private variables in the module, we should initiallize first.
             SetSymbol(symbolElement);
             SetWebAPIURL(APIServer);
+            SetTemplate(template);
+            SetAttribute(attribute);
+            
             // obtain the EF data
             GetEFData(elementPath, startTime, endTime);               
         },
