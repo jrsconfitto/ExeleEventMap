@@ -199,7 +199,8 @@ var eventsModule = function () {
     }
 
 
-    //given webAPI results, extract the results, create EFs, and put them into efDataHolder;
+    // given webAPI results, extract the results, create EFs, and put them into efDataHolder;
+    // add the event get the attributes for the templates.  Ideally we cache this and do it once.
     function ExtractEF(results) {
         items = results.Items;
         //clear the cache of events
@@ -230,17 +231,21 @@ var eventsModule = function () {
 
     // adds attribute names to the model
     function GetAllTemplateAttributes() {
+        // loop throught each template in efDataHolder
         for (let templates in efDataHolder) {
 
+            // holds the attribute names
             let attributesNames = [];
 
+            // use the template link to get the links and call method to get attribute templates
             makeDataCall(efDataHolder[templates].Links, 'get', null, getAtributeTemplates)
-
+            // once we have the template, make call to get attribute templates and extract names (get)
             function getAtributeTemplates(results) {
-                makeDataCall(results.Links.AttributeTemplates, 'get', null, getNames);
+                makeDataCall(results.Links.AttributeTemplates, 'get', null, getAttributeTemplateNames);
             }
-            function getNames(results) {
-
+            // put attribute template names into array
+            function getAttributeTemplateNames(results) {
+                // loops over results and puts names in array
                 results.Items.forEach(attribute=> {
                     attributesNames.push({ name: attribute.Name });
                 });
