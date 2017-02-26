@@ -230,9 +230,9 @@ var eventsModule = function () {
 
     // adds attribute names to the model
     function GetAllTemplateAttributes() {
-        for (var templates in efDataHolder) {
+        for (let templates in efDataHolder) {
 
-            var attributesNames = [];
+            let attributesNames = [];
 
             makeDataCall(efDataHolder[templates].Links, 'get', null, getAtributeTemplates)
 
