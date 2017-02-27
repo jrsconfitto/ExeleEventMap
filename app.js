@@ -43,8 +43,6 @@ var eventsModule = function () {
             // The following code applies the data tied to the passed in selection(s) and is where we actually build the
             // treemap.
             selection.each(function (data) {
-                // Use `.get(0)` to get the actual element referenced by the jQuery object and pass it into d3's
-                // `select` function. d3 and jQuery don't always play along perfectly.
                 var fader = function (color) { return d3.interpolateRgb(color, "#fff")(0.2); },
                     color = d3.scaleOrdinal(d3.schemeCategory20.map(fader)),
                     format = d3.format(",d");
@@ -188,8 +186,8 @@ var eventsModule = function () {
    
   
 
-    // main fnction that builds up the EF data
-    // gets the element, gets the EF on the elemen
+    // main function that builds up the EF data
+    // gets the element, gets the EF on the element
     function GetEFData(elementPath, startTime, endTime) {
         // First make a call to get the element using PI Web API
         let url = webAPIServerURL + '//' + "elements?path=" + elementPath;
