@@ -282,6 +282,13 @@ var eventsModule = function () {
       
         // Get attribute value for provide attribute and template.
         if (_attribute != undefined &&_attribute != "None" && _template !="None") {
+            // PROBLEM: the attribute values retrieved from the following operations will never get into the treemap
+            // because they are executed using a promise. The `BuildTreemap` gets called before the attribute values are
+            // returned and then the next time a data update occurs, the `efDataHolder`'s existing data is replaced with
+            // new data pulled from the server.
+            //
+            // We need to make sure that if this path is followed, then the Build Treemap is called after the values are
+            // returned back from the server.
             GetAttributesValues(_attribute, _template);
         }
         //reference the treeview and build it here
