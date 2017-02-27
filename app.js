@@ -168,11 +168,22 @@ var eventsModule = function () {
     // used to return all of the EF templates used as array
     function GetTemplates()
     {
-        return Object.keys(efDataHolder).unshift("None");
+        templates = ["None"];
+        for(var t in efDataHolder){
+        templates.push(t);
+        }
+        return templates;     
     }
     // use to return the attributes as array given a template
     function GetEFAttributesFromTemplate(templateName){
-        return efDataHolder[templateName].attributeNames.unshift("None");
+        var attResults =["None"];
+        var attributes = [];
+        if (efDataHolder[templateName])
+        {
+            attributes = efDataHolder[templateName].attributeNames;
+        }
+      
+        return ["None"].concat(attributes);
     }
    
   
@@ -204,6 +215,7 @@ var eventsModule = function () {
 
     // given webAPI results, extract the results, create EFs, and put them into efDataHolder;
     // add the event get the attributes for the templates.  Ideally we cache this and do it once.
+    // This method also call methods to get all of the attribute Templates, attribute Values based on config, and builds the map
     function ExtractEF(results) {
         items = results.Items;
         //clear the cache of events
@@ -231,19 +243,17 @@ var eventsModule = function () {
         GetAllTemplateAttributes();
       
         // Get attribute value for provide attribute and template.
-        if (_attribute) {
+        if (_attribute != undefined &&_attribute != "None" && _template !="None") {
             GetAttributesValues(_attribute, _template);
         }
         //reference the treeview and build it here
         eventsModule.BuildTreemap(symbolElement);
-
     }
 
-    // adds attribute names to the model
+    // adds attribute names to the model such that the config panel displays the Values
     function GetAllTemplateAttributes() {
         // loop throught each template in efDataHolder
         for (let templates in efDataHolder) {
-
             // holds the attribute names
             let attributesNames = [];
 
@@ -257,15 +267,18 @@ var eventsModule = function () {
             function getAttributeTemplateNames(results) {
                 // loops over results and puts names in array
                 results.Items.forEach(attribute=> {
-                    attributesNames.push({ name: attribute.Name });
+                    attributesNames.push(attribute.Name);
                 });
-                efDataHolder[templates].attributeNames = attributesNames;
+
+                if (efDataHolder[templates]) {
+                    efDataHolder[templates].attributeNames = attributesNames;
+                }
             }
-            }           
-        }
+        }           
+    }
 
 
-
+    // this method is not used...--//--------
     // give a templateName, obtains the attributes.
     function GetTemplateAttributes(templateName) {
         if (efDataHolder[templateName] === undefined) {
@@ -293,7 +306,6 @@ var eventsModule = function () {
     //get a singleEf 
     function GetSingleEFAttributes(id) {
         let efURL = webAPIServerURL + "/streamsets/" + id + "/value";
-
         makeDataCall(efURL, "GET", null, null, null)
         .then(results=> {
             let attributes = [];
@@ -316,27 +328,31 @@ var eventsModule = function () {
         //we can make sure the attribute is found on the template...example check
         // var found = templateUsed.attributesTemplates.find(att=>att.Name.toUpperCase() === attributeName.toUpperCase());
 
-        // build up a bulk query that requires the ef webID and the attribute ID
-        var bulkQuery = {};
-        templateUsed.frames.forEach(EF => {
-            var attributeURL;
-            attributeURL = encodeURI(webAPIServerURL + "/streamsets/" + EF.id + "/value?nameFilter=" + attributeName + "&selectedFields=Items.Value.Value");
-            bulkQuery[EF.id] = {
-                "Method": "GET",
-                "Resource": attributeURL
-            };
-        });
-        makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
-        .then(results=>ProcessAttributeResults(results, templateName, attributeName))
-        //.catch(error=> console.log(error));
+        if (templateUsed) {
+
+            // build up a bulk query that requires the ef webID and the attribute ID
+            var bulkQuery = {};
+            templateUsed.frames.forEach(EF => {
+                var attributeURL;
+                attributeURL = encodeURI(webAPIServerURL + "/streamsets/" + EF.id + "/value?nameFilter=" + attributeName + "&selectedFields=Items.Value.Value");
+                bulkQuery[EF.id] = {
+                    "Method": "GET",
+                    "Resource": attributeURL
+                };
+            });
+            // use batch call and call method to add the attribute values as a map to thre tree
+            makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
+            .then(results=>ProcessAttributeResults(results, templateName, attributeName))
+            //.catch(error=> console.log(error));
+        }
     }
 
     // takes batch call results, and adds values to the correct EF
     function ProcessAttributeResults(results, templateName, attributeName) {
         for (let result in results) {
-            if (results[result].Status == 200) {               
+            if (results[result].Status == 200 && results[result].Content.Items.length > 0) {               
                 const attributeMap = new Map();
-                // add attribute values to the map.  
+                // add attribute values to the map.
                 attributeMap.set(attributeName, results[result].Content.Items[0].Value.Value);
                 // find the correct EF, and add the attribute value to it
                 efDataHolder[templateName].frames.find(ef=>ef.id === result).attributeValuesMap = attributeMap;
