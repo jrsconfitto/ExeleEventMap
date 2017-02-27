@@ -196,13 +196,13 @@ var eventsModule = function () {
         // get the results, create a mock element, and call function to get the EF
         function PathResults(results) {
             myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);           
-            GETEFByElemntID(myel.framesLink, startTime, endTime, ExtractEF);
+            GETEFByElementID(myel.framesLink, startTime, endTime, ExtractEF);
         }
          // get the resulting EF within the time range, and calls ExtractEF when completed
-        function GETEFByElemntID(elementIDbase, startTime, endtime, sucessCallBack) {
+        function GETEFByElementID(elementIDbase, startTime, endtime, successCallBack) {
             url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
             this.symbolElement = symbolElement;
-            makeDataCall(url, 'get', null, sucessCallBack, error);
+            makeDataCall(url, 'get', null, successCallBack, error);
         }
         function error(result) {
             console.log(error);
