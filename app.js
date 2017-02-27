@@ -340,7 +340,7 @@ var eventsModule = function () {
                     "Resource": attributeURL
                 };
             });
-            // use batch call and call method to add the attribute values as a map to thre tree
+            // use batch call and call method to add the attribute values as a map to the tree
             makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
             .then(results=>ProcessAttributeResults(results, templateName, attributeName))
             //.catch(error=> console.log(error));
