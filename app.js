@@ -57,6 +57,12 @@ var eventsModule = function () {
             return 1;
         }
 
+        var sortFunc = function (a, b) {
+            // Sorts by the height (greatest distance from descendant leaf)
+            // and then by value (which determines box sizes).
+            return b.height - a.height || b.value - a.value;
+        };
+
         // This is the main logic of the treemap, it modifies the data (should be a d3.hierarchy of some sort), applies
         // it to the passed selection (i.e. where the visualization should go), and constructs the treemap visualization.
         function treemap(selection) {
@@ -78,11 +84,18 @@ var eventsModule = function () {
                     .paddingInner(1);
                 
                 // Format the data for use in the treemap using the currently set summing function
-                // var sumFunc = function (d) {
-                //     return (d.endTime - d.startTime) / 1000 / 60;
-                // }.bind(sizeBy);
+                var sumFunc = function (d) {
+                    if (this.sumBy === 'None') {
+                        return (d.endTime - d.startTime) / 1000 / 60;
+                    }
+                    return (d.endTime - d.startTime) / 1000 / 60;
+                }.bind({sumBy: sizeBy});
                 
-                treemap(data.sum(sumByDuration));
+                treemap(
+                  data
+                    .sum(sumFunc)
+                    .sort(sortFunc)
+                );
 
                 // Select the div tag that will be the parent of our treemap
                 var parentDiv = d3.select(this);
@@ -422,11 +435,6 @@ var eventsModule = function () {
               d.data.id = (d.parent ? d.parent.data.id + "." : "") + d.data.name;
               // d.WebId = "1111"
           })
-          .sort(function (a, b) {
-              // Sorts by the height (greatest distance from descendant leaf)
-              // and then by value (which determines box sizes).
-              return b.height - a.height || b.value - a.value;
-          });
     }
 
     // sets the tree symbol
