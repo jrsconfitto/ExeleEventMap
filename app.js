@@ -18,7 +18,8 @@ var eventsModule = function () {
     
     function treemap() {
         var width = 960,
-            height = 570;
+            height = 570,
+            sizeBy = "None";
 
         // A helper method that allows us to set the width of the chart.
         // This passes back itself to allow function chaining. Ex: var myTreeMap = treemap().width(900).height(400);
@@ -34,6 +35,27 @@ var eventsModule = function () {
             height = value
             return treemap;
         };
+
+        // Sets the attribute of the EF to use for determining the size of the treemap's cells.
+        //
+        // If the attribute value can't be found in the EF's data, then we will revert to comparing
+        // by duration.
+        //
+        // TODO: would straight count be a useful property to size by?
+        treemap.sizeBy = function(value) {
+            if (!arguments.length) return sizeBy
+            sizeBy = value
+            return treemap;
+        };
+
+        // Summing functions
+        function sumByDuration(d) {
+            return (d.endTime - d.startTime) / 1000 / 60;
+        }
+
+        function sumByCount(d) {
+            return 1;
+        }
 
         // This is the main logic of the treemap, it modifies the data (should be a d3.hierarchy of some sort), applies
         // it to the passed selection (i.e. where the visualization should go), and constructs the treemap visualization.
@@ -54,9 +76,13 @@ var eventsModule = function () {
                     .size([width, height])
                     .round(true)
                     .paddingInner(1);
-
-                // Format the data for use in the treemap
-                treemap(data);
+                
+                // Format the data for use in the treemap using the currently set summing function
+                // var sumFunc = function (d) {
+                //     return (d.endTime - d.startTime) / 1000 / 60;
+                // }.bind(sizeBy);
+                
+                treemap(data.sum(sumByDuration));
 
                 // Select the div tag that will be the parent of our treemap
                 var parentDiv = d3.select(this);
@@ -119,26 +145,27 @@ var eventsModule = function () {
                         return d.data.name + '\nDuration: ' + format(d.value) + ' minutes' + '\nStart: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
                     });
 
-                d3.selectAll('input[type="radio"]')
-                    .data([sumByDuration, sumByCount], function (d) {
-                        return d ? d.name : this.value;
-                    })
-                    .on('change', function (sumFunc) {
-                        treemap(root.sum(sumFunc));
+                // d3.selectAll('input[type="radio"]')
+                //     .data([sumByDuration, sumByCount], function (d) {
+                //         return d ? d.name : this.value;
+                //     })
+                //     .on('change', function (sumFunc) {
+                //         treemap(root.sum(sumFunc));
 
-                        cell.transition()
-                              .duration(250)
-                              .attr("transform", function (d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
-                            .select("rect")
-                              .attr("width", function (d) { return d.x1 - d.x0; })
-                              .attr("height", function (d) { return d.y1 - d.y0; });
-                    });
+                //         cell.transition()
+                //               .duration(250)
+                //               .attr("transform", function (d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
+                //             .select("rect")
+                //               .attr("width", function (d) { return d.x1 - d.x0; })
+                //               .attr("height", function (d) { return d.y1 - d.y0; });
+                //     });
             });
         }
 
         // Return a treemap function that someone can call to add data to
         return treemap;
     }
+
     // creates an eventframe object that is used by the holder
     function myEventFrame(name, TemplateName, startTime, endTime, templatelink, webId) {
         this.name = name;
@@ -395,20 +422,11 @@ var eventsModule = function () {
               d.data.id = (d.parent ? d.parent.data.id + "." : "") + d.data.name;
               // d.WebId = "1111"
           })
-          .sum(sumByDuration)
           .sort(function (a, b) {
               // Sorts by the height (greatest distance from descendant leaf)
               // and then by value (which determines box sizes).
               return b.height - a.height || b.value - a.value;
           });
-    }
-
-    function sumByDuration(d) {
-        return (d.endTime - d.startTime) / 1000 / 60;
-    }
-
-    function sumByCount(d) {
-        return 1;
     }
 
     // sets the tree symbol
@@ -468,7 +486,8 @@ var eventsModule = function () {
             // Set the treemap's width and height based on the calculated values above
             var myTreemap = treemap()
                 .width(width)
-                .height(height);
+                .height(height)
+                .sizeBy(_attribute);
 
             // Extract the right Event Frames data for the Treemap
             //
@@ -503,4 +522,3 @@ var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
         // },         
     });
 };
-
