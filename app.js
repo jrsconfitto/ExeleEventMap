@@ -392,7 +392,7 @@ var eventsModule = function () {
 
         return d3.hierarchy(efData)
           .eachBefore(function (d) {
-              d.data.id = (d.parent ? d.parent.data.id + "." : "") + d.data.name;
+              d.data.id = (d.parent ? d.parent.data.id + '.' : '') + d.data.name + (d.data.ef ? '.' + d.data.ef.webId : '');
               // d.WebId = "1111"
           })
           .sum(function (d) {
