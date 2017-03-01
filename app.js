@@ -388,21 +388,23 @@ var eventsModule = function () {
 
         // Summing functions
         function sumByAttribute(d) {
+            // Lots of things are being verified here before we use the attribute's value for cell sizing:
+            //
+            // * Is there a selected template and attribute?
+            // * Does the template of this EF match the selected template?
+            // * Does the attributes map exist on the data point's (i.e. `d`) `ef` property?
+            // * Does the attributes map contain the selected attribute?
             if (_template
                 && _attribute
-                && d.ef
-                && d.ef.attributes
                 && _template == d.ef.templateName
+                && d.ef.attributes
                 && d.ef.attributes.has(_attribute)) {
 
+                // Return the value of the selected attribute
                 return d.ef.attributes.get(_attribute);
             }
 
-            // Otherwise, default to summing by duration
-            return sumByDuration(d);
-        }
-
-        function sumByDuration(d) {
+            // Otherwise, default to summing by EF duration
             return (d.endTime - d.startTime) / 1000 / 60;
         }
 
