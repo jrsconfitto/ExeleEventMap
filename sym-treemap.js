@@ -10,18 +10,17 @@
         this.onDataUpdate = dataUpdate;
         this.onConfigChange = configChanged;
 
-        this.onResize = resize;      
-        var mytemplate="";
+        this.onResize = resize;
+        var mytemplate = "";
         // put runtimeData in scope
         var runtimeData = scope.runtimeData;
         // method use to get the current EF
-        runtimeData.obtainTemplates =   function()
-        {
+        runtimeData.obtainTemplates = function () {
             return eventsModule.GetEFTemplates()
         };
+
         // method used to get the current attributes from the template
-        runtimeData.obtainAttributes= function()
-        {
+        runtimeData.obtainAttributes = function () {
             return eventsModule.GetEFAttributesFromTemplate(mytemplate);
         };
 
@@ -41,7 +40,7 @@
             }
             // Update treemap, providing URL, elementPath, start and end times
             eventsModule.Update(apiUrl, dataPath, this.elem, timeProvider.displayTime.start, timeProvider.displayTime.end,
-            this.scope.config.TemplateSelected, this.scope.config.AttributeSelected);
+                this.scope.config.TemplateSelected, this.scope.config.AttributeSelected);
 
         }
         // sample event from trend 
@@ -49,9 +48,8 @@
 
         function configChanged(newConfig, oldConfig) {
             // set the template if the config changes
-            if(oldConfig.TemplateSelected != newConfig.TemplateSelected)
-            {
-                mytemplate=  newConfig.TemplateSelected;
+            if (oldConfig.TemplateSelected != newConfig.TemplateSelected) {
+                mytemplate = newConfig.TemplateSelected;
             }
         }
 
@@ -61,8 +59,8 @@
     };
 
 
-  
-  
+
+
 
     // Create symbol definition object
     var def = {
@@ -75,17 +73,17 @@
             return {
                 DataShape: 'Value',
                 Height: 500,
-                Width: 600, 
-                TemplateSelected: "None" ,
-                AttributeSelected: "None" ,
-                Test: ''                        
+                Width: 600,
+                TemplateSelected: "None",
+                AttributeSelected: "None",
+                Test: ''
             };
         },
         configTitle: 'Format Symbol'
         //Templates: templates,
         //Attributes: attributes,
-        
+
     };
     PV.symbolCatalog.register(def);
-    
+
 })(window.PIVisualization);
