@@ -9,11 +9,15 @@
     symbolVis.prototype.init = function (scope, element, timeProvider) {
         this.onDataUpdate = dataUpdate;
         this.onConfigChange = configChanged;
-
         this.onResize = resize;
+
+        // Initialize the element path
+        this.elementPath = getElementPath(this.scope.symbol.DataSources[0]);
+
         var mytemplate = "";
         // put runtimeData in scope
         var runtimeData = scope.runtimeData;
+
         // method use to get the current EF
         runtimeData.obtainTemplates = function () {
             return eventsModule.GetEFTemplates()
@@ -24,25 +28,29 @@
             return eventsModule.GetEFAttributesFromTemplate(mytemplate);
         };
 
+        function getElementPath(dataPath) {
+            // Get path from first data source
+            var pipeIndex = dataPath.substr(3).indexOf("|");
+            var endIndex = (pipeIndex !== -1 ? pipeIndex : dataPath.length);
+            return dataPath.substr(3, endIndex);
+        }
 
         function dataUpdate(data) {
 
             // Set PI web API address
             var apiUrl = "https://pisrv01.pischool.int/piwebapi";
 
-            // Get path from first data source
-            var dataPath = this.scope.symbol.DataSources[0].substr(3);
-
-            // Remove attribute from element path
-            var attributePipeLocation = dataPath.indexOf("|");
-            if (attributePipeLocation > -1) {
-                dataPath = dataPath.substr(0, attributePipeLocation)
+            // If `data` has a `Path` property, then the element path has changed on us.
+            if (data && data.Path) {
+                this.elementPath = getElementPath(this.scope.symbol.DataSources[0]);
             }
+
             // Update treemap, providing URL, elementPath, start and end times
-            eventsModule.Update(apiUrl, dataPath, this.elem, timeProvider.displayTime.start, timeProvider.displayTime.end,
-                this.scope.config.TemplateSelected, this.scope.config.AttributeSelected);
+            eventsModule.Update(apiUrl, this.elementPath, this.elem, timeProvider.displayTime.start, timeProvider.displayTime.end,
+            this.scope.config.TemplateSelected, this.scope.config.AttributeSelected);
 
         }
+        
         // sample event from trend 
         timeProvider.onDisplayTimeChanged.subscribe();
 
