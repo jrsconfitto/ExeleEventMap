@@ -479,7 +479,7 @@ var eventsModule = function () {
             // Set the treemap's width and height based on the calculated values above
             var myTreemap = treemap()
                 .width(width)
-                .height(height)
+                .height(height);
 
             // Extract the right Event Frames data for the Treemap
             //
