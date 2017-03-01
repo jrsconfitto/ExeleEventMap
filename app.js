@@ -1,4 +1,3 @@
-
 var eventsModule = function () {
     //****Private variables
     let templates = [];
@@ -55,7 +54,8 @@ var eventsModule = function () {
                     .round(true)
                     .paddingInner(1);
 
-                // Format the data for use in the treemap
+                // Run the treemap function over the data. This runs through the data hierarchy calculating
+                // the sizes and positions of the cells based on the sum, sort, and other criteria of the hierarchy.
                 treemap(data);
 
                 // Select the div tag that will be the parent of our treemap
@@ -119,26 +119,13 @@ var eventsModule = function () {
                         return d.data.name + '\nTemplate: ' + d.data.ef.templateName + '\nDuration: ' + format(d.value) + ' minutes' + '\nStart: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
                     });
 
-                d3.selectAll('input[type="radio"]')
-                    .data([sumByDuration, sumByCount], function (d) {
-                        return d ? d.name : this.value;
-                    })
-                    .on('change', function (sumFunc) {
-                        treemap(root.sum(sumFunc));
-
-                        cell.transition()
-                              .duration(250)
-                              .attr("transform", function (d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
-                            .select("rect")
-                              .attr("width", function (d) { return d.x1 - d.x0; })
-                              .attr("height", function (d) { return d.y1 - d.y0; });
-                    });
             });
         }
 
         // Return a treemap function that someone can call to add data to
         return treemap;
     }
+
     // creates an eventframe object that is used by the holder
     function myEventFrame(name, TemplateName, startTime, endTime, templatelink, webId) {
         this.name = name;
@@ -240,10 +227,12 @@ var eventsModule = function () {
 
         // Get attribute value for provide attribute and template.
         if (_attribute != undefined && _attribute != "None" && _template != "None") {
+            // Will build the treemap after pulling down attributes' values
             GetAttributesValues(_attribute, _template);
+        } else {
+            //reference the treeview and build it here
+            eventsModule.BuildTreemap();
         }
-        //reference the treeview and build it here
-        eventsModule.BuildTreemap(symbolElement);
     }
 
     // adds attribute names to the model such that the config panel displays the Values
@@ -339,7 +328,10 @@ var eventsModule = function () {
             // use batch call and call method to add the attribute values as a map to the tree
             makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
             .then(results=>ProcessAttributeResults(results, templateName, attributeName))
+            .then(() => eventsModule.BuildTreemap());
             //.catch(error=> console.log(error));
+        } else {
+            eventsModule.BuildTreemap();
         }
     }
 
@@ -378,6 +370,11 @@ var eventsModule = function () {
                 name: efName,
                 children: efs.frames
                     .map(function (f) {
+                        // Include any attributes into the ef object
+                        if (f.attributeValuesMap) {
+                            f.ef.attributes = f.attributeValuesMap;
+                        }
+
                         return {
                             name: f.ef.name,
                             ef: f.ef,
@@ -388,25 +385,52 @@ var eventsModule = function () {
             });
         }
 
+        // Might be useful to allow summing by count, in the future.
+        function sumByCount(d) {
+            return 1;
+        }
+
         return d3.hierarchy(efData)
           .eachBefore(function (d) {
               d.data.id = (d.parent ? d.parent.data.id + "." : "") + d.data.name;
               // d.WebId = "1111"
           })
-          .sum(sumByDuration)
+          .sum(function (d) {
+              // The `sum` determines the size of the cells within the treemap.
+
+              // This summing function sums by:
+              //
+              // A selected attribute's value, if present
+              //
+              // OR
+              //
+              // The EF's duration (default)
+
+              // Lots of things are being verified here before we use the attribute's value for cell sizing:
+              //
+              // * Is there a selected template and attribute?
+              // * Does the template of this EF match the selected template?
+              // * Does the attributes map exist on the data point's (i.e. `d`) `ef` property?
+              // * Does the attributes map contain the selected attribute?
+              if (_template
+                  && _attribute
+                  && d.ef
+                  && _template == d.ef.templateName
+                  && d.ef.attributes
+                  && d.ef.attributes.has(_attribute)) {
+
+                  // Return the value of the selected attribute
+                  return d.ef.attributes.get(_attribute);
+              }
+
+              // Otherwise, default to summing by EF duration
+              return (d.endTime - d.startTime) / 1000 / 60;
+          })
           .sort(function (a, b) {
               // Sorts by the height (greatest distance from descendant leaf)
               // and then by value (which determines box sizes).
               return b.height - a.height || b.value - a.value;
           });
-    }
-
-    function sumByDuration(d) {
-        return (d.endTime - d.startTime) / 1000 / 60;
-    }
-
-    function sumByCount(d) {
-        return 1;
     }
 
     // sets the tree symbol
@@ -499,4 +523,3 @@ var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
         // },         
     });
 };
-
