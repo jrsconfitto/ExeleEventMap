@@ -20,12 +20,12 @@
     <input type="checkbox" ng-model="config.ShowTime">
 </div>
 
-<div class="c-config-content">Select Template:
+<div class="c-config-content">Select EF Template:
    <select ng-model="config.TemplateSelected">
         <option ng-repeat="t in runtimeData.obtainTemplates()">{{t}}</option>
    </select>  
 </div>
-<div class="c-config-content">Select Attribute:
+<div class="c-config-content">Select EF Attribute:
    <select ng-model="config.AttributeSelected">
         <option ng-repeat="a in runtimeData.obtainAttributes()">{{a}}</option>
    </select>  
