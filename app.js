@@ -282,17 +282,12 @@ var eventsModule = function () {
       
         // Get attribute value for provide attribute and template.
         if (_attribute != undefined &&_attribute != "None" && _template !="None") {
-            // PROBLEM: the attribute values retrieved from the following operations will never get into the treemap
-            // because they are executed using a promise. The `BuildTreemap` gets called before the attribute values are
-            // returned and then the next time a data update occurs, the `efDataHolder`'s existing data is replaced with
-            // new data pulled from the server.
-            //
-            // We need to make sure that if this path is followed, then the Build Treemap is called after the values are
-            // returned back from the server.
+            // Will build the treemap after pulling down attributes' values
             GetAttributesValues(_attribute, _template);
+        } else {
+            //reference the treeview and build it here
+            eventsModule.BuildTreemap();
         }
-        //reference the treeview and build it here
-        eventsModule.BuildTreemap(symbolElement);
     }
 
     // adds attribute names to the model such that the config panel displays the Values
@@ -388,7 +383,10 @@ var eventsModule = function () {
             // use batch call and call method to add the attribute values as a map to the tree
             makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
             .then(results=>ProcessAttributeResults(results, templateName, attributeName))
+            .then(() => eventsModule.BuildTreemap());
             //.catch(error=> console.log(error));
+        } else {
+            eventsModule.BuildTreemap();
         }
     }
 
