@@ -15,7 +15,7 @@ var eventsModule = function () {
     // Modeled after the example given in Mike Bostock's fantastic "Towards Reusable Charts": https://bost.ocks.org/mike/chart/
     //
     // This pattern allows us to create (lots of) treemaps easily and update their data (and other attributes) by calling this function with new data (or new chart attributes).
-
+    
     function treemap() {
         var width = 960,
             height = 570;
@@ -117,7 +117,7 @@ var eventsModule = function () {
 
                 cell.append("title")
                     .text(function (d) {
-                        return d.data.name + '\nTemplate: ' + d.data.ef.templateName + '\nDuration: ' + format(d.value) + ' minutes' + '\nStart: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
+                        return d.data.name + '\nDuration: ' + format(d.value) + ' minutes' + '\nStart: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
                     });
 
                 // d3.selectAll('input[type="radio"]')
@@ -183,8 +183,8 @@ var eventsModule = function () {
 
         return ["None"].concat(attributes);
     }
-
-
+   
+  
 
     // main function that builds up the EF data
     // gets the element, gets the EF on the element
@@ -195,10 +195,10 @@ var eventsModule = function () {
 
         // get the results, create a mock element, and call function to get the EF
         function PathResults(results) {
-            myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
+            myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);           
             GETEFByElementID(myel.framesLink, startTime, endTime, ExtractEF);
         }
-        // get the resulting EF within the time range, and calls ExtractEF when completed
+         // get the resulting EF within the time range, and calls ExtractEF when completed
         function GETEFByElementID(elementIDbase, startTime, endtime, successCallBack) {
             url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
             this.symbolElement = symbolElement;
@@ -224,11 +224,11 @@ var eventsModule = function () {
             let EF = new myEventFrame(apiFrameResult.Name, apiFrameResult.TemplateName, apiFrameResult.StartTime, apiFrameResult.EndTime,
                 apiFrameResult.Links.Template, apiFrameResult.WebId);
             // if the EF template is not a property of the object, add it
-            if (efDataHolder[EF.templateName] === undefined) {
-
+            if (efDataHolder[EF.templateName] === undefined) {               
+                
                 efDataHolder[EF.templateName] = {
                     "Links": apiFrameResult.Links.Template,
-                    "frames": [],
+                    "frames": [],                   
                 }
             }
             // for all EF, add an arry of the EF with properties of id and the actual EF object
@@ -239,7 +239,7 @@ var eventsModule = function () {
         }
         // get the attribute tepmlates to cache them here to show in the grid, we should move to own cache
         GetAllTemplateAttributes();
-
+      
         // Get attribute value for provide attribute and template.
         if (_attribute != undefined && _attribute != "None" && _template != "None") {
             // Will build the treemap after pulling down attributes' values
@@ -274,7 +274,7 @@ var eventsModule = function () {
                     efDataHolder[templates].attributeNames = attributesNames;
                 }
             }
-        }
+        }           
     }
 
 
@@ -319,7 +319,7 @@ var eventsModule = function () {
             // probably should return the attribute array here
             console.log(attributes);
         }, error=>console.log(error));
-
+      
     }
 
     // get the attribute values for each EF given an attributeName and template
@@ -353,7 +353,7 @@ var eventsModule = function () {
     // takes batch call results, and adds values to the correct EF
     function ProcessAttributeResults(results, templateName, attributeName) {
         for (let result in results) {
-            if (results[result].Status == 200 && results[result].Content.Items.length > 0) {
+            if (results[result].Status == 200 && results[result].Content.Items.length > 0) {               
                 const attributeMap = new Map();
                 // add attribute values to the map.
                 attributeMap.set(attributeName, results[result].Content.Items[0].Value.Value);
@@ -386,8 +386,8 @@ var eventsModule = function () {
                 children: efs.frames
                     .map(function (f) {
                         // Include any attributes into the ef object
-                        if (f.attributeMap !== undefined) {
-                            f.ef.attributes = f.attributeMap;
+                        if (f.attributeValuesMap) {
+                            f.ef.attributes = f.attributeValuesMap;
                         }
 
                         return {
@@ -403,12 +403,13 @@ var eventsModule = function () {
         // Summing functions
         function sumByAttribute(d) {
             if (_template
-                &&_attribute
+                && _attribute
                 && d.ef
                 && d.ef.attributes
-                && _template == d.ef.templateName) {
-                    
-                return d.ef.attributes;
+                && _template == d.ef.templateName
+                && d.ef.attributes.has(_attribute)) {
+                 
+                return d.ef.attributes.get(_attribute);
             }
 
             // Otherwise, default to summing by duration
@@ -454,19 +455,19 @@ var eventsModule = function () {
 
     // ----------public methods---------------------------------------------
     //----------------------------------------------------------------------
-    return {
+    return {       
         // gets all of the EF attributes givena  template, need to extended to use attribute name
         GetEFAttributesValuesFromTemplate: (apiServer, templateName) =>GetTemplateAttributes(apiServer, templateName),
         // Creates an element object provided a path
-        Update: (APIServer, elementPath, symbolElement, startTime, endTime, template, attribute) => {
-            // store the symbol and the apiserver as private variables in the module, we should initiallize first.
+        Update: (APIServer, elementPath, symbolElement, startTime, endTime, template, attribute) => {          
+             // store the symbol and the apiserver as private variables in the module, we should initiallize first.
             SetSymbol(symbolElement);
             SetWebAPIURL(APIServer);
             SetTemplate(template);
             SetAttribute(attribute);
-
+            
             // obtain the EF data
-            GetEFData(elementPath, startTime, endTime);
+            GetEFData(elementPath, startTime, endTime);               
         },
         // get EF templates
         GetEFTemplates: () => {
