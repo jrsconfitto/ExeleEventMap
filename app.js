@@ -36,33 +36,6 @@ var eventsModule = function () {
             return treemap;
         };
 
-        // Sets the attribute of the EF to use for determining the size of the treemap's cells.
-        //
-        // If the attribute value can't be found in the EF's data, then we will revert to comparing
-        // by duration.
-        //
-        // TODO: would straight count be a useful property to size by?
-        treemap.sizeBy = function(value) {
-            if (!arguments.length) return sizeBy
-            sizeBy = value
-            return treemap;
-        };
-
-        // Summing functions
-        function sumByDuration(d) {
-            return (d.endTime - d.startTime) / 1000 / 60;
-        }
-
-        function sumByCount(d) {
-            return 1;
-        }
-
-        var sortFunc = function (a, b) {
-            // Sorts by the height (greatest distance from descendant leaf)
-            // and then by value (which determines box sizes).
-            return b.height - a.height || b.value - a.value;
-        };
-
         // This is the main logic of the treemap, it modifies the data (should be a d3.hierarchy of some sort), applies
         // it to the passed selection (i.e. where the visualization should go), and constructs the treemap visualization.
         function treemap(selection) {
@@ -83,19 +56,9 @@ var eventsModule = function () {
                     .round(true)
                     .paddingInner(1);
                 
-                // Format the data for use in the treemap using the currently set summing function
-                var sumFunc = function (d) {
-                    if (this.sumBy === 'None') {
-                        return (d.endTime - d.startTime) / 1000 / 60;
-                    }
-                    return (d.endTime - d.startTime) / 1000 / 60;
-                }.bind({sumBy: sizeBy});
-                
-                treemap(
-                  data
-                    .sum(sumFunc)
-                    .sort(sortFunc)
-                );
+                // Run the treemap function over the data. This runs through the data hierarchy calculating
+                // the sizes and positions of the cells based on the sum, sort, and other criteria of the hierarchy.
+                treemap(data);
 
                 // Select the div tag that will be the parent of our treemap
                 var parentDiv = d3.select(this);
@@ -425,6 +388,11 @@ var eventsModule = function () {
                 name: efName,
                 children: efs.frames
                     .map(function (f) {
+                        // Include any attributes into the ef object
+                        if (f.attributeMap !== undefined) {
+                            f.ef.attributes = f.attributeMap;
+                        }
+
                         return {
                             name: f.ef.name,
                             ef: f.ef,
@@ -435,11 +403,35 @@ var eventsModule = function () {
             });
         }
 
+        // Summing functions
+        function sumByAttribute(d) {
+            if (_attribute && d.ef && d.ef.attributes) {
+                return d.ef.attributes;
+            }
+
+            // Otherwise, default to summing by duration
+            return sumByDuration(d);
+        }
+
+        function sumByDuration(d) {
+            return (d.endTime - d.startTime) / 1000 / 60;
+        }
+
+        function sumByCount(d) {
+            return 1;
+        }
+
         return d3.hierarchy(efData)
           .eachBefore(function (d) {
               d.data.id = (d.parent ? d.parent.data.id + "." : "") + d.data.name;
               // d.WebId = "1111"
           })
+          .sum(sumByAttribute)
+          .sort(function(a, b) {
+              // Sorts by the height (greatest distance from descendant leaf)
+              // and then by value (which determines box sizes).
+              return b.height - a.height || b.value - a.value;
+          });
     }
 
     // sets the tree symbol
@@ -500,7 +492,6 @@ var eventsModule = function () {
             var myTreemap = treemap()
                 .width(width)
                 .height(height)
-                .sizeBy(_attribute);
 
             // Extract the right Event Frames data for the Treemap
             //
