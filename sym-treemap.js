@@ -32,7 +32,7 @@
             var apiUrl = "https://pisrv01.pischool.int/piwebapi";
 
             // Get path from first data source
-            var dataPath = this.scope.symbol.DataSources[0].substr(3, 9999);
+            var dataPath = this.scope.symbol.DataSources[0].substr(3);
 
             // Remove attribute from element path
             var attributePipeLocation = dataPath.indexOf("|");
