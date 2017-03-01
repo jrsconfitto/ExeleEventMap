@@ -405,7 +405,12 @@ var eventsModule = function () {
 
         // Summing functions
         function sumByAttribute(d) {
-            if (_attribute && d.ef && d.ef.attributes) {
+            if (_template
+                &&_attribute
+                && d.ef
+                && d.ef.attributes
+                && _template == d.ef.templateName) {
+                    
                 return d.ef.attributes;
             }
 
