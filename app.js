@@ -1,4 +1,3 @@
-
 var eventsModule = function () {
     //****Private variables
     let templates = [];
