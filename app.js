@@ -120,20 +120,6 @@ var eventsModule = function () {
                         return d.data.name + '\nDuration: ' + format(d.value) + ' minutes' + '\nStart: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
                     });
 
-                // d3.selectAll('input[type="radio"]')
-                //     .data([sumByDuration, sumByCount], function (d) {
-                //         return d ? d.name : this.value;
-                //     })
-                //     .on('change', function (sumFunc) {
-                //         treemap(root.sum(sumFunc));
-
-                //         cell.transition()
-                //               .duration(250)
-                //               .attr("transform", function (d) { return "translate(" + d.x0 + "," + d.y0 + ")"; })
-                //             .select("rect")
-                //               .attr("width", function (d) { return d.x1 - d.x0; })
-                //               .attr("height", function (d) { return d.y1 - d.y0; });
-                //     });
             });
         }
 
