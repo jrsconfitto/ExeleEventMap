@@ -262,33 +262,7 @@ var eventsModule = function () {
         }
     }
 
-
-    // this method is not used...--//--------
-    // give a templateName, obtains the attributes.
-    function GetTemplateAttributes(templateName) {
-        if (efDataHolder[templateName] === undefined) {
-            console.log("template not found");
-            return;
-        }
-        //could use batch call to make this more efficient if desired
-        //adds the attributeTemplates items to the template
-        var tempURL = efDataHolder[templateName].Links;
-        makeDataCall(tempURL, 'get').then(results =>
-            // get the attribute templates and add them to the template
-            makeDataCall(results.Links.AttributeTemplates)).then(attTemplate=> {
-                let attributes = attTemplate.Items;
-                if (efDataHolder[templateName].attributesTemplates === undefined) {
-                    efDataHolder[templateName].attributesTemplates = [];
-                    attributes.forEach(attribute=> {
-                        efDataHolder[templateName].attributesTemplates.push(attribute)
-                        // console.log(attriubte);
-                    })
-                }
-                GetAttributesValues(apiServer, "Net Wet Weight (Mine)", templateName);
-            })
-        //.catch(error=>console.log(error));
-    }
-    //get a singleEf 
+    //get a singleEf
     function GetSingleEFAttributes(id) {
         let efURL = webAPIServerURL + "/streamsets/" + id + "/value";
         makeDataCall(efURL, "GET", null, null, null)
@@ -452,8 +426,6 @@ var eventsModule = function () {
     // ----------public methods---------------------------------------------
     //----------------------------------------------------------------------
     return {
-        // gets all of the EF attributes givena  template, need to extended to use attribute name
-        GetEFAttributesValuesFromTemplate: (apiServer, templateName) =>GetTemplateAttributes(apiServer, templateName),
         // Creates an element object provided a path
         Update: (APIServer, elementPath, symbolElement, startTime, endTime, template, attribute) => {
             // store the symbol and the apiserver as private variables in the module, we should initiallize first.
