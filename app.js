@@ -327,7 +327,7 @@ var eventsModule = function () {
             var bulkQuery = {};
             templateUsed.frames.forEach(EF => {
                 var attributeURL;
-                attributeURL = encodeURI(webAPIServerURL + "/streamsets/" + EF.id + "/value?nameFilter=" + attributeName + "&selectedFields=Items.Value.Value");
+                attributeURL = encodeURI(webAPIServerURL + "/streamsets/" + EF.id + "/value?selectedFields=Items.Name;Items.Value.Value");
                 bulkQuery[EF.id] = {
                     "Method": "GET",
                     "Resource": attributeURL
@@ -349,7 +349,11 @@ var eventsModule = function () {
             if (results[result].Status == 200 && results[result].Content.Items.length > 0) {
                 const attributeMap = new Map();
                 // add attribute values to the map.
-                attributeMap.set(attributeName, results[result].Content.Items[0].Value.Value);
+                for (var i in results[result].Content.Items) {
+                    var attributeObj = results[result].Content.Items[i];
+                    attributeMap.set(attributeObj.Name, attributeObj.Value.Value);
+                }
+                
                 // find the correct EF, and add the attribute value to it
                 efDataHolder[templateName].frames.find(ef=>ef.id === result).attributeValuesMap = attributeMap;
             }
