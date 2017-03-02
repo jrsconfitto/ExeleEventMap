@@ -14,20 +14,19 @@
         var mytemplate = "";
         // put runtimeData in scope
         var runtimeData = scope.runtimeData;
+        
         // method use to get the current EF
         runtimeData.obtainTemplates = function () {
             var efTemplates = eventsModule.GetEFTemplates()
-         efTemplates.unshift('None');
-         return efTemplates;
+            efTemplates.unshift('None');
+            return efTemplates;
         };
-
-        var cachedA=[];
 
         // method used to get the current attributes from the template
         runtimeData.obtainAttributes = function () {
-            var efAttributes= eventsModule.GetEFAttributesFromTemplate(mytemplate);
-            efAttributes.unshift('None');
-            return efAttributes;
+            var efAttributes= eventsModule.GetEFAttributesFromTemplate(mytemplate);          
+               // return like this so angular does not loop forever
+                return ['None'].concat(efAttributes);                    
         };
 
 
