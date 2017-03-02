@@ -25,8 +25,13 @@
         <option ng-repeat="t in runtimeData.obtainTemplates()">{{t}}</option>
    </select>  
 </div>
-<div class="c-config-content">Select EF Attribute:
+<div class="c-config-content">Size by selected EF Attribute:
    <select ng-model="config.AttributeSelected">
+        <option ng-repeat="a in runtimeData.obtainAttributes()">{{a}}</option>
+   </select>  
+</div>
+<div class="c-config-content">Color by selected EF Attribute:
+   <select ng-model="config.ColorAttributeSelected">
         <option ng-repeat="a in runtimeData.obtainAttributes()">{{a}}</option>
    </select>  
 </div>
