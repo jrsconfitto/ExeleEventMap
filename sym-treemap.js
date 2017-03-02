@@ -21,6 +21,8 @@
          return efTemplates;
         };
 
+        var cachedA=[];
+
         // method used to get the current attributes from the template
         runtimeData.obtainAttributes = function () {
             var efAttributes= eventsModule.GetEFAttributesFromTemplate(mytemplate);
