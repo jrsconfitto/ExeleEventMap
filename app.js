@@ -141,6 +141,13 @@ var eventsModule = function () {
                             }
                         }
 
+                        if (_colorAttribute !== '' && _colorAttribute !== 'None') {
+                            title += '\n\n(Coloring by: ' + _colorAttribute + ')';
+                            if (d.data.ef.attributes && d.data.ef.attributes.has(_colorAttribute)) {
+                                title += '\n\t' + _colorAttribute + ' Value: ' + d.data.ef.attributes.get(_colorAttribute);
+                            }
+                        }
+
                         return title;
                     });
 
