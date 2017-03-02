@@ -7,6 +7,7 @@ var eventsModule = function () {
     let webAPIServerURL = "";
     var _template = "";
     var _sizeAttribute = "";
+    var _colorAttribute = "";
 
 
     //**********Private Methods***********
@@ -97,7 +98,9 @@ var eventsModule = function () {
                     .attr("id", function (d) { return d.data.id; })
                     .attr("width", function (d) { return d.x1 - d.x0; })
                     .attr("height", function (d) { return d.y1 - d.y0; })
-                    .attr("fill", function (d) { return color(d.parent.data.id); })
+                    .attr("fill", function (d) {
+                      return color(d.parent.data.id);
+                    })
                     .attr("data-web-id", function (d) { return d.data.ef.webId; });
 
                 cell.append("clipPath")
@@ -128,7 +131,7 @@ var eventsModule = function () {
                                 title += '\n\t' + _sizeAttribute + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute);
                             }
                         }
-                        
+
                         return title;
                     });
 
@@ -432,20 +435,24 @@ var eventsModule = function () {
     function SetTemplate(template) {
         _template = template;
     }
-    function SetAttribute(attribute) {
-        _sizeAttribute = attribute;
+    function SetSizeAttribute(sizeAttribute) {
+        _sizeAttribute = sizeAttribute;
+    }
+    function SetColorAttribute(colorAttribute) {
+        _colorAttribute = colorAttribute;
     }
 
     // ----------public methods---------------------------------------------
     //----------------------------------------------------------------------
     return {
         // Creates an element object provided a path
-        Update: (APIServer, elementPath, symbolElement, startTime, endTime, template, attribute) => {
+        Update: (APIServer, elementPath, symbolElement, startTime, endTime, template, sizeAttribute, colorAttribute) => {
             // store the symbol and the apiserver as private variables in the module, we should initiallize first.
             SetSymbol(symbolElement);
             SetWebAPIURL(APIServer);
             SetTemplate(template);
-            SetAttribute(attribute);
+            SetSizeAttribute(sizeAttribute);
+            SetColorAttribute(colorAttribute);
 
             // obtain the EF data
             GetEFData(elementPath, startTime, endTime);
@@ -477,7 +484,7 @@ var eventsModule = function () {
 
             // Extract the right Event Frames data for the Treemap
             //
-            // d3 requires hierarchical data for a treemap, this means that the data should be organized in a 
+            // d3 requires hierarchical data for a treemap, this means that the data should be organized in a
             // tree-like structure with nodes that may have children. From the documentation:
             //
             //   Before you can compute a hierarchical layout, you need a root node. If your data
@@ -505,6 +512,6 @@ var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
         error: errorCallBack //,
         // beforeSend: function (xhr) {
         //    xhr.setRequestHeader("Authorization", makeBasicAuth("administrator", "pw"));
-        // },         
+        // },
     });
 };
