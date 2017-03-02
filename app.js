@@ -335,7 +335,7 @@ var eventsModule = function () {
             });
             // use batch call and call method to add the attribute values as a map to the tree
             makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
-            .then(results=>ProcessAttributeResults(results, templateName, attributeName))
+            .then(results=>ProcessAttributeResults(results, templateName))
             .then(() => eventsModule.BuildTreemap());
             //.catch(error=> console.log(error));
         } else {
@@ -344,7 +344,7 @@ var eventsModule = function () {
     }
 
     // takes batch call results, and adds values to the correct EF
-    function ProcessAttributeResults(results, templateName, attributeName) {
+    function ProcessAttributeResults(results, templateName) {
         for (let result in results) {
             if (results[result].Status == 200 && results[result].Content.Items.length > 0) {
                 const attributeMap = new Map();
