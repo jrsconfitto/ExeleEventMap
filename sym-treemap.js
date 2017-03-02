@@ -16,12 +16,16 @@
         var runtimeData = scope.runtimeData;
         // method use to get the current EF
         runtimeData.obtainTemplates = function () {
-            return eventsModule.GetEFTemplates()
+            var efTemplates = eventsModule.GetEFTemplates()
+         efTemplates.unshift('None');
+         return efTemplates;
         };
 
         // method used to get the current attributes from the template
         runtimeData.obtainAttributes = function () {
-            return eventsModule.GetEFAttributesFromTemplate(mytemplate);
+            var efAttributes= eventsModule.GetEFAttributesFromTemplate(mytemplate);
+            efAttributes.unshift('None');
+            return efAttributes;
         };
 
 
