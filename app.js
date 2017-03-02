@@ -240,9 +240,13 @@ var eventsModule = function () {
         }
     }
 
-    
-    function GetAllTemplateAttributes() {
-        // Promise.all which returns lots of templates! Converts this async stuff to a synchronous result,
+    // Finds all the attribute names for the passed array of template names
+    //
+    // param `templateNames`: an array of EF template names
+    //
+    // returns a single promise containing an array of Objects containing a template name paired with its attribute names.
+    function GetAllTemplateAttributes(templateNames) {    
+        // Promise.all which returns lots of templates! Converts multiple requests to a single promise result,
         // which may be desirable because this may be the first thing we want to get when looking
         // for the attributes within an EF Template for an Element.
         var templates = Object.keys(efDataHolder);
