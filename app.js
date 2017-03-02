@@ -152,7 +152,8 @@ var eventsModule = function () {
     }
     // used to return all of the EF templates used as array
     function GetTemplates() {
-        templates = ["None"];
+      var  templates = [];
+         //["None"];
         for (var t in efDataHolder) {
             templates.push(t);
         }
@@ -160,13 +161,13 @@ var eventsModule = function () {
     }
     // use to return the attributes as array given a template
     function GetEFAttributesFromTemplate(templateName) {
-        var attResults = ["None"];
+        
         var attributes = [];
         if (efDataHolder[templateName]) {
             attributes = efDataHolder[templateName].attributeNames;
         }
 
-        return ["None"].concat(attributes);
+        return attributes;
     }
 
 

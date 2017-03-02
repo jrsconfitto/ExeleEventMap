@@ -52,6 +52,8 @@ $(document).on('efClick', function (ev, data) {
 })
 
 function fillSelect($select, items) {
+
+    items.unshift('None');
     // Initialize the selected template and attributes
     var options = items.map(function(t) {
         return '<option value="' + t + '">' + t + '</option>';
