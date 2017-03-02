@@ -132,8 +132,8 @@ var eventsModule = function () {
                         var title = d.data.name
                             + '\nTemplate: ' + d.data.ef.templateName
                             + '\nDuration: ' + format(d.value) + ' minutes'
-                            + '\nStart: ' + d.data.startTime
-                            + '\nEnd: ' + d.data.endTime;
+                            + '\nStart: ' + d.data.startTime.toLocaleString()
+                            + '\nEnd: ' + d.data.endTime.toLocaleString();
 
                         if (_sizeAttribute !== '' && _sizeAttribute !== 'None') {
                             title += '\n\n(Sizing by: ' + _sizeAttribute + ')';
@@ -185,7 +185,8 @@ var eventsModule = function () {
     }
     // used to return all of the EF templates used as array
     function GetTemplates() {
-        templates = ["None"];
+      var  templates = [];
+         //["None"];
         for (var t in efDataHolder) {
             templates.push(t);
         }
@@ -193,13 +194,13 @@ var eventsModule = function () {
     }
     // use to return the attributes as array given a template
     function GetEFAttributesFromTemplate(templateName) {
-        var attResults = ["None"];
+
         var attributes = [];
         if (efDataHolder[templateName]) {
             attributes = efDataHolder[templateName].attributeNames;
         }
 
-        return ["None"].concat(attributes);
+        return attributes;
     }
 
 
@@ -386,7 +387,7 @@ var eventsModule = function () {
                             if (_colorAttribute && f.ef.attributes.has(_colorAttribute)) {
                                 color = {
                                   attributeName: _colorAttribute,
-                                  value: f.attributeValuesMap.get(_colorAttribute)  
+                                  value: f.attributeValuesMap.get(_colorAttribute)
                                 };
                             }
                         }
