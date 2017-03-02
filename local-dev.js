@@ -18,7 +18,11 @@ function handleLoad(e) {
 
     $('#efTemplates').on('change', function (e, el) {
         var selectedTemplate = $(':selected', '#efTemplates').val() || 'None';
-        fillSelect($('#efAttributes'), eventsModule.GetEFAttributesFromTemplate(selectedTemplate));
+        var efAttributes = eventsModule.GetEFAttributesFromTemplate(selectedTemplate);
+        
+        [$('#efSizeAttributes'), $('#efColorAttributes')].forEach(function($select) {
+            fillSelect($select, this);
+        }.bind(efAttributes));
     });
 }
 
