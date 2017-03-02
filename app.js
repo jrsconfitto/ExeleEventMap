@@ -116,7 +116,8 @@ var eventsModule = function () {
 
                 cell.append("title")
                     .text(function (d) {
-                        return d.data.name + '\nTemplate: ' + d.data.ef.templateName + '\nDuration: ' + format(d.value) + ' minutes' + '\nStart: ' + d.data.startTime + '\nEnd: ' + d.data.endTime;
+                        return d.data.name + '\nTemplate: ' + d.data.ef.templateName + '\nDuration: ' + format(d.value) + ' minutes' + '\nStart: ' 
+                        + d.data.startTime.toLocaleString() + '\nEnd: ' + d.data.endTime.toLocaleString();
                     });
 
             });
