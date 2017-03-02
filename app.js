@@ -6,7 +6,7 @@ var eventsModule = function () {
     let symbolElement = {};
     let webAPIServerURL = "";
     var _template = "";
-    var _attribute = "";
+    var _sizeAttribute = "";
 
 
     //**********Private Methods***********
@@ -226,9 +226,9 @@ var eventsModule = function () {
         GetAllTemplateAttributes();
 
         // Get attribute value for provide attribute and template.
-        if (_attribute != undefined && _attribute != "None" && _template != "None") {
+        if (_sizeAttribute != undefined && _sizeAttribute != "None" && _template != "None") {
             // Will build the treemap after pulling down attributes' values
-            GetAttributesValues(_attribute, _template);
+            GetAttributesValues(_sizeAttribute, _template);
         } else {
             //reference the treeview and build it here
             eventsModule.BuildTreemap();
@@ -387,14 +387,14 @@ var eventsModule = function () {
               // * Does the attributes map exist on the data point's (i.e. `d`) `ef` property?
               // * Does the attributes map contain the selected attribute?
               if (_template
-                  && _attribute
+                  && _sizeAttribute
                   && d.ef
                   && _template == d.ef.templateName
                   && d.ef.attributes
-                  && d.ef.attributes.has(_attribute)) {
+                  && d.ef.attributes.has(_sizeAttribute)) {
 
                   // Return the value of the selected attribute
-                  return d.ef.attributes.get(_attribute);
+                  return d.ef.attributes.get(_sizeAttribute);
               }
 
               // Otherwise, default to summing by EF duration
@@ -420,7 +420,7 @@ var eventsModule = function () {
         _template = template;
     }
     function SetAttribute(attribute) {
-        _attribute = attribute;
+        _sizeAttribute = attribute;
     }
 
     // ----------public methods---------------------------------------------
