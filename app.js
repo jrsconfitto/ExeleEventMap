@@ -99,7 +99,15 @@ var eventsModule = function () {
                     .attr("width", function (d) { return d.x1 - d.x0; })
                     .attr("height", function (d) { return d.y1 - d.y0; })
                     .attr("fill", function (d) {
-                      return color(d.parent.data.id);
+                        var selectedColor,
+                            defaultColor = color(d.parent.data.id);
+                        if (d.data.color) {
+                            selectedColor = color(d.data.color.value);
+
+                            console.debug('%c Default color' + '%c Attribute color', 'background: ' + defaultColor, 'background: ' + selectedColor);
+                        }
+
+                        return (d.data.color ? selectedColor : defaultColor);
                     })
                     .attr("data-web-id", function (d) { return d.data.ef.webId; });
 
