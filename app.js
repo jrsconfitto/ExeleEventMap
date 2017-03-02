@@ -124,7 +124,9 @@ var eventsModule = function () {
 
                         if (_sizeAttribute !== '' && _sizeAttribute !== 'None') {
                             title += '\n\n(Sizing by: ' + _sizeAttribute + ')';
-                            title += '\n\t' + _sizeAttribute + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute);
+                            if (d.data.ef.attributes && d.data.ef.attributes.has(_sizeAttribute)) {
+                                title += '\n\t' + _sizeAttribute + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute);
+                            }
                         }
                         
                         return title;
