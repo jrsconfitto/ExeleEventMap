@@ -29,7 +29,6 @@
                 return ['None'].concat(efAttributes);                    
         };
 
-
         function dataUpdate(data) {
 
             // Set PI web API address
@@ -45,7 +44,7 @@
             }
             // Update treemap, providing URL, elementPath, start and end times
             eventsModule.Update(apiUrl, dataPath, this.elem, timeProvider.displayTime.start, timeProvider.displayTime.end,
-                this.scope.config.TemplateSelected, this.scope.config.AttributeSelected);
+                this.scope.config.TemplateSelected, this.scope.config.AttributeSelected, this.scope.config.ColorAttributeSelected);
 
         }
         // sample event from trend 
@@ -81,6 +80,7 @@
                 Width: 600,
                 TemplateSelected: "None",
                 AttributeSelected: "None",
+                ColorAttributeSelected: "None",
                 Test: ''
             };
         },

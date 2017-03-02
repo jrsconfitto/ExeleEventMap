@@ -6,7 +6,8 @@ var eventsModule = function () {
     let symbolElement = {};
     let webAPIServerURL = "";
     var _template = "";
-    var _attribute = "";
+    var _sizeAttribute = "";
+    var _colorAttribute = "";
 
 
     //**********Private Methods***********
@@ -97,7 +98,19 @@ var eventsModule = function () {
                     .attr("id", function (d) { return d.data.id; })
                     .attr("width", function (d) { return d.x1 - d.x0; })
                     .attr("height", function (d) { return d.y1 - d.y0; })
-                    .attr("fill", function (d) { return color(d.parent.data.id); })
+                    .attr("fill", function (d) {
+                        var selectedColor
+                            defaultColor = (_colorAttribute && _colorAttribute !== 'None' ? color(d.parent.data.name) : color(d.parent.data.id));
+
+                        if (d.data.color) {
+                            selectedColor = color(d.data.color.value);
+                            console.debug('%c Default color' + '%c Attribute color', 'background: ' + defaultColor, 'background: ' + selectedColor);
+                        } else {
+                            console.debug('%c Default color', 'background: ' + defaultColor);
+                        }
+
+                        return (d.data.color ? selectedColor : defaultColor);
+                    })
                     .attr("data-web-id", function (d) { return d.data.ef.webId; });
 
                 cell.append("clipPath")
@@ -116,8 +129,27 @@ var eventsModule = function () {
 
                 cell.append("title")
                     .text(function (d) {
-                        return d.data.name + '\nTemplate: ' + d.data.ef.templateName + '\nDuration: ' + format(d.value) + ' minutes' + '\nStart: ' 
-                        + d.data.startTime.toLocaleString() + '\nEnd: ' + d.data.endTime.toLocaleString();
+                        var title = d.data.name
+                            + '\nTemplate: ' + d.data.ef.templateName
+                            + '\nDuration: ' + format(d.value) + ' minutes'
+                            + '\nStart: ' + d.data.startTime.toLocaleString()
+                            + '\nEnd: ' + d.data.endTime.toLocaleString();
+
+                        if (_sizeAttribute !== '' && _sizeAttribute !== 'None') {
+                            title += '\n\n(Sizing by: ' + _sizeAttribute + ')';
+                            if (d.data.ef.attributes && d.data.ef.attributes.has(_sizeAttribute)) {
+                                title += '\n\t' + _sizeAttribute + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute);
+                            }
+                        }
+
+                        if (_colorAttribute !== '' && _colorAttribute !== 'None') {
+                            title += '\n\n(Coloring by: ' + _colorAttribute + ')';
+                            if (d.data.ef.attributes && d.data.ef.attributes.has(_colorAttribute)) {
+                                title += '\n\t' + _colorAttribute + ' Value: ' + d.data.ef.attributes.get(_colorAttribute);
+                            }
+                        }
+
+                        return title;
                     });
 
             });
@@ -162,7 +194,7 @@ var eventsModule = function () {
     }
     // use to return the attributes as array given a template
     function GetEFAttributesFromTemplate(templateName) {
-        
+
         var attributes = [];
         if (efDataHolder[templateName]) {
             attributes = efDataHolder[templateName].attributeNames;
@@ -228,9 +260,9 @@ var eventsModule = function () {
         GetAllTemplateAttributes();
 
         // Get attribute value for provide attribute and template.
-        if (_attribute != undefined && _attribute != "None" && _template != "None") {
+        if (_sizeAttribute != undefined && _sizeAttribute != "None" && _template != "None") {
             // Will build the treemap after pulling down attributes' values
-            GetAttributesValues(_attribute, _template);
+            GetAttributesValues(_sizeAttribute, _template);
         } else {
             //reference the treeview and build it here
             eventsModule.BuildTreemap();
@@ -295,7 +327,7 @@ var eventsModule = function () {
             var bulkQuery = {};
             templateUsed.frames.forEach(EF => {
                 var attributeURL;
-                attributeURL = encodeURI(webAPIServerURL + "/streamsets/" + EF.id + "/value?nameFilter=" + attributeName + "&selectedFields=Items.Value.Value");
+                attributeURL = encodeURI(webAPIServerURL + "/streamsets/" + EF.id + "/value?selectedFields=Items.Name;Items.Value.Value");
                 bulkQuery[EF.id] = {
                     "Method": "GET",
                     "Resource": attributeURL
@@ -303,7 +335,7 @@ var eventsModule = function () {
             });
             // use batch call and call method to add the attribute values as a map to the tree
             makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
-            .then(results=>ProcessAttributeResults(results, templateName, attributeName))
+            .then(results=>ProcessAttributeResults(results, templateName))
             .then(() => eventsModule.BuildTreemap());
             //.catch(error=> console.log(error));
         } else {
@@ -312,12 +344,16 @@ var eventsModule = function () {
     }
 
     // takes batch call results, and adds values to the correct EF
-    function ProcessAttributeResults(results, templateName, attributeName) {
+    function ProcessAttributeResults(results, templateName) {
         for (let result in results) {
             if (results[result].Status == 200 && results[result].Content.Items.length > 0) {
                 const attributeMap = new Map();
                 // add attribute values to the map.
-                attributeMap.set(attributeName, results[result].Content.Items[0].Value.Value);
+                for (var i in results[result].Content.Items) {
+                    var attributeObj = results[result].Content.Items[i];
+                    attributeMap.set(attributeObj.Name, attributeObj.Value.Value);
+                }
+                
                 // find the correct EF, and add the attribute value to it
                 efDataHolder[templateName].frames.find(ef=>ef.id === result).attributeValuesMap = attributeMap;
             }
@@ -347,16 +383,31 @@ var eventsModule = function () {
                 children: efs.frames
                     .map(function (f) {
                         // Include any attributes into the ef object
+                        var color;
+
                         if (f.attributeValuesMap) {
                             f.ef.attributes = f.attributeValuesMap;
+
+                            if (_colorAttribute && f.ef.attributes.has(_colorAttribute)) {
+                                color = {
+                                  attributeName: _colorAttribute,
+                                  value: f.attributeValuesMap.get(_colorAttribute)
+                                };
+                            }
                         }
 
-                        return {
+                        var data = {
                             name: f.ef.name,
                             ef: f.ef,
                             startTime: f.ef.StartTime,
                             endTime: f.ef.EndTime
                         }
+
+                        if (color) {
+                            data.color = color;
+                        }
+
+                        return data;
                     })
             });
         }
@@ -389,14 +440,14 @@ var eventsModule = function () {
               // * Does the attributes map exist on the data point's (i.e. `d`) `ef` property?
               // * Does the attributes map contain the selected attribute?
               if (_template
-                  && _attribute
+                  && _sizeAttribute
                   && d.ef
                   && _template == d.ef.templateName
                   && d.ef.attributes
-                  && d.ef.attributes.has(_attribute)) {
+                  && d.ef.attributes.has(_sizeAttribute)) {
 
                   // Return the value of the selected attribute
-                  return d.ef.attributes.get(_attribute);
+                  return d.ef.attributes.get(_sizeAttribute);
               }
 
               // Otherwise, default to summing by EF duration
@@ -421,20 +472,24 @@ var eventsModule = function () {
     function SetTemplate(template) {
         _template = template;
     }
-    function SetAttribute(attribute) {
-        _attribute = attribute;
+    function SetSizeAttribute(sizeAttribute) {
+        _sizeAttribute = sizeAttribute;
+    }
+    function SetColorAttribute(colorAttribute) {
+        _colorAttribute = colorAttribute;
     }
 
     // ----------public methods---------------------------------------------
     //----------------------------------------------------------------------
     return {
         // Creates an element object provided a path
-        Update: (APIServer, elementPath, symbolElement, startTime, endTime, template, attribute) => {
+        Update: (APIServer, elementPath, symbolElement, startTime, endTime, template, sizeAttribute, colorAttribute) => {
             // store the symbol and the apiserver as private variables in the module, we should initiallize first.
             SetSymbol(symbolElement);
             SetWebAPIURL(APIServer);
             SetTemplate(template);
-            SetAttribute(attribute);
+            SetSizeAttribute(sizeAttribute);
+            SetColorAttribute(colorAttribute);
 
             // obtain the EF data
             GetEFData(elementPath, startTime, endTime);
@@ -466,7 +521,7 @@ var eventsModule = function () {
 
             // Extract the right Event Frames data for the Treemap
             //
-            // d3 requires hierarchical data for a treemap, this means that the data should be organized in a 
+            // d3 requires hierarchical data for a treemap, this means that the data should be organized in a
             // tree-like structure with nodes that may have children. From the documentation:
             //
             //   Before you can compute a hierarchical layout, you need a root node. If your data
@@ -494,6 +549,6 @@ var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
         error: errorCallBack //,
         // beforeSend: function (xhr) {
         //    xhr.setRequestHeader("Authorization", makeBasicAuth("administrator", "pw"));
-        // },         
+        // },
     });
 };

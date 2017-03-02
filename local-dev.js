@@ -18,7 +18,11 @@ function handleLoad(e) {
 
     $('#efTemplates').on('change', function (e, el) {
         var selectedTemplate = $(':selected', '#efTemplates').val() || 'None';
-        fillSelect($('#efAttributes'), eventsModule.GetEFAttributesFromTemplate(selectedTemplate));
+        var efAttributes = eventsModule.GetEFAttributesFromTemplate(selectedTemplate);
+        
+        [$('#efSizeAttributes'), $('#efColorAttributes')].forEach(function($select) {
+            fillSelect($select, this);
+        }.bind(efAttributes));
     });
 }
 
@@ -33,10 +37,11 @@ function updateTreemap($symbol) {
 
     // Templates and attributes
     var selectedTemplate = $(':selected', '#efTemplates').val() || 'None',
-        selectedAttribute = $(':selected', '#efAttributes').val() || 'None';
+        selectedSizeAttribute = $(':selected', '#efSizeAttributes').val() || 'None',
+        selectedColorAttribute = $(':selected', '#efColorAttributes').val() || 'None';
     
     // Update treemap using selected parameters
-    eventsModule.Update(apiServer, elementPath, $('.exele-treemap-symbol'), tStart, tEnd, selectedTemplate, selectedAttribute);
+    eventsModule.Update(apiServer, elementPath, $('.exele-treemap-symbol'), tStart, tEnd, selectedTemplate, selectedSizeAttribute, selectedColorAttribute);
 
     if ($('#efTemplates option').length <= 1) {
         fillSelect($('#efTemplates'), eventsModule.GetEFTemplates());
