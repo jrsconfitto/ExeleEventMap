@@ -361,16 +361,31 @@ var eventsModule = function () {
                 children: efs.frames
                     .map(function (f) {
                         // Include any attributes into the ef object
+                        var color;
+
                         if (f.attributeValuesMap) {
                             f.ef.attributes = f.attributeValuesMap;
+
+                            if (_colorAttribute && f.ef.attributes.has(_colorAttribute)) {
+                                color = {
+                                  attributeName: _colorAttribute,
+                                  value: f.attributeValuesMap.get(_colorAttribute)  
+                                };
+                            }
                         }
 
-                        return {
+                        var data = {
                             name: f.ef.name,
                             ef: f.ef,
                             startTime: f.ef.StartTime,
                             endTime: f.ef.EndTime
                         }
+
+                        if (color) {
+                            data.color = color;
+                        }
+
+                        return data;
                     })
             });
         }
