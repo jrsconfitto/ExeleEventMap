@@ -103,8 +103,9 @@ var eventsModule = function () {
                             defaultColor = color(d.parent.data.id);
                         if (d.data.color) {
                             selectedColor = color(d.data.color.value);
-
                             console.debug('%c Default color' + '%c Attribute color', 'background: ' + defaultColor, 'background: ' + selectedColor);
+                        } else {
+                            console.debug('%c Default color', 'background: ' + defaultColor);
                         }
 
                         return (d.data.color ? selectedColor : defaultColor);
