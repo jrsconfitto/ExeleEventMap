@@ -37,10 +37,10 @@ function updateTreemap($symbol) {
 
     // Templates and attributes
     var selectedTemplate = $(':selected', '#efTemplates').val() || 'None',
-        selectedAttribute = $(':selected', '#efAttributes').val() || 'None';
+        selectedSizeAttribute = $(':selected', '#efSizeAttributes').val() || 'None';
     
     // Update treemap using selected parameters
-    eventsModule.Update(apiServer, elementPath, $('.exele-treemap-symbol'), tStart, tEnd, selectedTemplate, selectedAttribute);
+    eventsModule.Update(apiServer, elementPath, $('.exele-treemap-symbol'), tStart, tEnd, selectedTemplate, selectedSizeAttribute);
 
     if ($('#efTemplates option').length <= 1) {
         fillSelect($('#efTemplates'), eventsModule.GetEFTemplates());
