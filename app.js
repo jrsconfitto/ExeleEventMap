@@ -7,6 +7,7 @@ var eventsModule = function () {
     let webAPIServerURL = "";
     var _template = "";
     var _attribute = "";
+    let EFTemplatesAttributes;
 
 
     //**********Private Methods***********
@@ -223,7 +224,11 @@ var eventsModule = function () {
             });
         }
         // get the attribute tepmlates to cache them here to show in the grid, we should move to own cache
-        GetAllTemplateAttributes();
+        GetAllTemplateAttributes().then(templateAttributes => {
+            EFTemplatesAttributes = templateAttributes;
+        }).catch(problems => {
+            console.log(problems);
+        });
 
         // Get attribute value for provide attribute and template.
         if (_attribute != undefined && _attribute != "None" && _template != "None") {
@@ -235,31 +240,35 @@ var eventsModule = function () {
         }
     }
 
-    // adds attribute names to the model such that the config panel displays the Values
+    
     function GetAllTemplateAttributes() {
-        // loop throught each template in efDataHolder
-        for (let templates in efDataHolder) {
-            // holds the attribute names
-            let attributesNames = [];
+        // Promise.all which returns lots of templates! Converts this async stuff to a synchronous result,
+        // which may be desirable because this may be the first thing we want to get when looking
+        // for the attributes within an EF Template for an Element.
+        var templates = Object.keys(efDataHolder);
+        templates = templates.map(function(t) {
+          return {
+            templateName: t,
+            Links: efDataHolder[t].Links
+          };
+        });
 
-            // use the template link to get the links and call method to get attribute templates
-            makeDataCall(efDataHolder[templates].Links, 'get', null, getAtributeTemplates)
-            // once we have the template, make call to get attribute templates and extract names (get)
-            function getAtributeTemplates(results) {
-                makeDataCall(results.Links.AttributeTemplates, 'get', null, getAttributeTemplateNames);
-            }
-            // put attribute template names into array
-            function getAttributeTemplateNames(results) {
-                // loops over results and puts names in array
-                results.Items.forEach(attribute=> {
-                    attributesNames.push(attribute.Name);
-                });
-
-                if (efDataHolder[templates]) {
-                    efDataHolder[templates].attributeNames = attributesNames;
-                }
-            }
-        }
+        return Promise.all(
+            templates.map(function(t) {
+              // use the template link to get the links and call method to get attribute templates
+              return makeDataCall(t.Links, 'get', null)
+                .then(results => {
+                  // once we have the template, make call to get attribute templates and extract names (get)
+                  return makeDataCall(results.Links.AttributeTemplates, 'get')
+                    .then(results => {
+                      return {
+                          templateName: t.templateName,
+                          attributeNames: results.Items.map(function (att) { return att.Name; })
+                      };
+                    });
+                  });
+            })
+        );
     }
 
     //get a singleEf
@@ -464,7 +473,7 @@ var eventsModule = function () {
 
             // Extract the right Event Frames data for the Treemap
             //
-            // d3 requires hierarchical data for a treemap, this means that the data should be organized in a 
+            // d3 requires hierarchical data for a treemap, this means that the data should be organized in a
             // tree-like structure with nodes that may have children. From the documentation:
             //
             //   Before you can compute a hierarchical layout, you need a root node. If your data
@@ -492,6 +501,6 @@ var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
         error: errorCallBack //,
         // beforeSend: function (xhr) {
         //    xhr.setRequestHeader("Authorization", makeBasicAuth("administrator", "pw"));
-        // },         
+        // },
     });
 };
