@@ -260,7 +260,8 @@ var eventsModule = function () {
         GetAllTemplateAttributes();
 
         // Get attribute value for provide attribute and template.
-        if (_sizeAttribute != undefined && _sizeAttribute != "None" && _template != "None") {
+        if (_template && _template != "None" &&
+            (_sizeAttribute && _sizeAttribute != "None" || _colorAttribute && _colorAttribute != "None")) {
             // Will build the treemap after pulling down attributes' values
             GetAttributesValues(_sizeAttribute, _template);
         } else {
