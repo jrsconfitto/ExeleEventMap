@@ -195,7 +195,7 @@ var eventsModule = function () {
 
     // use to return the attributes as array given a template
     function GetEFAttributesFromTemplate(templateName) {
-        if (efDataHolder[templateName]) {
+        if (efDataHolder[templateName] && efDataHolder[templateName].attributes) {
             return efDataHolder[templateName].attributes;
         }
         // Return an empty array if we don't find a match
