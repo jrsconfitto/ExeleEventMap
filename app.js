@@ -174,23 +174,14 @@ var eventsModule = function () {
     // gets the element, gets the EF on the element
     function GetEFData(elementPath, startTime, endTime) {
         // First make a call to get the element using PI Web API
-        let url = webAPIServerURL + '//' + "elements?path=" + elementPath;
-
-        return makeDataCall(url, 'get', null)
+        return makeDataCall(webAPIServerURL + '//' + "elements?path=" + elementPath, 'get', null)
             .then(results => {
-                myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
-                return GETEFByElementID(myel.framesLink, startTime, endTime);
-            })
-            .catch(e => console.log(e));
+                // Build URL for element's event frames within the given time range
+                var url = results.Links.EventFrames + "?StartTime=" + startTime + "&" + "Endtime=" + endTime + "&searchmode=StartInclusive";
 
-        // get the results, create a mock element, and call function to get the EF
-
-        // get the resulting EF within the time range, and calls ExtractEF when completed
-        function GETEFByElementID(elementIDbase, startTime, endtime) {
-            url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
-            this.symbolElement = symbolElement;
-            return makeDataCall(url, 'get', null);
-        }
+                // get the resulting EF within the time range, and calls ExtractEF when completed
+                return makeDataCall(url, 'get', null);
+            });
     }
 
     // given webAPI results, extract the results, create EFs, and put them into efDataHolder;
@@ -445,7 +436,8 @@ var eventsModule = function () {
 
             // obtain the EF data
             GetEFData(elementPath, startTime, endTime)
-                .then(ExtractEF);
+                .then(ExtractEF)
+                .catch(e => console.error(e));
         },
         // get EF templates
         GetEFTemplates: () => {
