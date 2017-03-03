@@ -185,8 +185,8 @@ var eventsModule = function () {
     }
     // used to return all of the EF templates used as array
     function GetTemplates() {
-      var  templates = [];
-         //["None"];
+        var templates = [];
+        //["None"];
         for (var t in efDataHolder) {
             templates.push(t);
         }
@@ -353,7 +353,7 @@ var eventsModule = function () {
                     var attributeObj = results[result].Content.Items[i];
                     attributeMap.set(attributeObj.Name, attributeObj.Value.Value);
                 }
-                
+
                 // find the correct EF, and add the attribute value to it
                 efDataHolder[templateName].frames.find(ef=>ef.id === result).attributeValuesMap = attributeMap;
             }
