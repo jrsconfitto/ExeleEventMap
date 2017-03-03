@@ -170,32 +170,28 @@ var eventsModule = function () {
         return ["None"].concat(attributes);
     }
 
-
-
     // main function that builds up the EF data
     // gets the element, gets the EF on the element
     function GetEFData(elementPath, startTime, endTime) {
         // First make a call to get the element using PI Web API
         let url = webAPIServerURL + '//' + "elements?path=" + elementPath;
-        makeDataCall(url, 'get', null, PathResults, error);
+
+        return makeDataCall(url, 'get', null)
+            .then(results => {
+                myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
+                return GETEFByElementID(myel.framesLink, startTime, endTime);
+            })
+            .catch(e => console.log(e));
 
         // get the results, create a mock element, and call function to get the EF
-        function PathResults(results) {
-            myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
-            GETEFByElementID(myel.framesLink, startTime, endTime, ExtractEF);
-        }
+
         // get the resulting EF within the time range, and calls ExtractEF when completed
-        function GETEFByElementID(elementIDbase, startTime, endtime, successCallBack) {
+        function GETEFByElementID(elementIDbase, startTime, endtime) {
             url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
             this.symbolElement = symbolElement;
-            makeDataCall(url, 'get', null, successCallBack, error);
+            return makeDataCall(url, 'get', null);
         }
-        function error(result) {
-            console.log(error);
-        }
-
     }
-
 
     // given webAPI results, extract the results, create EFs, and put them into efDataHolder;
     // add the event get the attributes for the templates.  Ideally we cache this and do it once.
@@ -448,7 +444,8 @@ var eventsModule = function () {
             SetAttribute(attribute);
 
             // obtain the EF data
-            GetEFData(elementPath, startTime, endTime);
+            GetEFData(elementPath, startTime, endTime)
+                .then(ExtractEF);
         },
         // get EF templates
         GetEFTemplates: () => {
