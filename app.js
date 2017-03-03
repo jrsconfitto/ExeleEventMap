@@ -396,6 +396,11 @@ var eventsModule = function () {
                             }
                         }
 
+                        // The data object is what will be passed into the d3 visualization
+                        // and will be the main information that the treemap has access to.
+                        //
+                        // If you want the visualization to have more EF-specific information
+                        // available to it, add it here.
                         var data = {
                             name: f.ef.name,
                             ef: f.ef,
