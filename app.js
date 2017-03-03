@@ -197,7 +197,7 @@ var eventsModule = function () {
 
         var attributes = [];
         if (efDataHolder[templateName]) {
-            attributes = efDataHolder[templateName].attributeNames;
+            attributes = efDataHolder[templateName].attributes.map(function(att) { return att.Name });
         }
 
         return attributes;
@@ -274,9 +274,6 @@ var eventsModule = function () {
     function GetAllTemplateAttributes() {
         // loop throught each template in efDataHolder
         for (let templates in efDataHolder) {
-            // holds the attribute names
-            let attributesNames = [];
-
             // use the template link to get the links and call method to get attribute templates
             makeDataCall(efDataHolder[templates].Links, 'get', null, getAtributeTemplates)
             // once we have the template, make call to get attribute templates and extract names (get)
@@ -285,13 +282,8 @@ var eventsModule = function () {
             }
             // put attribute template names into array
             function getAttributeTemplateNames(results) {
-                // loops over results and puts names in array
-                results.Items.forEach(attribute=> {
-                    attributesNames.push(attribute.Name);
-                });
-
                 if (efDataHolder[templates]) {
-                    efDataHolder[templates].attributeNames = attributesNames;
+                    efDataHolder[templates].attributes = results.Items;
                 }
             }
         }
