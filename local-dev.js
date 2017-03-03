@@ -18,11 +18,14 @@ function handleLoad(e) {
 
     $('#efTemplates').on('change', function (e, el) {
         var selectedTemplate = $(':selected', '#efTemplates').val() || 'None';
-        var efAttributes = eventsModule.GetEFAttributesFromTemplate(selectedTemplate);
+        var numericalAttributeNames = eventsModule.GetNumericalEFAttributeNamesFromTemplate(selectedTemplate);
+        var allAttributeNames = eventsModule.GetEFAttributeNamesFromTemplate(selectedTemplate);
         
-        [$('#efSizeAttributes'), $('#efColorAttributes')].forEach(function($select) {
-            fillSelect($select, this);
-        }.bind(efAttributes));
+        // Fill the size select with only numerical EF template attributes
+        fillSelect($('#efSizeAttributes'), numericalAttributeNames);
+
+        // Fill the color select with all EF template attributes
+        fillSelect($('#efColorAttributes'), allAttributeNames);
     });
 }
 

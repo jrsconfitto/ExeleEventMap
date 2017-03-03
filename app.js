@@ -192,18 +192,15 @@ var eventsModule = function () {
         }
         return templates;
     }
+
     // use to return the attributes as array given a template
     function GetEFAttributesFromTemplate(templateName) {
-
-        var attributes = [];
         if (efDataHolder[templateName]) {
-            attributes = efDataHolder[templateName].attributes.map(function(att) { return att.Name });
+            return efDataHolder[templateName].attributes;
         }
-
-        return attributes;
+        // Return an empty array if we don't find a match
+        return [];
     }
-
-
 
     // main function that builds up the EF data
     // gets the element, gets the EF on the element
@@ -497,9 +494,26 @@ var eventsModule = function () {
             return GetTemplates();
         },
         // get the Attributes provide a tepmlate
-        GetEFAttributesFromTemplate: (templateName) => {
-            return GetEFAttributesFromTemplate(templateName);
+        GetEFAttributeNamesFromTemplate: (templateName) => {
+            return GetEFAttributesFromTemplate(templateName)
+                .map(att => att.Name)
+                .sort(d3.ascending);
+        },
+        GetNumericalEFAttributeNamesFromTemplate: (templateName) => {
+            // Numerical attribute types this custom symbol supports
+            var numericalAttributeTypes = [
+                'Double',
+                'Int16',
+                'Int32',
+                'Int64',
+                'Single'
+            ];
 
+            // Return an empty array if we don't find a match
+            return GetEFAttributesFromTemplate(templateName)
+                .filter(att => numericalAttributeTypes.indexOf(att.Type) !== -1)
+                .map(att => att.Name)
+                .sort(d3.ascending);
         },
         // Builds a treemap under the passed element
         BuildTreemap: () => {
