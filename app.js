@@ -263,7 +263,7 @@ var eventsModule = function () {
         if (_template && _template != "None" &&
             (_sizeAttribute && _sizeAttribute != "None" || _colorAttribute && _colorAttribute != "None")) {
             // Will build the treemap after pulling down attributes' values
-            GetAttributesValues(_sizeAttribute, _template);
+            GetAttributesValues(_template);
         } else {
             //reference the treeview and build it here
             eventsModule.BuildTreemap();
@@ -317,13 +317,10 @@ var eventsModule = function () {
     }
 
     // get the attribute values for each EF given an attributeName and template
-    function GetAttributesValues(attributeName, templateName) {
+    function GetAttributesValues(templateName) {
         var templateUsed = efDataHolder[templateName];
-        //we can make sure the attribute is found on the template...example check
-        // var found = templateUsed.attributesTemplates.find(att=>att.Name.toUpperCase() === attributeName.toUpperCase());
 
         if (templateUsed) {
-
             // build up a bulk query that requires the ef webID and the attribute ID
             var bulkQuery = {};
             templateUsed.frames.forEach(EF => {
