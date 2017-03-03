@@ -99,7 +99,7 @@ var eventsModule = function () {
                     .attr("width", function (d) { return d.x1 - d.x0; })
                     .attr("height", function (d) { return d.y1 - d.y0; })
                     .attr("fill", function (d) {
-                        var selectedColor
+                        var selectedColor,
                             defaultColor = (_colorAttribute && _colorAttribute !== 'None' ? color(d.parent.data.name) : color(d.parent.data.id));
 
                         if (d.data.color) {
