@@ -429,6 +429,9 @@ var eventsModule = function () {
           })
           .sum(function (d) {
               // The `sum` determines the size of the cells within the treemap.
+              
+              // From d3-hierarchy's docs on the sum function: https://github.com/d3/d3-hierarchy/blob/master/README.md#node_sum
+              // > The function is passed the node’s data, and must return a non-negative number.
 
               // This summing function sums by:
               //
