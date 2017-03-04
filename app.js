@@ -356,60 +356,78 @@ var eventsModule = function () {
     // d3-hierarchy provides more information on how to create this kind of data
     // structure: https://github.com/d3/d3-hierarchy
     function EFsToHierarchy() {
-        var efData = {
-            name: "EventFrames",
+        var efDataRoot = {
+            name: '',
             children: []
         };
 
-        // TODO: is it possible to build this using any d3-hierarchy helper functions?
-        for (var efName in efDataHolder) {
-            var efs = efDataHolder[efName];
+        // Converts the passed EFs into data objects for use in the treemap
+        function getChildrenFromFrames(frames) {
+            return frames
+                .map(function (f) {
+                    // Include any attributes into the ef object
+                    var color;
 
-            efData.children.push({
-                name: efName,
-                children: efs.frames
-                    .map(function (f) {
-                        // Include any attributes into the ef object
-                        var color;
+                    if (f.attributeValuesMap) {
+                        f.ef.attributes = f.attributeValuesMap;
 
-                        if (f.attributeValuesMap) {
-                            f.ef.attributes = f.attributeValuesMap;
-
-                            if (_colorAttribute && f.ef.attributes.has(_colorAttribute)) {
-                                color = {
-                                  attributeName: _colorAttribute,
-                                  value: f.attributeValuesMap.get(_colorAttribute)
-                                };
-                            }
+                        if (_colorAttribute && f.ef.attributes.has(_colorAttribute)) {
+                            color = {
+                                attributeName: _colorAttribute,
+                                value: f.attributeValuesMap.get(_colorAttribute)
+                            };
                         }
+                    }
 
-                        // The data object is what will be passed into the d3 visualization
-                        // and will be the main information that the treemap has access to.
-                        //
-                        // If you want the visualization to have more EF-specific information
-                        // available to it, add it here.
-                        var data = {
-                            name: f.ef.name,
-                            ef: f.ef,
-                            startTime: f.ef.StartTime,
-                            endTime: f.ef.EndTime
-                        }
+                    // The data object is what will be passed into the d3 visualization
+                    // and will be the main information that the treemap has access to.
+                    //
+                    // If you want the visualization to have more EF-specific information
+                    // available to it, add it here.
+                    var data = {
+                        name: f.ef.name,
+                        ef: f.ef,
+                        startTime: f.ef.StartTime,
+                        endTime: f.ef.EndTime
+                    }
 
-                        if (color) {
-                            data.color = color;
-                        }
+                    if (color) {
+                        data.color = color;
+                    }
 
-                        return data;
-                    })
-            });
+                    return data;
+                });
         }
+
+        if (_template && _template !== 'None' && efDataHolder[_template]) {
+
+            var efs = efDataHolder[_template];
+            efDataRoot.name = _template;
+            efDataRoot.children = getChildrenFromFrames(efs.frames)
+
+        } else {
+
+            efDataRoot.name = 'EventFrames';
+
+            // Add a node to the tree's root for each EF template, filling in each name and setting its children
+            // to the EFs in each.
+            for (var efName in efDataHolder) {
+                var efs = efDataHolder[efName];
+
+                efDataRoot.children.push({
+                    name: efName,
+                    children: getChildrenFromFrames(efs.frames)
+                });
+            }
+        }
+
 
         // Might be useful to allow summing by count, in the future.
         function sumByCount(d) {
             return 1;
         }
 
-        return d3.hierarchy(efData)
+        return d3.hierarchy(efDataRoot)
           .eachBefore(function (d) {
               d.data.id = (d.parent ? d.parent.data.id + '.' : '') + d.data.name + (d.data.ef ? '.' + d.data.ef.webId : '');
               // d.WebId = "1111"
