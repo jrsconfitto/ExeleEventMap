@@ -562,21 +562,20 @@ var eventsModule = function () {
             var root = EFsToHierarchy();
 
             var efDurationSum = function(efNode) {
-
                 if (efNode.children === undefined) {
-                    // No more children, sum events
+                    // Node has no children, return duration value
                     return efNode.data.durationMinutes;
                 } else {
+                    // Node has children, compute duration of each child
                     var childSum = 0;
-                    for (i = 0; i < efNode.children.length - 1; i++) {
+                    for (i = 0; i < efNode.children.length; i++) {
                         childSum += efDurationSum(efNode.children[i]);
                     }
                     return childSum;
                 }
-
             }
 
-            var totalTime = efDurationSum(root.children[0]);
+            var totalTime = efDurationSum(root);
 
             var $totalTimeElement = $('.exele-total-time', symbolElement);
             $totalTimeElement[0].innerHTML = 'Total event time: ' + totalTime;
