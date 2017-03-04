@@ -16,18 +16,21 @@
         var runtimeData = scope.runtimeData;
         
         // method use to get the current EF
-        runtimeData.obtainTemplates = function () {
+        runtimeData.obtainTemplates = function() {
             var efTemplates = eventsModule.GetEFTemplates()
-            efTemplates.unshift('None');
-            return efTemplates;
+            return ['None'].concat(efTemplates);
         };
 
         // method used to get the current attributes from the template
-        runtimeData.obtainAttributes = function () {
-            var efAttributes= eventsModule.GetEFAttributesFromTemplate(mytemplate);          
-               // return like this so angular does not loop forever
-                return ['None'].concat(efAttributes);                    
+        runtimeData.obtainAttributes = function() {
+            var efAttributes = eventsModule.GetEFAttributeNamesFromTemplate(mytemplate);          
+            // return like this so angular does not loop forever
+            return ['None'].concat(efAttributes);                    
         };
+
+        runtimeData.obtainSizeableAttributes = function() {
+            return ['None'].concat(eventsModule.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
+        }
 
         function dataUpdate(data) {
 
