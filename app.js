@@ -562,14 +562,18 @@ var eventsModule = function () {
             var root = EFsToHierarchy();
 
             var efDurationSum = function(efNode) {
+
                 if (efNode.children === undefined) {
-                    return 0;
-                }
-                if (efNode.children.length === 0) {
-                    return 0;
+                    // No more children, sum events
+                    return efNode.data.durationMinutes;
                 } else {
-                    return efNode.children[0].data.durationMinutes + efDurationSum(efNode.children.slice(1));
+                    var childSum = 0;
+                    for (i = 0; i < efNode.children.length - 1; i++) {
+                        childSum += efDurationSum(efNode.children[i]);
+                    }
+                    return childSum;
                 }
+
             }
 
             var totalTime = efDurationSum(root.children[0]);
