@@ -388,7 +388,8 @@ var eventsModule = function () {
                         name: f.ef.name,
                         ef: f.ef,
                         startTime: f.ef.StartTime,
-                        endTime: f.ef.EndTime
+                        endTime: f.ef.EndTime,
+                        durationMinutes: ((f.ef.EndTime - f.ef.StartTime) / 1000 / 60)
                     }
 
                     if (color) {
@@ -559,6 +560,25 @@ var eventsModule = function () {
             //   d3.hierarchy; otherwise, you can rearrange tabular data, such as comma-separated
             //   values (CSV), into a hierarchy using d3.stratify.
             var root = EFsToHierarchy();
+
+            var efDurationSum = function(efNode) {
+                if (efNode.children) {
+                    // Node has children, compute duration of each child
+                    var childSum = 0;
+                    for (var i = 0; i < efNode.children.length; i++) {
+                        childSum += efDurationSum(efNode.children[i]);
+                    }
+                    return childSum;
+                } else {
+                    // Node has no children, return duration value
+                    return efNode.data.durationMinutes;
+                }
+            }
+
+            var totalTime = efDurationSum(root);
+
+            var $totalTimeElement = $('.exele-total-time', symbolElement);
+            $totalTimeElement[0].innerHTML = 'Total event time: ' + totalTime.toFixed(2);
 
             // Draw the treemap within the selected element using the data in `root`
             treemapSelection
