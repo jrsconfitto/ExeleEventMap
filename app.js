@@ -131,7 +131,7 @@ var eventsModule = function () {
                     .text(function (d) {
                         var title = d.data.name
                             + '\nTemplate: ' + d.data.ef.templateName
-                            + '\nDuration: ' + format(d.value) + ' minutes'
+                            + '\nDuration: ' + format(d.data.durationMinutes) + ' minutes'
                             + '\nStart: ' + d.data.startTime.toLocaleString()
                             + '\nEnd: ' + d.data.endTime.toLocaleString();
 
