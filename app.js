@@ -358,7 +358,8 @@ var eventsModule = function () {
     function EFsToHierarchy() {
         var efDataRoot = {
             name: '',
-            children: []
+            children: [],
+            totalDuration: 0
         };
 
         // Converts the passed EFs into data objects for use in the treemap
@@ -400,11 +401,20 @@ var eventsModule = function () {
                 });
         }
 
+        var sumFrameDuration = function (efFrames) {
+            var frameSum = 0;
+            for (var i = 0; i < efFrames.length; i++) {
+                frameSum += ((efFrames[i].ef.EndTime - efFrames[i].ef.StartTime) / 1000 / 60);
+            }
+            return frameSum;
+        }
+
         if (_template && _template !== 'None' && efDataHolder[_template]) {
 
             var efs = efDataHolder[_template];
             efDataRoot.name = _template;
-            efDataRoot.children = getChildrenFromFrames(efs.frames)
+            efDataRoot.children = getChildrenFromFrames(efs.frames);
+            efDataRoot.totalDuration += sumFrameDuration(efs.frames);
 
         } else {
 
@@ -419,6 +429,8 @@ var eventsModule = function () {
                     name: efName,
                     children: getChildrenFromFrames(efs.frames)
                 });
+
+                efDataRoot.totalDuration += sumFrameDuration(efs.frames);
             }
         }
 
@@ -561,24 +573,8 @@ var eventsModule = function () {
             //   values (CSV), into a hierarchy using d3.stratify.
             var root = EFsToHierarchy();
 
-            var efDurationSum = function(efNode) {
-                if (efNode.children) {
-                    // Node has children, compute duration of each child
-                    var childSum = 0;
-                    for (var i = 0; i < efNode.children.length; i++) {
-                        childSum += efDurationSum(efNode.children[i]);
-                    }
-                    return childSum;
-                } else {
-                    // Node has no children, return duration value
-                    return efNode.data.durationMinutes;
-                }
-            }
-
-            var totalTime = efDurationSum(root);
-
             var $totalTimeElement = $('.exele-total-time', symbolElement);
-            $totalTimeElement[0].innerHTML = 'Total event time: ' + totalTime.toFixed(2);
+            $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.totalDuration.toFixed(2);
 
             // Draw the treemap within the selected element using the data in `root`
             treemapSelection
