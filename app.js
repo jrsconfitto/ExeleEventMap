@@ -568,7 +568,7 @@ var eventsModule = function () {
                 } else {
                     // Node has children, compute duration of each child
                     var childSum = 0;
-                    for (i = 0; i < efNode.children.length; i++) {
+                    for (var i = 0; i < efNode.children.length; i++) {
                         childSum += efDurationSum(efNode.children[i]);
                     }
                     return childSum;
@@ -578,7 +578,7 @@ var eventsModule = function () {
             var totalTime = efDurationSum(root);
 
             var $totalTimeElement = $('.exele-total-time', symbolElement);
-            $totalTimeElement[0].innerHTML = 'Total event time: ' + totalTime;
+            $totalTimeElement[0].innerHTML = 'Total event time: ' + totalTime.toFixed(2);
 
             // Draw the treemap within the selected element using the data in `root`
             treemapSelection
