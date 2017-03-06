@@ -387,7 +387,34 @@ function Exele_TreeBuilder() {
 
         // Converts the passed EFs into data objects for use in the treemap
         function getChildrenFromFrames(frames) {
-            return frames
+            // Since the treemap doesn't like negative values, we shift everything positive for sizing.
+            // We also shift positive for coloring, for now.
+            function normalizeSummingData(efs) {
+                // TODO: should we be doing some sort of percentile normalization?
+                var sizeValues = efs.map(ef => ef.sizeValue);
+                var colorValues = efs.map(ef => (ef.color && ef.color.value ? ef.color.value : 0));
+
+                var minSize = d3.min(sizeValues);
+                var maxSize = d3.max(sizeValues);
+
+                var minColor = d3.min(colorValues);
+                var maxColor = d3.max(colorValues);
+
+                var minSizeAbs = Math.abs(minSize);
+                var minColorAbs = Math.abs(minColor);
+
+                if (minSize <= 0) {
+                    // Then let's normalize(?) the data somehow...
+                    // Add every summing value by the minimum to shift it all to positive values.
+                    efs.forEach(ef => ef.sizeValue += minSizeAbs + 1);
+                }
+
+                if (minColor < 0) {
+                    efs.forEach(ef => ef.color += minColorAbs + 1);
+                }
+            }
+
+            var efs = frames
                 .map(function (f) {
                     // Include any attributes into the ef object
                     var color;
@@ -448,43 +475,25 @@ function Exele_TreeBuilder() {
 
                     return data;
                 });
-        }
-
-        // Since the treemap doesn't like negative values, we shift everything positive for sizing.
-        // We also shift positive for coloring, for now.
-        function normalizeSummingData(efs) {
-            // TODO: should we be doing some sort of percentile normalization?
-            var sizeValues = efs.map(ef => ef.sizeValue);
-            var colorValues = efs.map(ef => (ef.color && ef.color.value ? ef.color.value : 0));
-
-            var minSize = d3.min(sizeValues);
-            var maxSize = d3.max(sizeValues);
             
-            var minColor = d3.min(colorValues);
-            var maxColor = d3.max(colorValues);
-
-            var minSizeAbs = Math.abs(minSize);
-            var minColorAbs = Math.abs(minColor);
-            
-            if (minSize <= 0) {
-                // Then let's normalize(?) the data somehow...
-                // Add every summing value by the minimum to shift it all to positive values.
-                efs.forEach(ef => ef.sizeValue += minSizeAbs + 1);
+            // Normalize the summing data, if necessary.
+            if (_template && _sizeAttribute
+                && _template !== 'None'
+                && _sizeAttribute !== 'None') {
+                normalizeSummingData(efs);
             }
 
-            if (minColor < 0) {
-                efs.forEach(ef => ef.color += minColorAbs + 1);
-            }
+            return efs;
         }
+
+        
 
         if (_template && _template !== 'None' && efDataHolder[_template]) {
 
             var efs = efDataHolder[_template];
-            var efsAsChildren = getChildrenFromFrames(efs.frames);
-            normalizeSummingData(efsAsChildren);
             
             efDataRoot.name = _template;
-            efDataRoot.children = efsAsChildren; 
+            efDataRoot.children = getChildrenFromFrames(efs.frames); 
 
         } else {
 
@@ -496,7 +505,6 @@ function Exele_TreeBuilder() {
                 var efs = efDataHolder[efName];
                 
                 var efsAsChildren = getChildrenFromFrames(efs.frames);
-                normalizeSummingData(efsAsChildren);
                 
                 efDataRoot.children.push({
                     name: efName,
