@@ -88,10 +88,7 @@ var eventsModule = function () {
                         //                         console.log("You clicked on ef with ID", efID);
                         //                         GetSingleEFAttributes(efID);
 
-                        // Fire a jQuery event notifying that an EF in the treemap was clicked
-                        $(this).trigger('efClick', {
-                            ef: d.data.ef
-                        });
+                        buildTable(d.data.ef);
                     });
 
                 cell.append("rect")
@@ -158,6 +155,12 @@ var eventsModule = function () {
         // Return a treemap function that someone can call to add data to
         return treemap;
     }
+
+
+    function buildTable(ef) {
+        console.log(ef.webId);
+    }
+
 
     // creates an eventframe object that is used by the holder
     function myEventFrame(name, TemplateName, startTime, endTime, templatelink, webId) {
