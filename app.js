@@ -1,4 +1,7 @@
-var eventsModule = function () {
+
+// Exele Information System Inc, TreeMap for the OSIsoft LLC 2017 hackathon.
+// Main function that does the Exele Tree logic
+function Exele_TreeBuilder() {
     //****Private variables
     let templates = [];
     let efDataHolder = {};
@@ -10,7 +13,69 @@ var eventsModule = function () {
     var _colorAttribute = "";
 
 
-    //**********Private Methods***********
+    //**********public setters***********
+    // sets the tree symbol
+    this.SetSymbol = function(treeSymbolElement) {
+        symbolElement = treeSymbolElement;
+    }
+    // sets the WebAPI server
+    this.SetWebAPIURL= function(url) {
+        webAPIServerURL = url;
+    }
+    //set the global template to display
+    this.SetTemplate= function(template) {
+        _template = template;
+    }
+    this.SetSizeAttribute= function(sizeAttribute) {
+        _sizeAttribute = sizeAttribute;
+    }
+    this.SetColorAttribute= function(colorAttribute) {
+        _colorAttribute = colorAttribute;
+    }
+
+    // used to return all of the EF templates used as array
+    this.GetTemplates = function() {
+        var templates = [];
+    //["None"];
+        for (var t in efDataHolder) {
+            templates.push(t);
+    }
+        return templates;
+    }
+
+    // use to return the attributes as array given a template
+    this.GetEFAttributesFromTemplate = function(templateName) {
+        if (efDataHolder[templateName] && efDataHolder[templateName].attributes) {
+            return efDataHolder[templateName].attributes;
+        }
+        // Return an empty array if we don't find a match
+        return [];
+    }
+
+    // main function that builds up the EF data
+    // gets the element, gets the EF on the element
+    this.GetEFData = function(elementPath, startTime, endTime) {
+        // First make a call to get the element using PI Web API
+        let url = webAPIServerURL + '//' + "elements?path=" + elementPath;
+        makeDataCall(url, 'get', null, PathResults, error);
+
+        // get the results, create a mock element, and call function to get the EF
+        function PathResults(results) {
+            myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
+            GETEFByElementID(myel.framesLink, startTime, endTime, ExtractEF);
+        }
+        // get the resulting EF within the time range, and calls ExtractEF when completed
+        function GETEFByElementID(elementIDbase, startTime, endtime, successCallBack) {
+            url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
+            this.symbolElement = symbolElement;
+            makeDataCall(url, 'get', null, successCallBack, error);
+        }
+        function error(result) {
+            console.log(error);
+        }
+    }
+
+    //*********Internal functions******************
 
     // Modeled after the example given in Mike Bostock's fantastic "Towards Reusable Charts": https://bost.ocks.org/mike/chart/
     //
@@ -131,7 +196,7 @@ var eventsModule = function () {
                     .text(function (d) {
                         var title = d.data.name
                             + '\nTemplate: ' + d.data.ef.templateName
-                            + '\nDuration: ' + format(d.value) + ' minutes'
+                            + '\nDuration: ' + format(d.data.durationMinutes) + ' minutes'
                             + '\nStart: ' + d.data.startTime.toLocaleString()
                             + '\nEnd: ' + d.data.endTime.toLocaleString();
 
@@ -183,49 +248,8 @@ var eventsModule = function () {
         this.webId = webID;
         this.framesLink = framesLink;
     }
-    // used to return all of the EF templates used as array
-    function GetTemplates() {
-        var templates = [];
-        //["None"];
-        for (var t in efDataHolder) {
-            templates.push(t);
-        }
-        return templates;
-    }
 
-    // use to return the attributes as array given a template
-    function GetEFAttributesFromTemplate(templateName) {
-        if (efDataHolder[templateName] && efDataHolder[templateName].attributes) {
-            return efDataHolder[templateName].attributes;
-        }
-        // Return an empty array if we don't find a match
-        return [];
-    }
-
-    // main function that builds up the EF data
-    // gets the element, gets the EF on the element
-    function GetEFData(elementPath, startTime, endTime) {
-        // First make a call to get the element using PI Web API
-        let url = webAPIServerURL + '//' + "elements?path=" + elementPath;
-        makeDataCall(url, 'get', null, PathResults, error);
-
-        // get the results, create a mock element, and call function to get the EF
-        function PathResults(results) {
-            myel = new myElement(results.Name, results.Path, results.WebId, results.Links.EventFrames);
-            GETEFByElementID(myel.framesLink, startTime, endTime, ExtractEF);
-        }
-        // get the resulting EF within the time range, and calls ExtractEF when completed
-        function GETEFByElementID(elementIDbase, startTime, endtime, successCallBack) {
-            url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
-            this.symbolElement = symbolElement;
-            makeDataCall(url, 'get', null, successCallBack, error);
-        }
-        function error(result) {
-            console.log(error);
-        }
-
-    }
-
+    //
 
     // given webAPI results, extract the results, create EFs, and put them into efDataHolder;
     // add the event get the attributes for the templates.  Ideally we cache this and do it once.
@@ -263,7 +287,7 @@ var eventsModule = function () {
             GetAttributesValues(_template);
         } else {
             //reference the treeview and build it here
-            eventsModule.BuildTreemap();
+            BuildTreemap();
         }
     }
 
@@ -323,10 +347,10 @@ var eventsModule = function () {
             // use batch call and call method to add the attribute values as a map to the tree
             makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
             .then(results=>ProcessAttributeResults(results, templateName))
-            .then(() => eventsModule.BuildTreemap());
+            .then(() => BuildTreemap());
             //.catch(error=> console.log(error));
         } else {
-            eventsModule.BuildTreemap();
+            BuildTreemap();
         }
     }
 
@@ -481,104 +505,102 @@ var eventsModule = function () {
           });
     }
 
-    // sets the tree symbol
-    function SetSymbol(treeSymbolElement) {
-        symbolElement = treeSymbolElement;
-    }
-    // sets the WebAPI server
-    function SetWebAPIURL(url) {
-        webAPIServerURL = url;
-    }
-    //set the global template to display
-    function SetTemplate(template) {
-        _template = template;
-    }
-    function SetSizeAttribute(sizeAttribute) {
-        _sizeAttribute = sizeAttribute;
-    }
-    function SetColorAttribute(colorAttribute) {
-        _colorAttribute = colorAttribute;
-    }
+    // Builds a treemap under the passed element
+    function BuildTreemap() {
+        // Find the div that will contain our treemap by looking for an element going by our "exele-treemap" class
+        // within the symbol element.
+        var $treemapParentElement = $('.exele-treemap', symbolElement);
 
-    // ----------public methods---------------------------------------------
-    //----------------------------------------------------------------------
-    return {
-        // Creates an element object provided a path
-        Update: (APIServer, elementPath, symbolElement, startTime, endTime, template, sizeAttribute, colorAttribute) => {
-            // store the symbol and the apiserver as private variables in the module, we should initiallize first.
-            SetSymbol(symbolElement);
-            SetWebAPIURL(APIServer);
-            SetTemplate(template);
-            SetSizeAttribute(sizeAttribute);
-            SetColorAttribute(colorAttribute);
+        var width = $treemapParentElement.width(),
+            height = $treemapParentElement.height();
 
-            // obtain the EF data
-            GetEFData(elementPath, startTime, endTime);
-        },
-        // get EF templates
-        GetEFTemplates: () => {
-            return GetTemplates();
-        },
-        // get the Attributes provide a tepmlate
-        GetEFAttributeNamesFromTemplate: (templateName) => {
-            return GetEFAttributesFromTemplate(templateName)
-                .map(att => att.Name)
-                .sort(d3.ascending);
-        },
-        GetNumericalEFAttributeNamesFromTemplate: (templateName) => {
-            // Numerical attribute types this custom symbol supports
-            var numericalAttributeTypes = [
-                'Double',
-                'Int16',
-                'Int32',
-                'Int64',
-                'Single'
-            ];
+        var treemapSelection = d3.select($treemapParentElement.get(0));
 
-            // Return an empty array if we don't find a match
-            return GetEFAttributesFromTemplate(templateName)
-                .filter(att => numericalAttributeTypes.indexOf(att.Type) !== -1)
-                .map(att => att.Name)
-                .sort(d3.ascending);
-        },
-        // Builds a treemap under the passed element
-        BuildTreemap: () => {
-            // Find the div that will contain our treemap by looking for an element going by our "exele-treemap" class
-            // within the symbol element.
-            var $treemapParentElement = $('.exele-treemap', symbolElement);
+        // Set the treemap's width and height based on the calculated values above
+        var myTreemap = treemap()
+            .width(width)
+            .height(height);
 
-            var width = $treemapParentElement.width(),
-                height = $treemapParentElement.height();
+        // Extract the right Event Frames data for the Treemap
+        //
+        // d3 requires hierarchical data for a treemap, this means that the data should be organized in a
+        // tree-like structure with nodes that may have children. From the documentation:
+        //
+        //   Before you can compute a hierarchical layout, you need a root node. If your data
+        //   is already in a hierarchical format, such as JSON, you can pass it directly to
+        //   d3.hierarchy; otherwise, you can rearrange tabular data, such as comma-separated
+        //   values (CSV), into a hierarchy using d3.stratify.
+        var root = EFsToHierarchy();
 
-            var treemapSelection = d3.select($treemapParentElement.get(0));
-
-            // Set the treemap's width and height based on the calculated values above
-            var myTreemap = treemap()
-                .width(width)
-                .height(height);
-
-            // Extract the right Event Frames data for the Treemap
-            //
-            // d3 requires hierarchical data for a treemap, this means that the data should be organized in a
-            // tree-like structure with nodes that may have children. From the documentation:
-            //
-            //   Before you can compute a hierarchical layout, you need a root node. If your data
-            //   is already in a hierarchical format, such as JSON, you can pass it directly to
-            //   d3.hierarchy; otherwise, you can rearrange tabular data, such as comma-separated
-            //   values (CSV), into a hierarchy using d3.stratify.
-            var root = EFsToHierarchy();
-
-            var $totalTimeElement = $('.exele-total-time', symbolElement);
-            $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2);
-
-            // Draw the treemap within the selected element using the data in `root`
-            treemapSelection
-                .datum(root)
-                .call(myTreemap);
+        var efDurationSum = function (efNode) {
+            if (efNode.children) {
+                // Node has children, compute duration of each child
+                var childSum = 0;
+                for (var i = 0; i < efNode.children.length; i++) {
+                    childSum += efDurationSum(efNode.children[i]);
+                }
+                return childSum;
+            } else {
+                // Node has no children, return duration value
+                return efNode.data.durationMinutes;
+            }
         }
-    }
-}();
 
+        var totalTime = efDurationSum(root);
+
+        var $totalTimeElement = $('.exele-total-time', symbolElement);
+        $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2);
+
+        // Draw the treemap within the selected element using the data in `root`
+        treemapSelection
+            .datum(root)
+            .call(myTreemap);
+    }
+}
+
+// *********Prototypes of Exele_TreeBuilder************
+
+Exele_TreeBuilder.prototype.Update = function(APIServer, elementPath, symbolElement, startTime, endTime, template, sizeAttribute, colorAttribute){
+        // store the symbol and the apiserver as private variables in the module, we should initiallize first.
+        this.SetSymbol(symbolElement);
+        this.SetWebAPIURL(APIServer);
+        this.SetTemplate(template);
+        this.SetSizeAttribute(sizeAttribute);
+        this.SetColorAttribute(colorAttribute);
+        // obtain the EF data
+        this.GetEFData(elementPath, startTime, endTime);
+}
+
+// get EF templates
+Exele_TreeBuilder.prototype.GetEFTemplates = function () {
+    return this.GetTemplates();
+}
+
+// get the Attributes provide a tepmlate
+Exele_TreeBuilder.prototype.GetEFAttributeNamesFromTemplate= function(templateName){
+    return this.GetEFAttributesFromTemplate(templateName)
+        .map(att => att.Name)
+        .sort(d3.ascending);
+},
+
+Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function (templateName) {
+    // Numerical attribute types this custom symbol supports
+    var numericalAttributeTypes = [
+        'Double',
+        'Int16',
+        'Int32',
+        'Int64',
+        'Single'
+    ];
+
+    // Return an empty array if we don't find a match
+    return this.GetEFAttributesFromTemplate(templateName)
+        .filter(att => numericalAttributeTypes.indexOf(att.Type) !== -1)
+        .map(att => att.Name)
+        .sort(d3.ascending);
+}
+
+// JQuery method used to get data
 var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
     return $.ajax({
         url: encodeURI(url),
@@ -587,9 +609,6 @@ var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
         cache: false,
         contentType: "application/json; charset=UTF-8",
         success: successCallBack,
-        error: errorCallBack //,
-        // beforeSend: function (xhr) {
-        //    xhr.setRequestHeader("Authorization", makeBasicAuth("administrator", "pw"));
-        // },
+        error: errorCallBack
     });
 };
