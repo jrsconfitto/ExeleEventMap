@@ -44,7 +44,8 @@ var eventsModule = function () {
             // treemap.
             selection.each(function (data) {
                 var fader = function (color) { return d3.interpolateRgb(color, "#fff")(0.2); },
-                    color = d3.scaleOrdinal(d3.schemeCategory20.map(fader)),
+                    discreteColor = d3.scaleOrdinal(d3.schemeCategory20.map(fader)),
+                    sequentialColor = d3.scaleSequential(d3.interpolateCool),
                     format = d3.format(",d");
 
                 // Create a function that will format the treemap's data according to the
@@ -100,10 +101,10 @@ var eventsModule = function () {
                     .attr("height", function (d) { return d.y1 - d.y0; })
                     .attr("fill", function (d) {
                         var selectedColor,
-                            defaultColor = (_colorAttribute && _colorAttribute !== 'None' ? color(d.parent.data.name) : color(d.parent.data.id));
+                            defaultColor = (_colorAttribute && _colorAttribute !== 'None' ? discreteColor(d.parent.data.name) : discreteColor(d.parent.data.id));
 
                         if (d.data.color) {
-                            selectedColor = color(d.data.color.value);
+                            selectedColor = sequentialColor(d.data.color.value);
                             console.debug('%c Default color' + '%c Attribute color', 'background: ' + defaultColor, 'background: ' + selectedColor);
                         } else {
                             console.debug('%c Default color', 'background: ' + defaultColor);
