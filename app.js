@@ -12,7 +12,6 @@ function Exele_TreeBuilder() {
     var _sizeAttribute = "";
     var _colorAttribute = "";
 
-
     //**********public setters***********
     // sets the tree symbol
     this.SetSymbol = function(treeSymbolElement) {
@@ -204,7 +203,7 @@ function Exele_TreeBuilder() {
                         if (_sizeAttribute !== '' && _sizeAttribute !== 'None') {
                             title += '\n\n(Sizing by: ' + _sizeAttribute + ')';
                             if (d.data.ef.attributes && d.data.ef.attributes.has(_sizeAttribute)) {
-                                title += '\n\t' + _sizeAttribute + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute);
+                                title += '\n\t' + _sizeAttribute + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute) + ' (normalized: ' + d.data.sizeValue + ')';
                             }
                         }
 
@@ -404,6 +403,31 @@ function Exele_TreeBuilder() {
                         }
                     }
 
+                    // Calculate the duration of the EF, this will also be used as the default value for summing cells
+                    // for treemap display calculations.
+                    var durationMinutes = ((f.ef.EndTime - f.ef.StartTime) / 1000 / 60);
+                    
+                    var sizeValue;
+                    
+                    // Lots of things are being verified here before we use the attribute's value for cell sizing:
+                    //
+                    // * Is there a selected template and attribute?
+                    // * Does the template of this EF match the selected template?
+                    // * Does the attributes map exist on the data point's (i.e. `d`) `ef` property?
+                    // * Does the attributes map contain the selected attribute?
+                    if (_template
+                        && _sizeAttribute
+                        && f.ef
+                        && _template == f.ef.templateName
+                        && f.ef.attributes
+                        && f.ef.attributes.has(_sizeAttribute)) {
+
+                        // Return the value of the selected attribute
+                        sizeValue = f.ef.attributes.get(_sizeAttribute);
+                    } else {
+                        sizeValue = durationMinutes;
+                    }
+
                     // The data object is what will be passed into the d3 visualization
                     // and will be the main information that the treemap has access to.
                     //
@@ -414,7 +438,8 @@ function Exele_TreeBuilder() {
                         ef: f.ef,
                         startTime: f.ef.StartTime,
                         endTime: f.ef.EndTime,
-                        durationMinutes: ((f.ef.EndTime - f.ef.StartTime) / 1000 / 60)
+                        durationMinutes: durationMinutes,
+                        sizeValue: sizeValue
                     }
 
                     if (color) {
@@ -425,11 +450,41 @@ function Exele_TreeBuilder() {
                 });
         }
 
+        // Since the treemap doesn't like negative values, we shift everything positive for sizing.
+        // We also shift positive for coloring, for now.
+        function normalizeSummingData(efs) {
+            // TODO: should we be doing some sort of percentile normalization?
+            var sizeValues = efs.map(ef => ef.sizeValue);
+            var colorValues = efs.map(ef => (ef.color && ef.color.value ? ef.color.value : 0));
+
+            var minSize = d3.min(sizeValues);
+            var maxSize = d3.max(sizeValues);
+            
+            var minColor = d3.min(colorValues);
+            var maxColor = d3.max(colorValues);
+
+            var minSizeAbs = Math.abs(minSize);
+            var minColorAbs = Math.abs(minColor);
+            
+            if (minSize <= 0) {
+                // Then let's normalize(?) the data somehow...
+                // Add every summing value by the minimum to shift it all to positive values.
+                efs.forEach(ef => ef.sizeValue += minSizeAbs + 1);
+            }
+
+            if (minColor < 0) {
+                efs.forEach(ef => ef.color += minColorAbs + 1);
+            }
+        }
+
         if (_template && _template !== 'None' && efDataHolder[_template]) {
 
             var efs = efDataHolder[_template];
+            var efsAsChildren = getChildrenFromFrames(efs.frames);
+            normalizeSummingData(efsAsChildren);
+            
             efDataRoot.name = _template;
-            efDataRoot.children = getChildrenFromFrames(efs.frames);
+            efDataRoot.children = efsAsChildren; 
 
         } else {
 
@@ -439,10 +494,13 @@ function Exele_TreeBuilder() {
             // to the EFs in each.
             for (var efName in efDataHolder) {
                 var efs = efDataHolder[efName];
-
+                
+                var efsAsChildren = getChildrenFromFrames(efs.frames);
+                normalizeSummingData(efsAsChildren);
+                
                 efDataRoot.children.push({
                     name: efName,
-                    children: getChildrenFromFrames(efs.frames)
+                    children: efsAsChildren
                 });
             }
         }
@@ -479,25 +537,8 @@ function Exele_TreeBuilder() {
               //
               // The EF's duration (default)
 
-              // Lots of things are being verified here before we use the attribute's value for cell sizing:
-              //
-              // * Is there a selected template and attribute?
-              // * Does the template of this EF match the selected template?
-              // * Does the attributes map exist on the data point's (i.e. `d`) `ef` property?
-              // * Does the attributes map contain the selected attribute?
-              if (_template
-                  && _sizeAttribute
-                  && d.ef
-                  && _template == d.ef.templateName
-                  && d.ef.attributes
-                  && d.ef.attributes.has(_sizeAttribute)) {
-
-                  // Return the value of the selected attribute
-                  return d.ef.attributes.get(_sizeAttribute);
-              }
-
               // Otherwise, default to summing by EF duration
-              return (d.endTime - d.startTime) / 1000 / 60;
+              return d.sizeValue;
           })
           .sort(function (a, b) {
               // Sorts by the height (greatest distance from descendant leaf)
