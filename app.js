@@ -359,7 +359,6 @@ var eventsModule = function () {
         var efDataRoot = {
             name: '',
             children: [],
-            totalDuration: 0
         };
 
         // Converts the passed EFs into data objects for use in the treemap
@@ -401,20 +400,11 @@ var eventsModule = function () {
                 });
         }
 
-        var sumFrameDuration = function (efFrames) {
-            var frameSum = 0;
-            for (var i = 0; i < efFrames.length; i++) {
-                frameSum += ((efFrames[i].ef.EndTime - efFrames[i].ef.StartTime) / 1000 / 60);
-            }
-            return frameSum;
-        }
-
         if (_template && _template !== 'None' && efDataHolder[_template]) {
 
             var efs = efDataHolder[_template];
             efDataRoot.name = _template;
             efDataRoot.children = getChildrenFromFrames(efs.frames);
-            efDataRoot.totalDuration += sumFrameDuration(efs.frames);
 
         } else {
 
@@ -429,11 +419,8 @@ var eventsModule = function () {
                     name: efName,
                     children: getChildrenFromFrames(efs.frames)
                 });
-
-                efDataRoot.totalDuration += sumFrameDuration(efs.frames);
             }
         }
-
 
         // Might be useful to allow summing by count, in the future.
         function sumByCount(d) {
@@ -444,6 +431,15 @@ var eventsModule = function () {
           .eachBefore(function (d) {
               d.data.id = (d.parent ? d.parent.data.id + '.' : '') + d.data.name + (d.data.ef ? '.' + d.data.ef.webId : '');
               // d.WebId = "1111"
+          })
+          .eachAfter(function(d) {
+              if (d.children) {
+                  d.data.totalDuration = d.children.reduce(function(a, b) {
+                      return a + b.data.duration;
+                  }, 0)
+              } else {
+                  d.data.totalDuration = d.data.durationMinutes;
+              }
           })
           .sum(function (d) {
               // The `sum` determines the size of the cells within the treemap.
