@@ -562,7 +562,9 @@ function Exele_TreeBuilder() {
                   }, [0, 0]);
 
                   d.data.colorDomain = d.children.reduce(function(a, b) {
-                    a.push(b.data.color.value || 0);
+                    if (b.data.color && b.data.color.value) {
+                        a.push(b.data.color.value);                        
+                    }
                     return [d3.min(a), d3.max(a)];
                   }, []);
               } else {
