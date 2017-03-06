@@ -116,9 +116,10 @@ function Exele_TreeBuilder() {
             selection.each(function (data) {
                 var format = d3.format(",d");
 
+                var colorStyle = data.data.colorType;
                 var color;
-                if (data.data.colorType === 'sequential') {
-                    color = d3.scaleSequential(d3.interpolateCool);
+                if (colorStyle === 'sequential') {
+                    color = d3.scaleSequential(d3.interpolateCool).domain(data.data.colorDomain);
                 } else {
                     var fader = function (color) { return d3.interpolateRgb(color, "#fff")(0.2); };
                     color = d3.scaleOrdinal(d3.schemeCategory20.map(fader));
@@ -563,7 +564,7 @@ function Exele_TreeBuilder() {
                   d.data.colorDomain = d.children.reduce(function(a, b) {
                     a.push(b.data.color.value || 0);
                     return [d3.min(a), d3.max(a)];
-                  }, [0, 0]);
+                  }, []);
               } else {
                   d.data.sizeDomain = [d.data.sizeValue, d.data.sizeValue];
               }
