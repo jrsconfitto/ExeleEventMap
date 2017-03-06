@@ -447,9 +447,9 @@ function Exele_TreeBuilder() {
                     // Calculate the duration of the EF, this will also be used as the default value for summing cells
                     // for treemap display calculations.
                     var durationMinutes = ((f.ef.EndTime - f.ef.StartTime) / 1000 / 60);
-                    
+
                     var sizeValue;
-                    
+
                     // Lots of things are being verified here before we use the attribute's value for cell sizing:
                     //
                     // * Is there a selected template and attribute?
@@ -489,7 +489,7 @@ function Exele_TreeBuilder() {
 
                     return data;
                 });
-            
+
             // Normalize the summing data, if necessary.
             if (_template && _sizeAttribute
                 && _template !== 'None'
@@ -503,9 +503,9 @@ function Exele_TreeBuilder() {
         if (_template && _template !== 'None' && efDataHolder[_template]) {
 
             var efs = efDataHolder[_template];
-            
+
             efDataRoot.name = _template;
-            efDataRoot.children = getChildrenFromFrames(efs.frames); 
+            efDataRoot.children = getChildrenFromFrames(efs.frames);
 
         } else {
 
@@ -515,9 +515,9 @@ function Exele_TreeBuilder() {
             // to the EFs in each.
             for (var efName in efDataHolder) {
                 var efs = efDataHolder[efName];
-                
+
                 var efsAsChildren = getChildrenFromFrames(efs.frames);
-                
+
                 efDataRoot.children.push({
                     name: efName,
                     children: efsAsChildren
@@ -543,7 +543,7 @@ function Exele_TreeBuilder() {
                   }, 0)
 
                   d.data.sizeDomain = d.children.map(function(c) {
-                      
+
                       // Gets back the domain of the data object
                       var sizeValues = [];
 
@@ -553,7 +553,7 @@ function Exele_TreeBuilder() {
                           sizeValues.push(c.data.sizeValue);
                       }
 
-                      return [d3.min(sizeValues), d3.max(sizeValues)]; 
+                      return [d3.min(sizeValues), d3.max(sizeValues)];
 
                   }).reduce(function(a, b) {
                       b.push(a);
@@ -563,7 +563,7 @@ function Exele_TreeBuilder() {
 
                   d.data.colorDomain = d.children.reduce(function(a, b) {
                     if (b.data.color && b.data.color.value) {
-                        a.push(b.data.color.value);                        
+                        a.push(b.data.color.value);
                     }
                     return [d3.min(a), d3.max(a)];
                   }, []);
@@ -682,7 +682,7 @@ Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function 
         'Int64',
         'Single'
     ];
-    
+
     // Return an empty array if we don't find a match
     return this.GetEFAttributesFromTemplate(templateName)
         .filter(att => numericalAttributeTypes.indexOf(att.Type) !== -1)
