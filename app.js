@@ -529,8 +529,36 @@ function Exele_TreeBuilder() {
                   d.data.durationMinutes = d.children.reduce(function(a, b) {
                       return a + b.data.durationMinutes;
                   }, 0)
+
+                  d.data.sizeDomain = d.children.map(function(c) {
+                      
+                      // Gets back the domain of the data object
+                      var sizeValues = [];
+
+                      if (c.data.sizeDomain) {
+                          sizeValues.push(c.data.sizeDomain);
+                      } else if (c.data.sizeValue) {
+                          sizeValues.push(c.data.sizeValue);
+                      }
+
+                      return [d3.min(sizeValues), d3.max(sizeValues)]; 
+
+                  }).reduce(function(a, b) {
+                      b.push(a);
+                      var combined = d3.merge(b);
+                      return [d3.min(combined), d3.max(combined)];
+                  }, [0, 0]);
+
+                  d.data.colorDomain = d.children.reduce(function(a, b) {
+                    var min = d3.min([a[0], (b.data.color || 0)]);
+                    var max = d3.max([a[1], (b.data.color || 0)]);
+                      return [min, max];
+                  }, [0, 0]);
+              } else {
+                  d.data.sizeDomain = [d.data.sizeValue, d.data.sizeValue];
               }
           })
+          // TODO: Move this into the treemap code where i can sum based on the normalization information in the root node?
           .sum(function (d) {
               // The `sum` determines the size of the cells within the treemap.
 
