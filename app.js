@@ -382,7 +382,7 @@ function Exele_TreeBuilder() {
     function EFsToHierarchy() {
         var efDataRoot = {
             name: '',
-            children: []
+            children: [],
         };
 
         // Converts the passed EFs into data objects for use in the treemap
@@ -428,7 +428,7 @@ function Exele_TreeBuilder() {
 
             var efs = efDataHolder[_template];
             efDataRoot.name = _template;
-            efDataRoot.children = getChildrenFromFrames(efs.frames)
+            efDataRoot.children = getChildrenFromFrames(efs.frames);
 
         } else {
 
@@ -446,7 +446,6 @@ function Exele_TreeBuilder() {
             }
         }
 
-
         // Might be useful to allow summing by count, in the future.
         function sumByCount(d) {
             return 1;
@@ -456,6 +455,14 @@ function Exele_TreeBuilder() {
           .eachBefore(function (d) {
               d.data.id = (d.parent ? d.parent.data.id + '.' : '') + d.data.name + (d.data.ef ? '.' + d.data.ef.webId : '');
               // d.WebId = "1111"
+          })
+          .eachAfter(function(d) {
+              // Give nodes with children `durationMinutes` properties equal to the sum of the durations of their children.
+              if (d.children) {
+                  d.data.durationMinutes = d.children.reduce(function(a, b) {
+                      return a + b.data.durationMinutes;
+                  }, 0)
+              }
           })
           .sum(function (d) {
               // The `sum` determines the size of the cells within the treemap.
@@ -542,7 +549,7 @@ function Exele_TreeBuilder() {
         var totalTime = efDurationSum(root);
 
         var $totalTimeElement = $('.exele-total-time', symbolElement);
-        $totalTimeElement[0].innerHTML = 'Total event time: ' + totalTime.toFixed(2);
+        $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2);
 
         // Draw the treemap within the selected element using the data in `root`
         treemapSelection
@@ -602,6 +609,6 @@ var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
         cache: false,
         contentType: "application/json; charset=UTF-8",
         success: successCallBack,
-        error: errorCallBack        
+        error: errorCallBack
     });
 };
