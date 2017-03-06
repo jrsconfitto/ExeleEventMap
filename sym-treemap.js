@@ -26,11 +26,11 @@
         runtimeData.obtainAttributes = function() {
             var efAttributes = exeleTree.GetEFAttributeNamesFromTemplate(mytemplate);
             // return like this so angular does not loop forever
-            return [{name: 'None', type: 'String'}].concat(efAttributes);
+            return [{Name: 'None', Type: 'String'}].concat(efAttributes);
         };
 
         runtimeData.obtainSizeableAttributes = function() {
-            return [{name: 'None', type: 'String'}].concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
+            return [{Name: 'None', Type: 'String'}].concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
         }
 
         function dataUpdate(data) {

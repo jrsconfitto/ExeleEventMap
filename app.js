@@ -220,10 +220,10 @@ function Exele_TreeBuilder() {
                             }
                         }
 
-                        if (_colorAttribute && _colorAttribute.name) {
-                            title += '\n\n(Coloring by: ' + _colorAttribute.name + ')';
-                            if (d.data.ef.attributes && d.data.ef.attributes.has(_colorAttribute.name)) {
-                                title += '\n\t' + _colorAttribute.name + ' Value: ' + d.data.ef.attributes.get(_colorAttribute.name);
+                        if (_colorAttribute && _colorAttribute.Name) {
+                            title += '\n\n(Coloring by: ' + _colorAttribute.Name + ')';
+                            if (d.data.ef.attributes && d.data.ef.attributes.has(_colorAttribute.Name)) {
+                                title += '\n\t' + _colorAttribute.Name + ' Value: ' + d.data.ef.attributes.get(_colorAttribute.Name);
                             }
                         }
 
@@ -396,7 +396,7 @@ function Exele_TreeBuilder() {
         var efDataRoot = {
             name: '',
             children: [],
-            colorType: (numericalAttributeTypes.indexOf(_colorAttribute.type) === -1 ? 'discrete' : 'sequential')
+            colorType: (numericalAttributeTypes.indexOf(_colorAttribute.Type) === -1 ? 'discrete' : 'sequential')
         };
 
         // Converts the passed EFs into data objects for use in the treemap
@@ -436,10 +436,10 @@ function Exele_TreeBuilder() {
                     if (f.attributeValuesMap) {
                         f.ef.attributes = f.attributeValuesMap;
 
-                        if (_colorAttribute && _colorAttribute.name && f.ef.attributes.has(_colorAttribute.name)) {
+                        if (_colorAttribute && _colorAttribute.Name && f.ef.attributes.has(_colorAttribute.Name)) {
                             color = {
-                                attributeName: _colorAttribute.name,
-                                value: f.attributeValuesMap.get(_colorAttribute.name)
+                                attributeName: _colorAttribute.Name,
+                                value: f.attributeValuesMap.get(_colorAttribute.Name)
                             };
                         }
                     }
@@ -670,6 +670,9 @@ Exele_TreeBuilder.prototype.GetEFTemplates = function () {
 // get the Attributes provide a tepmlate
 Exele_TreeBuilder.prototype.GetEFAttributeNamesFromTemplate= function(templateName){
     return this.GetEFAttributesFromTemplate(templateName)
+        .map(att => {
+            return {Name: att.Name, Type: att.Type};
+        })
         .sort((a, b) => d3.ascending(a.Name, b.Name));
 },
 
@@ -686,6 +689,9 @@ Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function 
     // Return an empty array if we don't find a match
     return this.GetEFAttributesFromTemplate(templateName)
         .filter(att => numericalAttributeTypes.indexOf(att.Type) !== -1)
+        .map(att => {
+            return {Name: att.Name, Type: att.Type}
+        })
         .sort((a, b) => d3.ascending(a.Name, b.Name));
 }
 
