@@ -561,9 +561,8 @@ function Exele_TreeBuilder() {
                   }, [0, 0]);
 
                   d.data.colorDomain = d.children.reduce(function(a, b) {
-                    var min = d3.min([a[0], (b.data.color.value || 0)]);
-                    var max = d3.max([a[1], (b.data.color.value || 0)]);
-                      return [min, max];
+                    a.push(b.data.color.value || 0);
+                    return [d3.min(a), d3.max(a)];
                   }, [0, 0]);
               } else {
                   d.data.sizeDomain = [d.data.sizeValue, d.data.sizeValue];
