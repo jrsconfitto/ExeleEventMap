@@ -1,4 +1,3 @@
-
 // Exele Information System Inc, TreeMap for the OSIsoft LLC 2017 hackathon.
 // Main function that does the Exele Tree logic
 function Exele_TreeBuilder() {
@@ -10,7 +9,15 @@ function Exele_TreeBuilder() {
     let webAPIServerURL = "";
     var _template = "";
     var _sizeAttribute = "";
-    var _colorAttribute = "";
+    var _colorAttribute = {};
+
+    let numericalAttributeTypes = [
+        'Double',
+        'Int16',
+        'Int32',
+        'Int64',
+        'Single'
+    ];
 
     //**********public setters***********
     // sets the tree symbol
@@ -107,10 +114,15 @@ function Exele_TreeBuilder() {
             // The following code applies the data tied to the passed in selection(s) and is where we actually build the
             // treemap.
             selection.each(function (data) {
-                var fader = function (color) { return d3.interpolateRgb(color, "#fff")(0.2); },
-                    discreteColor = d3.scaleOrdinal(d3.schemeCategory20.map(fader)),
-                    sequentialColor = d3.scaleSequential(d3.interpolateCool),
-                    format = d3.format(",d");
+                var format = d3.format(",d");
+
+                var color;
+                if (data.data.colorType === 'sequential') {
+                    color = d3.scaleSequential(d3.interpolateCool);
+                } else {
+                    var fader = function (color) { return d3.interpolateRgb(color, "#fff")(0.2); };
+                    color = d3.scaleOrdinal(d3.schemeCategory20.map(fader));
+                }
 
                 // Create a function that will format the treemap's data according to the
                 // way we want it displayed
@@ -165,10 +177,10 @@ function Exele_TreeBuilder() {
                     .attr("height", function (d) { return d.y1 - d.y0; })
                     .attr("fill", function (d) {
                         var selectedColor,
-                            defaultColor = (_colorAttribute && _colorAttribute !== 'None' ? discreteColor(d.parent.data.name) : discreteColor(d.parent.data.id));
+                            defaultColor = (_colorAttribute && _colorAttribute !== 'None' ? color(d.parent.data.name) : color(d.parent.data.id));
 
                         if (d.data.color) {
-                            selectedColor = sequentialColor(d.data.color.value);
+                            selectedColor = color(d.data.color.value);
                             console.debug('%c Default color' + '%c Attribute color', 'background: ' + defaultColor, 'background: ' + selectedColor);
                         } else {
                             console.debug('%c Default color', 'background: ' + defaultColor);
@@ -207,10 +219,10 @@ function Exele_TreeBuilder() {
                             }
                         }
 
-                        if (_colorAttribute !== '' && _colorAttribute !== 'None') {
-                            title += '\n\n(Coloring by: ' + _colorAttribute + ')';
-                            if (d.data.ef.attributes && d.data.ef.attributes.has(_colorAttribute)) {
-                                title += '\n\t' + _colorAttribute + ' Value: ' + d.data.ef.attributes.get(_colorAttribute);
+                        if (_colorAttribute && _colorAttribute.name) {
+                            title += '\n\n(Coloring by: ' + _colorAttribute.name + ')';
+                            if (d.data.ef.attributes && d.data.ef.attributes.has(_colorAttribute.name)) {
+                                title += '\n\t' + _colorAttribute.name + ' Value: ' + d.data.ef.attributes.get(_colorAttribute.name);
                             }
                         }
 
@@ -383,6 +395,7 @@ function Exele_TreeBuilder() {
         var efDataRoot = {
             name: '',
             children: [],
+            colorType: (numericalAttributeTypes.indexOf(_colorAttribute.type) === -1 ? 'discrete' : 'sequential')
         };
 
         // Converts the passed EFs into data objects for use in the treemap
@@ -422,10 +435,10 @@ function Exele_TreeBuilder() {
                     if (f.attributeValuesMap) {
                         f.ef.attributes = f.attributeValuesMap;
 
-                        if (_colorAttribute && f.ef.attributes.has(_colorAttribute)) {
+                        if (_colorAttribute && _colorAttribute.name && f.ef.attributes.has(_colorAttribute.name)) {
                             color = {
-                                attributeName: _colorAttribute,
-                                value: f.attributeValuesMap.get(_colorAttribute)
+                                attributeName: _colorAttribute.name,
+                                value: f.attributeValuesMap.get(_colorAttribute.name)
                             };
                         }
                     }
@@ -485,8 +498,6 @@ function Exele_TreeBuilder() {
 
             return efs;
         }
-
-        
 
         if (_template && _template !== 'None' && efDataHolder[_template]) {
 
@@ -550,8 +561,8 @@ function Exele_TreeBuilder() {
                   }, [0, 0]);
 
                   d.data.colorDomain = d.children.reduce(function(a, b) {
-                    var min = d3.min([a[0], (b.data.color || 0)]);
-                    var max = d3.max([a[1], (b.data.color || 0)]);
+                    var min = d3.min([a[0], (b.data.color.value || 0)]);
+                    var max = d3.max([a[1], (b.data.color.value || 0)]);
                       return [min, max];
                   }, [0, 0]);
               } else {
@@ -669,7 +680,7 @@ Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function 
         'Int64',
         'Single'
     ];
-
+    
     // Return an empty array if we don't find a match
     return this.GetEFAttributesFromTemplate(templateName)
         .filter(att => numericalAttributeTypes.indexOf(att.Type) !== -1)

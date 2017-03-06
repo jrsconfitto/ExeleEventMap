@@ -44,6 +44,18 @@ function updateTreemap($symbol) {
         selectedSizeAttribute = $(':selected', '#efSizeAttributes').val() || 'None',
         selectedColorAttribute = $(':selected', '#efColorAttributes').val() || 'None';
     
+    if (selectedColorAttribute !== 'None') {
+        selectedColorAttribute = {
+            name: selectedColorAttribute,
+            type: $(':selected', '#efColorAttributes').data('type')
+        };
+    } else {
+        selectedColorAttribute = {
+            name: 'None',
+            type: 'String' // Because we'll color by the cell titles
+        }
+    }
+    
     // Update treemap using selected parameters
     ExeleTree.Update(apiServer, elementPath, $('.exele-treemap-symbol'), tStart, tEnd, selectedTemplate, selectedSizeAttribute, selectedColorAttribute);
 
