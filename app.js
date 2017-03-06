@@ -657,8 +657,7 @@ Exele_TreeBuilder.prototype.GetEFTemplates = function () {
 // get the Attributes provide a tepmlate
 Exele_TreeBuilder.prototype.GetEFAttributeNamesFromTemplate= function(templateName){
     return this.GetEFAttributesFromTemplate(templateName)
-        .map(att => att.Name)
-        .sort(d3.ascending);
+        .sort((a, b) => d3.ascending(a.Name, b.Name));
 },
 
 Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function (templateName) {
@@ -674,8 +673,7 @@ Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function 
     // Return an empty array if we don't find a match
     return this.GetEFAttributesFromTemplate(templateName)
         .filter(att => numericalAttributeTypes.indexOf(att.Type) !== -1)
-        .map(att => att.Name)
-        .sort(d3.ascending);
+        .sort((a, b) => d3.ascending(a.Name, b.Name));
 }
 
 // JQuery method used to get data

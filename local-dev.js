@@ -65,7 +65,7 @@ function fillSelect($select, items) {
     items.unshift('None');
     // Initialize the selected template and attributes
     var options = items.map(function(t) {
-        return '<option value="' + t + '">' + t + '</option>';
+        return '<option data-type="' + (t.Type || '') + '" value="' + (t.Name || t || 'None') + '">' + (t.Name || t || 'None') + '</option>';
     });
 
     var optionsHtml = options.reduce(function(a, b) { return a + b; }, '');
