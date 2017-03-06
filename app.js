@@ -159,6 +159,14 @@ var eventsModule = function () {
 
     function buildTable(ef) {
         console.log(ef.webId);
+
+        GetAttributesValues(ef.templateName);
+
+
+        var x = efDataHolder[ef.templateName].frames.find(e=>e.ef.webId === ef.webId).attributeValuesMap;
+
+        var z = 9;
+
     }
 
 
