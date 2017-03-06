@@ -433,12 +433,11 @@ var eventsModule = function () {
               // d.WebId = "1111"
           })
           .eachAfter(function(d) {
+              // Give nodes with children `durationMinutes` properties equal to the sum of the durations of their children.
               if (d.children) {
-                  d.data.totalDuration = d.children.reduce(function(a, b) {
-                      return a + b.data.duration;
+                  d.data.durationMinutes = d.children.reduce(function(a, b) {
+                      return a + b.data.durationMinutes;
                   }, 0)
-              } else {
-                  d.data.totalDuration = d.data.durationMinutes;
               }
           })
           .sum(function (d) {
@@ -570,7 +569,7 @@ var eventsModule = function () {
             var root = EFsToHierarchy();
 
             var $totalTimeElement = $('.exele-total-time', symbolElement);
-            $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.totalDuration.toFixed(2);
+            $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2);
 
             // Draw the treemap within the selected element using the data in `root`
             treemapSelection
