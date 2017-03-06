@@ -1,3 +1,6 @@
+
+// Exele Information System Inc, TreeMap for the OSIsoft LLC 2017 hackathon.
+// Main function that does the Exele Tree logic
 function Exele_TreeBuilder() {
     //****Private variables
     let templates = [];
@@ -72,6 +75,7 @@ function Exele_TreeBuilder() {
         }
     }
 
+    //*********Internal functions******************
 
     // Modeled after the example given in Mike Bostock's fantastic "Towards Reusable Charts": https://bost.ocks.org/mike/chart/
     //
@@ -547,6 +551,7 @@ function Exele_TreeBuilder() {
     }
 }
 
+// *********Prototypes of Exele_TreeBuilder************
 
 Exele_TreeBuilder.prototype.Update = function(APIServer, elementPath, symbolElement, startTime, endTime, template, sizeAttribute, colorAttribute){
         // store the symbol and the apiserver as private variables in the module, we should initiallize first.
@@ -588,7 +593,7 @@ Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function 
         .sort(d3.ascending);
 }
 
-
+// JQuery method used to get data
 var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
     return $.ajax({
         url: encodeURI(url),
@@ -597,9 +602,6 @@ var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
         cache: false,
         contentType: "application/json; charset=UTF-8",
         success: successCallBack,
-        error: errorCallBack //,
-        // beforeSend: function (xhr) {
-        //    xhr.setRequestHeader("Authorization", makeBasicAuth("administrator", "pw"));
-        // },
+        error: errorCallBack        
     });
 };
