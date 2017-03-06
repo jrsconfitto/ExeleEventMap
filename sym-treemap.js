@@ -13,7 +13,7 @@
         var mytemplate = "";
         // put runtimeData in scope
         var runtimeData = scope.runtimeData;
-        
+
         var exeleTree = new Exele_TreeBuilder();
 
         // method use to get the current EF
@@ -24,13 +24,13 @@
 
         // method used to get the current attributes from the template
         runtimeData.obtainAttributes = function() {
-            var efAttributes = exeleTree.GetEFAttributeNamesFromTemplate(mytemplate);          
+            var efAttributes = exeleTree.GetEFAttributeNamesFromTemplate(mytemplate);
             // return like this so angular does not loop forever
-            return ['None'].concat(efAttributes);                    
+            return [{name: 'None', type: 'String'}].concat(efAttributes);
         };
 
         runtimeData.obtainSizeableAttributes = function() {
-            return ['None'].concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
+            return [{name: 'None', type: 'String'}].concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
         }
 
         function dataUpdate(data) {
@@ -50,7 +50,7 @@
             exeleTree.Update(apiUrl, dataPath, this.elem, timeProvider.displayTime.start, timeProvider.displayTime.end,
                 this.scope.config.TemplateSelected, this.scope.config.AttributeSelected, this.scope.config.ColorAttributeSelected);
         }
-        // sample event from trend 
+        // sample event from trend
         timeProvider.onDisplayTimeChanged.subscribe();
 
         function configChanged(newConfig, oldConfig) {
@@ -79,8 +79,8 @@
                 Height: 500,
                 Width: 600,
                 TemplateSelected: "None",
-                AttributeSelected: "None",
-                ColorAttributeSelected: "None",
+                AttributeSelected: {name: 'None', type: 'String'},
+                ColorAttributeSelected: {name: 'None', type: 'String'},
                 Test: ''
             };
         },
