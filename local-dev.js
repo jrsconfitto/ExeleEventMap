@@ -1,4 +1,5 @@
 // Start development when imported symbol template is loaded
+var t = {};
 function handleLoad(e) {
     // Get the imported document
     var importedDocument = document.querySelector('link[rel="import"]').import;
@@ -7,7 +8,7 @@ function handleLoad(e) {
     // Insert imported content into our page
     var $symbol = $('#imported-symbol')
     $symbol.html(importedSymbol);
-
+    ExeleTree = new Exele_TreeBuilder();
     // Update treemap once when page loads
     updateTreemap();
 
@@ -18,8 +19,8 @@ function handleLoad(e) {
 
     $('#efTemplates').on('change', function (e, el) {
         var selectedTemplate = $(':selected', '#efTemplates').val() || 'None';
-        var numericalAttributeNames = eventsModule.GetNumericalEFAttributeNamesFromTemplate(selectedTemplate);
-        var allAttributeNames = eventsModule.GetEFAttributeNamesFromTemplate(selectedTemplate);
+        var numericalAttributeNames = ExeleTree.GetNumericalEFAttributeNamesFromTemplate(selectedTemplate);
+        var allAttributeNames = ExeleTree.GetEFAttributeNamesFromTemplate(selectedTemplate);
         
         // Fill the size select with only numerical EF template attributes
         fillSelect($('#efSizeAttributes'), numericalAttributeNames);
@@ -44,10 +45,10 @@ function updateTreemap($symbol) {
         selectedColorAttribute = $(':selected', '#efColorAttributes').val() || 'None';
     
     // Update treemap using selected parameters
-    eventsModule.Update(apiServer, elementPath, $('.exele-treemap-symbol'), tStart, tEnd, selectedTemplate, selectedSizeAttribute, selectedColorAttribute);
+    ExeleTree.Update(apiServer, elementPath, $('.exele-treemap-symbol'), tStart, tEnd, selectedTemplate, selectedSizeAttribute, selectedColorAttribute);
 
     if ($('#efTemplates option').length <= 1) {
-        fillSelect($('#efTemplates'), eventsModule.GetEFTemplates());
+        fillSelect($('#efTemplates'), ExeleTree.GetEFTemplates());
     }
 }
 
