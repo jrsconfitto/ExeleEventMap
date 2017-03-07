@@ -9,27 +9,28 @@
     symbolVis.prototype.init = function (scope, element, timeProvider) {
         this.onDataUpdate = dataUpdate;
         this.onConfigChange = configChanged;
-
         this.onResize = resize;
         var mytemplate = "";
         // put runtimeData in scope
         var runtimeData = scope.runtimeData;
         
+        var exeleTree = new Exele_TreeBuilder();
+
         // method use to get the current EF
         runtimeData.obtainTemplates = function() {
-            var efTemplates = eventsModule.GetEFTemplates()
+            var efTemplates = exeleTree.GetEFTemplates()
             return ['None'].concat(efTemplates);
         };
 
         // method used to get the current attributes from the template
         runtimeData.obtainAttributes = function() {
-            var efAttributes = eventsModule.GetEFAttributeNamesFromTemplate(mytemplate);          
+            var efAttributes = exeleTree.GetEFAttributeNamesFromTemplate(mytemplate);          
             // return like this so angular does not loop forever
             return ['None'].concat(efAttributes);                    
         };
 
         runtimeData.obtainSizeableAttributes = function() {
-            return ['None'].concat(eventsModule.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
+            return ['None'].concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
         }
 
         function dataUpdate(data) {
@@ -46,9 +47,8 @@
                 dataPath = dataPath.substr(0, attributePipeLocation)
             }
             // Update treemap, providing URL, elementPath, start and end times
-            eventsModule.Update(apiUrl, dataPath, this.elem, timeProvider.displayTime.start, timeProvider.displayTime.end,
+            exeleTree.Update(apiUrl, dataPath, this.elem, timeProvider.displayTime.start, timeProvider.displayTime.end,
                 this.scope.config.TemplateSelected, this.scope.config.AttributeSelected, this.scope.config.ColorAttributeSelected);
-
         }
         // sample event from trend 
         timeProvider.onDisplayTimeChanged.subscribe();
@@ -64,9 +64,6 @@
             // ...
         }
     };
-
-
-
 
 
     // Create symbol definition object
