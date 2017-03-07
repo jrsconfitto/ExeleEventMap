@@ -177,17 +177,8 @@ function Exele_TreeBuilder() {
                     .attr("width", function (d) { return d.x1 - d.x0; })
                     .attr("height", function (d) { return d.y1 - d.y0; })
                     .attr("fill", function (d) {
-                        var selectedColor,
-                            defaultColor = (_colorAttribute && _colorAttribute !== 'None' ? color(d.parent.data.name) : color(d.parent.data.id));
-
-                        if (d.data.color) {
-                            selectedColor = color(d.data.color.value);
-                            console.debug('%c Default color' + '%c Attribute color', 'background: ' + defaultColor, 'background: ' + selectedColor);
-                        } else {
-                            console.debug('%c Default color', 'background: ' + defaultColor);
-                        }
-
-                        return (d.data.color ? selectedColor : defaultColor);
+                        var colorValue = (d.data.colorAttributeName !== 'None' ? d.data.colorValue : d.parent.data.name);
+                        return color(colorValue);
                     })
                     .attr("data-web-id", function (d) { return d.data.ef.webId; });
 
@@ -480,11 +471,9 @@ function Exele_TreeBuilder() {
                         startTime: f.ef.StartTime,
                         endTime: f.ef.EndTime,
                         durationMinutes: durationMinutes,
-                        sizeValue: sizeValue
-                    }
-
-                    if (color) {
-                        data.color = color;
+                        sizeValue: sizeValue,
+                        colorAttributeName: (color && color.attributeName ? color.attributeName : _colorAttribute.Name),
+                        colorValue: (color && color.value ? color.value : f.ef.name)
                     }
 
                     return data;
@@ -562,8 +551,8 @@ function Exele_TreeBuilder() {
                   }, [0, 0]);
 
                   d.data.colorDomain = d.children.reduce(function(a, b) {
-                    if (b.data.color && b.data.color.value) {
-                        a.push(b.data.color.value);
+                    if (b.data.colorValue) {
+                        a.push(b.data.colorValue);
                     }
                     return [d3.min(a), d3.max(a)];
                   }, []);
@@ -623,6 +612,7 @@ function Exele_TreeBuilder() {
         //   values (CSV), into a hierarchy using d3.stratify.
         var root = EFsToHierarchy();
 
+        // TODO: remove the following, it's duplicating calcs done in the EFs hierarchy
         var efDurationSum = function (efNode) {
             if (efNode.children) {
                 // Node has children, compute duration of each child
