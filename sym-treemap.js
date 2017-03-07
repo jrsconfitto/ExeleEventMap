@@ -22,15 +22,18 @@
             return ['None'].concat(efTemplates);
         };
 
+        // Initialize cached EF attributes
+        var cachedAttributes = [{Name: 'None', Type: 'String'}].concat(exeleTree.GetEFAttributeNamesFromTemplate(mytemplate));
         // method used to get the current attributes from the template
         runtimeData.obtainAttributes = function() {
-            var efAttributes = exeleTree.GetEFAttributeNamesFromTemplate(mytemplate);
             // return like this so angular does not loop forever
-            return [{Name: 'None', Type: 'String'}].concat(efAttributes);
+            return cachedAttributes;
         };
 
+        // Initialize cached sizeable attributes
+        var cachedSizeableAttributes = [{Name: 'None', Type: 'String'}].concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
         runtimeData.obtainSizeableAttributes = function() {
-            return [{Name: 'None', Type: 'String'}].concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
+            return cachedSizeableAttributes;
         }
 
         function dataUpdate(data) {
@@ -57,6 +60,15 @@
             // set the template if the config changes
             if (oldConfig.TemplateSelected != newConfig.TemplateSelected) {
                 mytemplate = newConfig.TemplateSelected;
+
+                // Adjust the attributes data to align with the new template selection
+                //
+                // Remove any attributes past the first ("None") and then add new ones
+                cachedAttributes = cachedAttributes.slice(0, 1);
+                cachedAttributes = cachedAttributes.concat(exeleTree.GetEFAttributeNamesFromTemplate(mytemplate));
+
+                cachedSizeableAttributes = cachedSizeableAttributes.slice(0, 1);
+                cachedSizeableAttributes = cachedSizeableAttributes.concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
             }
         }
 
