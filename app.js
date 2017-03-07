@@ -522,12 +522,16 @@ function Exele_TreeBuilder() {
             height = $treemapParentElement.height();
 
         var treemapSelection = d3.select($treemapParentElement.get(0));
+        treemapSelection
+                   .append("p").text("No events within timerange")
+                   .attr("style", "background-color:lightblue;text-align:center");
 
         // Set the treemap's width and height based on the calculated values above
-        var myTreemap = treemap()
+      /*  var myTreemap = treemap()
             .width(width)
             .height(height);
 
+    */
         // Extract the right Event Frames data for the Treemap
         //
         // d3 requires hierarchical data for a treemap, this means that the data should be organized in a
@@ -559,9 +563,10 @@ function Exele_TreeBuilder() {
         $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2);
 
         // Draw the treemap within the selected element using the data in `root`
-        treemapSelection
+      /*  treemapSelection
             .datum(root)
             .call(myTreemap);
+    */
     }
 }
 
