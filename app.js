@@ -160,13 +160,15 @@ var eventsModule = function () {
     function buildTable(ef) {
         console.log(ef.webId);
 
-        GetAttributesValues(ef.templateName);
+        GetAttributesValues(ef.templateName, function() {
 
+            var attributeValues = efDataHolder[ef.templateName].frames.find(e=>e.ef.webId === ef.webId).attributeValuesMap;
 
-        var x = efDataHolder[ef.templateName].frames.find(e=>e.ef.webId === ef.webId).attributeValuesMap;
+            if (attributeValues) {
+                
+            }
 
-        var z = 9;
-
+        });
     }
 
 
@@ -317,7 +319,7 @@ var eventsModule = function () {
     }
 
     // get the attribute values for each EF given an attributeName and template
-    function GetAttributesValues(templateName) {
+    function GetAttributesValues(templateName, displayCallback) {
         var templateUsed = efDataHolder[templateName];
 
         if (templateUsed) {
@@ -333,16 +335,14 @@ var eventsModule = function () {
             });
             // use batch call and call method to add the attribute values as a map to the tree
             makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
-            .then(results=>ProcessAttributeResults(results, templateName))
-            .then(() => eventsModule.BuildTreemap());
-            //.catch(error=> console.log(error));
+            .then(results=>ProcessAttributeResults(results, templateName, displayCallback));
         } else {
             eventsModule.BuildTreemap();
         }
     }
 
     // takes batch call results, and adds values to the correct EF
-    function ProcessAttributeResults(results, templateName) {
+    function ProcessAttributeResults(results, templateName, displayCallback) {
         for (let result in results) {
             if (results[result].Status == 200 && results[result].Content.Items.length > 0) {
                 const attributeMap = new Map();
@@ -356,6 +356,7 @@ var eventsModule = function () {
                 efDataHolder[templateName].frames.find(ef=>ef.id === result).attributeValuesMap = attributeMap;
             }
         }
+        displayCallback();
     }
 
     // This converts EFs in `efDataHolder` to hierarchical data useful for treemaps
