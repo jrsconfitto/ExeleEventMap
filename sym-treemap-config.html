@@ -26,12 +26,10 @@
    </select>
 </div>
 <div class="c-config-content">Size by selected EF Attribute:
-   <select ng-model="config.AttributeSelected">
-        <option ng-repeat="a in runtimeData.obtainSizeableAttributes()" data-type="{{a.Type}}">{{a.Name}}</option>
-   </select>
+    <select ng-model="config.AttributeSelected"
+            ng-options="attribute.Name for attribute in runtimeData.obtainSizeableAttributes()"></select>
 </div>
 <div class="c-config-content">Color by selected EF Attribute:
-   <select ng-model="config.ColorAttributeSelected">
-        <option ng-repeat="a in runtimeData.obtainAttributes()" data-type="{{a.Type}}">{{a.Name}}</option>
-   </select>
+   <select ng-model="config.ColorAttributeSelected"
+           ng-options="attribute.Name for attribute in runtimeData.obtainAttributes()"></select>
 </div>
