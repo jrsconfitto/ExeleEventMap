@@ -44,6 +44,18 @@ function updateTreemap($symbol) {
         selectedSizeAttribute = $(':selected', '#efSizeAttributes').val() || 'None',
         selectedColorAttribute = $(':selected', '#efColorAttributes').val() || 'None';
     
+    if (selectedSizeAttribute !== 'None') {
+        selectedSizeAttribute = {
+            Name: selectedSizeAttribute,
+            Type: $(':selected', '#efSizeAttributes').data('type')
+        };
+    } else {
+        selectedSizeAttribute = {
+            Name: 'None',
+            Type: 'String' // Because we'll color by the cell titles
+        }
+    }
+
     if (selectedColorAttribute !== 'None') {
         selectedColorAttribute = {
             Name: selectedColorAttribute,
