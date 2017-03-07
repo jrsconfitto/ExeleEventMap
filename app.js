@@ -565,7 +565,7 @@ function Exele_TreeBuilder() {
         var totalTime = efDurationSum(root);
 
         var $totalTimeElement = $('.exele-total-time', symbolElement);
-        $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2);
+        $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2) + ' minutes';
 
         // Draw the treemap within the selected element using the data in `root`
         treemapSelection
