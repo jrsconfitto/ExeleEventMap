@@ -161,15 +161,25 @@ var eventsModule = function () {
         
         GetAttributesValues(ef.templateName, function() {
 
-            var tableContent = '<table class="exele-attr-table"><tr><th>Attribute</th><th>Value</th></tr>';
+            // Select attribute values from passed event frame
             var attributeValues = efDataHolder[ef.templateName].frames.find(e=>e.ef.webId === ef.webId).attributeValuesMap;
+            
+            // Create HTML for table and header
+            var tableContent = '<table class="exele-attr-table"><tr><th>Attribute</th><th>Value</th></tr>';
 
             if (attributeValues) {
                 for(var attr of attributeValues) {
-                    tableContent += '<tr><td>' + attr[0] + '</td><td>' + attr[1] + '</td></tr>';
+
+                    if (typeof attr[1] === 'object') {
+                        // Handle object attribute type
+                    } else {
+                        tableContent += '<tr><td>' + attr[0] + '</td><td>' + attr[1] + '</td></tr>';
+                    }
+
                 }
             }
 
+            // Close table and replace contents of existing table
             tableContent += '</table>';
             $('.exele-attr-table', symbolElement).replaceWith(tableContent);
 
