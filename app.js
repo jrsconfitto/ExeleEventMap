@@ -119,7 +119,7 @@ function Exele_TreeBuilder() {
                 var colorStyle = data.data.colorType;
                 var color;
                 if (colorStyle === 'sequential') {
-                    color = d3.scaleSequential(d3.interpolateCool).domain(data.data.colorDomain);
+                    color = d3.scaleSequential(d3.interpolateBlues).domain(data.data.colorDomain);
                 } else {
                     var fader = function (color) { return d3.interpolateRgb(color, "#fff")(0.2); };
                     color = d3.scaleOrdinal(d3.schemeCategory20.map(fader));
@@ -171,6 +171,7 @@ function Exele_TreeBuilder() {
                     .attr("height", function (d) { return d.y1 - d.y0; })
                     .attr("fill", function (d) {
                         var colorValue = (d.data.colorAttributeName !== 'None' ? d.data.colorValue : d.parent.data.name);
+                        console.debug('%c ' + color(colorValue), 'background-color: ' + color(colorValue));
                         return color(colorValue);
                     })
                     .attr("data-web-id", function (d) { return d.data.ef.webId; });
@@ -244,7 +245,7 @@ function Exele_TreeBuilder() {
                 if (Number(entry.Value) === entry.Value && entry.Value % 1 !== 0) {
                     entry.Value = entry.Value.toFixed(3);
                 }
-                
+
                 tableContent += '<tr><td>' + attr.Name + '</td><td class="exele-table-value">' + entry.Value + '</td></tr>';
 
             });
@@ -401,7 +402,7 @@ function Exele_TreeBuilder() {
     // structure: https://github.com/d3/d3-hierarchy
     function EFsToHierarchy() {
         var colorType = (_colorAttribute && _colorAttribute.Type ? _colorAttribute.Type : 'String');
-        
+
         var efDataRoot = {
             name: '',
             children: [],
@@ -414,27 +415,16 @@ function Exele_TreeBuilder() {
             // We also shift positive for coloring, for now.
             function normalizeSummingData(efs) {
                 // TODO: should we be doing some sort of percentile normalization?
-                // TODO: i don't think i need to normalize color information here
                 var sizeValues = efs.map(ef => ef.sizeValue);
-                var colorValues = efs.map(ef => (ef.color && ef.color.value ? ef.color.value : 0));
 
                 var minSize = d3.min(sizeValues);
                 var maxSize = d3.max(sizeValues);
-
-                var minColor = d3.min(colorValues);
-                var maxColor = d3.max(colorValues);
-
                 var minSizeAbs = Math.abs(minSize);
-                var minColorAbs = Math.abs(minColor);
 
                 if (minSize <= 0) {
                     // Then let's normalize(?) the data somehow...
                     // Add every summing value by the minimum to shift it all to positive values.
                     efs.forEach(ef => ef.sizeValue += minSizeAbs + 1);
-                }
-
-                if (minColor < 0) {
-                    efs.forEach(ef => ef.color += minColorAbs + 1);
                 }
             }
 
