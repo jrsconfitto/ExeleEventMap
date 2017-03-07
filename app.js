@@ -384,10 +384,12 @@ function Exele_TreeBuilder() {
     // d3-hierarchy provides more information on how to create this kind of data
     // structure: https://github.com/d3/d3-hierarchy
     function EFsToHierarchy() {
+        var colorType = (_colorAttribute && _colorAttribute.Type ? _colorAttribute.Type : 'String');
+        
         var efDataRoot = {
             name: '',
             children: [],
-            colorType: (numericalAttributeTypes.indexOf(_colorAttribute.Type) === -1 ? 'discrete' : 'sequential')
+            colorType: (numericalAttributeTypes.indexOf(colorType) === -1 ? 'discrete' : 'sequential')
         };
 
         // Converts the passed EFs into data objects for use in the treemap
@@ -472,7 +474,7 @@ function Exele_TreeBuilder() {
                         endTime: f.ef.EndTime,
                         durationMinutes: durationMinutes,
                         sizeValue: sizeValue,
-                        colorAttributeName: (color && color.attributeName ? color.attributeName : _colorAttribute.Name),
+                        colorAttributeName: (color && color.attributeName ? color.attributeName : (_colorAttribute && _colorAttribute.Name ? _colorAttribute.Name : 'None')),
                         colorValue: (color && color.value ? color.value : f.ef.name)
                     }
 
