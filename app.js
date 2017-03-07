@@ -155,14 +155,14 @@ var eventsModule = function () {
 
     function buildTable(ef) {
         
-        GetSingleEFAttributes(ef.ef.id).then(results=> {
+        GetSingleEFAttributes(ef.webId).then(results=> {
 
             // Create HTML for table and header
             var tableContent = '<table class="exele-attr-table"><tr><th>Attribute</th><th>Value</th></tr>';
 
             results.Items.forEach(attr=> {
 
-                if (typeof attr.Value === 'object') {
+                if (typeof attr.Value.Value === 'object') {
                     // Handle object attribute type
                 } else {
                     tableContent += '<tr><td>' + attr.Name + '</td><td>' + attr.Value.Value + '</td></tr>';
@@ -306,8 +306,8 @@ var eventsModule = function () {
     }
 
     //get a singleEf
-    function GetSingleEFAttributes(id) {
-        let efURL = webAPIServerURL + "/streamsets/" + id + "/value";
+    function GetSingleEFAttributes(webId) {
+        let efURL = webAPIServerURL + "/streamsets/" + webId + "/value";
         return makeDataCall(efURL, "GET", null, null, null)
     }
 
