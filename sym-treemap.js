@@ -91,8 +91,8 @@
                 Height: 500,
                 Width: 600,
                 TemplateSelected: "None",
-                AttributeSelected: {name: 'None', type: 'String'},
-                ColorAttributeSelected: {name: 'None', type: 'String'},
+                AttributeSelected: {Name: 'None', Type: 'String'},
+                ColorAttributeSelected: {Name: 'None', Type: 'String'},
                 Test: ''
             };
         },
