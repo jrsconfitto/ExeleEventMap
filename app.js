@@ -227,17 +227,26 @@ function Exele_TreeBuilder() {
         GetSingleEFAttributes(ef.webId).then(results=> {
 
             // Create HTML for table and header
-            var tableContent = '<table class="exele-attr-table"><tr><th>Attribute</th><th>Value</th></tr>';
+            var tableContent = '<table class="exele-attr-table box-table-a"><tr><th>Attribute</th><th>Value</th></tr>';
 
             results.Items.forEach(attr=> {
 
+                var entry = {};
+
                 if (typeof attr.Value.Value === 'object') {
                     if (attr.Value.Value.hasOwnProperty('Name')) {
-                        tableContent += '<tr><td>' + attr.Name + '</td><td>' + attr.Value.Value.Name + '</td></tr>';
+                        entry.Value = attr.Value.Value.Name;
                     }
                 } else {
-                    tableContent += '<tr><td>' + attr.Name + '</td><td>' + attr.Value.Value + '</td></tr>';
+                    entry.Value = attr.Value.Value;
                 }
+
+                if (Number(entry.Value) === entry.Value && entry.Value % 1 !== 0) {
+                    entry.Value = entry.Value.toFixed(3);
+                }
+                
+                tableContent += '<tr><td>' + attr.Name + '</td><td class="exele-table-value">' + entry.Value + '</td></tr>';
+
             });
 
             // Close table and replace contents of existing table
@@ -639,7 +648,7 @@ function Exele_TreeBuilder() {
         var totalTime = efDurationSum(root);
 
         var $totalTimeElement = $('.exele-total-time', symbolElement);
-        $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2);
+        $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2) + ' minutes';
 
         // Draw the treemap within the selected element using the data in `root`
         treemapSelection
