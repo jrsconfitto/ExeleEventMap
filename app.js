@@ -15,36 +15,36 @@ function Exele_TreeBuilder() {
 
     //**********public setters***********
     // sets the tree symbol
-    this.SetSymbol = function(treeSymbolElement) {
+    this.SetSymbol = function (treeSymbolElement) {
         symbolElement = treeSymbolElement;
     }
     // sets the WebAPI server
-    this.SetWebAPIURL= function(url) {
+    this.SetWebAPIURL = function (url) {
         webAPIServerURL = url;
     }
     //set the global template to display
-    this.SetTemplate= function(template) {
+    this.SetTemplate = function (template) {
         _template = template;
     }
-    this.SetSizeAttribute= function(sizeAttribute) {
+    this.SetSizeAttribute = function (sizeAttribute) {
         _sizeAttribute = sizeAttribute;
     }
-    this.SetColorAttribute= function(colorAttribute) {
+    this.SetColorAttribute = function (colorAttribute) {
         _colorAttribute = colorAttribute;
     }
 
     // used to return all of the EF templates used as array
-    this.GetTemplates = function() {
+    this.GetTemplates = function () {
         var templates = [];
-    //["None"];
+        //["None"];
         for (var t in efDataHolder) {
             templates.push(t);
-    }
+        }
         return templates;
     }
 
     // use to return the attributes as array given a template
-    this.GetEFAttributesFromTemplate = function(templateName) {
+    this.GetEFAttributesFromTemplate = function (templateName) {
         if (efDataHolder[templateName] && efDataHolder[templateName].attributes) {
             return efDataHolder[templateName].attributes;
         }
@@ -54,7 +54,7 @@ function Exele_TreeBuilder() {
 
     // main function that builds up the EF data
     // gets the element, gets the EF on the element
-    this.GetEFData = function(elementPath, startTime, endTime) {
+    this.GetEFData = function (elementPath, startTime, endTime) {
         // First make a call to get the element using PI Web API
         let url = webAPIServerURL + '//' + "elements?path=" + elementPath;
         makeDataCall(url, 'get', null, PathResults, error);
@@ -219,7 +219,7 @@ function Exele_TreeBuilder() {
 
 
     function buildTable(ef) {
-        
+
         GetSingleEFAttributes(ef.webId).then(results=> {
 
             // Create HTML for table and header
@@ -461,10 +461,10 @@ function Exele_TreeBuilder() {
               d.data.id = (d.parent ? d.parent.data.id + '.' : '') + d.data.name + (d.data.ef ? '.' + d.data.ef.webId : '');
               // d.WebId = "1111"
           })
-          .eachAfter(function(d) {
+          .eachAfter(function (d) {
               // Give nodes with children `durationMinutes` properties equal to the sum of the durations of their children.
               if (d.children) {
-                  d.data.durationMinutes = d.children.reduce(function(a, b) {
+                  d.data.durationMinutes = d.children.reduce(function (a, b) {
                       return a + b.data.durationMinutes;
                   }, 0)
               }
@@ -565,15 +565,15 @@ function Exele_TreeBuilder() {
 
 // *********Prototypes of Exele_TreeBuilder************
 
-Exele_TreeBuilder.prototype.Update = function(APIServer, elementPath, symbolElement, startTime, endTime, template, sizeAttribute, colorAttribute){
-        // store the symbol and the apiserver as private variables in the module, we should initiallize first.
-        this.SetSymbol(symbolElement);
-        this.SetWebAPIURL(APIServer);
-        this.SetTemplate(template);
-        this.SetSizeAttribute(sizeAttribute);
-        this.SetColorAttribute(colorAttribute);
-        // obtain the EF data
-        this.GetEFData(elementPath, startTime, endTime);
+Exele_TreeBuilder.prototype.Update = function (APIServer, elementPath, symbolElement, startTime, endTime, template, sizeAttribute, colorAttribute) {
+    // store the symbol and the apiserver as private variables in the module, we should initiallize first.
+    this.SetSymbol(symbolElement);
+    this.SetWebAPIURL(APIServer);
+    this.SetTemplate(template);
+    this.SetSizeAttribute(sizeAttribute);
+    this.SetColorAttribute(colorAttribute);
+    // obtain the EF data
+    this.GetEFData(elementPath, startTime, endTime);
 }
 
 // get EF templates
@@ -582,7 +582,7 @@ Exele_TreeBuilder.prototype.GetEFTemplates = function () {
 }
 
 // get the Attributes provide a tepmlate
-Exele_TreeBuilder.prototype.GetEFAttributeNamesFromTemplate= function(templateName){
+Exele_TreeBuilder.prototype.GetEFAttributeNamesFromTemplate = function (templateName) {
     return this.GetEFAttributesFromTemplate(templateName)
         .map(att => att.Name)
         .sort(d3.ascending);
