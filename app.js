@@ -350,7 +350,8 @@ var eventsModule = function () {
             });
             // use batch call and call method to add the attribute values as a map to the tree
             makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
-            .then(results=>ProcessAttributeResults(results, templateName, displayCallback));
+            .then(results=>ProcessAttributeResults(results, templateName, displayCallback))
+            .then(() => BuildTreemap());
         } else {
             eventsModule.BuildTreemap();
         }
