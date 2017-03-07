@@ -8,7 +8,7 @@ function Exele_TreeBuilder() {
     let symbolElement = {};
     let webAPIServerURL = "";
     var _template = "";
-    var _sizeAttribute = "";
+    var _sizeAttribute = {};
     var _colorAttribute = {};
 
     let numericalAttributeTypes = [
@@ -197,14 +197,14 @@ function Exele_TreeBuilder() {
                             + '\nStart: ' + d.data.startTime.toLocaleString()
                             + '\nEnd: ' + d.data.endTime.toLocaleString();
 
-                        if (_sizeAttribute !== '' && _sizeAttribute !== 'None') {
-                            title += '\n\n(Sizing by: ' + _sizeAttribute + ')';
-                            if (d.data.ef.attributes && d.data.ef.attributes.has(_sizeAttribute)) {
-                                title += '\n\t' + _sizeAttribute + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute) + ' (normalized: ' + d.data.sizeValue + ')';
+                        if (_sizeAttribute && _sizeAttribute.Name !== 'None') {
+                            title += '\n\n(Sizing by: ' + _sizeAttribute.Name + ')';
+                            if (d.data.ef.attributes && d.data.ef.attributes.has(_sizeAttribute.Name)) {
+                                title += '\n\t' + _sizeAttribute.Name + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute.Name) + ' (normalized: ' + d.data.sizeValue + ')';
                             }
                         }
 
-                        if (_colorAttribute && _colorAttribute.Name) {
+                        if (_colorAttribute && _colorAttribute.Name !== 'None') {
                             title += '\n\n(Coloring by: ' + _colorAttribute.Name + ')';
                             if (d.data.ef.attributes && d.data.ef.attributes.has(_colorAttribute.Name)) {
                                 title += '\n\t' + _colorAttribute.Name + ' Value: ' + d.data.ef.attributes.get(_colorAttribute.Name);
@@ -307,7 +307,7 @@ function Exele_TreeBuilder() {
 
         // Get attribute value for provide attribute and template.
         if (_template && _template != "None" &&
-            (_sizeAttribute && _sizeAttribute != "None" || _colorAttribute && _colorAttribute != "None")) {
+            (_sizeAttribute && _sizeAttribute.Name != "None" || _colorAttribute && _colorAttribute.Name != "None")) {
             // Will build the treemap after pulling down attributes' values
             GetAttributesValues(_template);
         } else {
@@ -461,10 +461,10 @@ function Exele_TreeBuilder() {
                         && f.ef
                         && _template == f.ef.templateName
                         && f.ef.attributes
-                        && f.ef.attributes.has(_sizeAttribute)) {
+                        && f.ef.attributes.has(_sizeAttribute.Name)) {
 
                         // Return the value of the selected attribute
-                        sizeValue = f.ef.attributes.get(_sizeAttribute);
+                        sizeValue = f.ef.attributes.get(_sizeAttribute.Name);
                     } else {
                         sizeValue = durationMinutes;
                     }
@@ -491,7 +491,7 @@ function Exele_TreeBuilder() {
             // Normalize the summing data, if necessary.
             if (_template && _sizeAttribute
                 && _template !== 'None'
-                && _sizeAttribute !== 'None') {
+                && _sizeAttribute.Name !== 'None') {
                 normalizeSummingData(efs);
             }
 
