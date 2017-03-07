@@ -405,6 +405,7 @@ function Exele_TreeBuilder() {
             // We also shift positive for coloring, for now.
             function normalizeSummingData(efs) {
                 // TODO: should we be doing some sort of percentile normalization?
+                // TODO: i don't think i need to normalize color information here
                 var sizeValues = efs.map(ef => ef.sizeValue);
                 var colorValues = efs.map(ef => (ef.color && ef.color.value ? ef.color.value : 0));
 
