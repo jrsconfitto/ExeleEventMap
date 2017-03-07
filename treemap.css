@@ -16,6 +16,10 @@
     text-align: left;
 }
 
+.exele-treemap tspan {
+    font-size: 0.75em;
+}
+
 .exele-attr-table {
     width: 450px;
     padding: 10px;
