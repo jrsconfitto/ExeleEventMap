@@ -119,7 +119,7 @@ function Exele_TreeBuilder() {
                 var colorStyle = data.data.colorType;
                 var color;
                 if (colorStyle === 'sequential') {
-                    color = d3.scaleSequential(d3.interpolateCool).domain(data.data.colorDomain);
+                    color = d3.scaleSequential(d3.interpolateBlues).domain(data.data.colorDomain);
                 } else {
                     var fader = function (color) { return d3.interpolateRgb(color, "#fff")(0.2); };
                     color = d3.scaleOrdinal(d3.schemeCategory20.map(fader));
@@ -171,6 +171,7 @@ function Exele_TreeBuilder() {
                     .attr("height", function (d) { return d.y1 - d.y0; })
                     .attr("fill", function (d) {
                         var colorValue = (d.data.colorAttributeName !== 'None' ? d.data.colorValue : d.parent.data.name);
+                        console.debug('%c ' + color(colorValue), 'background-color: ' + color(colorValue));
                         return color(colorValue);
                     })
                     .attr("data-web-id", function (d) { return d.data.ef.webId; });
