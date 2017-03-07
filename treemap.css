@@ -5,7 +5,7 @@
 }
 
 .exele-treemap-holder {
-    width: calc(100% - 550px);
+    width: calc(100% - 475px);
     height: calc(100% - 20px);
     float: left;
 }
@@ -17,11 +17,45 @@
 }
 
 .exele-attr-table {
-    width: 550px;
+    width: 450px;
     padding: 10px;
     float: right;
+}
+
+.exele-table-value {
+    text-align: right;
 }
 
 .exele-total-time {
     float: left;
 }
+
+
+.box-table-a {
+    font-size: 12px;
+    text-align: left;
+    border-collapse: collapse;
+}
+
+    .box-table-a th {
+        font-size: 13px;
+        font-weight: normal;
+        padding: 8px;
+        background: #b9c9fe;
+        border-top: 4px solid #aabcfe;
+        border-bottom: 1px solid #fff;
+        color: #039;
+    }
+
+    .box-table-a td {
+        padding: 8px;
+        background: #e8edff;
+        border-bottom: 1px solid #fff;
+        color: #669;
+        border-top: 1px solid transparent;
+    }
+
+    .box-table-a tr:hover td {
+        background: #d0dafd;
+        color: #339;
+    }

@@ -223,7 +223,7 @@ function Exele_TreeBuilder() {
         GetSingleEFAttributes(ef.webId).then(results=> {
 
             // Create HTML for table and header
-            var tableContent = '<table class="exele-attr-table"><tr><th>Attribute</th><th>Value</th></tr>';
+            var tableContent = '<table class="exele-attr-table box-table-a"><tr><th>Attribute</th><th>Value</th></tr>';
 
             results.Items.forEach(attr=> {
 
@@ -231,7 +231,7 @@ function Exele_TreeBuilder() {
 
                 if (typeof attr.Value.Value === 'object') {
                     if (attr.Value.Value.hasOwnProperty('Name')) {
-                        entry.value = attr.Value.Value.Name;
+                        entry.Value = attr.Value.Value.Name;
                     }
                 } else {
                     entry.Value = attr.Value.Value;
