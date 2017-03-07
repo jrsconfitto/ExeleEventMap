@@ -13,7 +13,7 @@
         var mytemplate = "";
         // put runtimeData in scope
         var runtimeData = scope.runtimeData;
-        
+
         var exeleTree = new Exele_TreeBuilder();
 
         // method use to get the current EF
@@ -22,15 +22,18 @@
             return ['None'].concat(efTemplates);
         };
 
+        // Initialize cached EF attributes
+        var cachedAttributes = [{Name: 'None', Type: 'String'}].concat(exeleTree.GetEFAttributeNamesFromTemplate(mytemplate));
         // method used to get the current attributes from the template
         runtimeData.obtainAttributes = function() {
-            var efAttributes = exeleTree.GetEFAttributeNamesFromTemplate(mytemplate);          
             // return like this so angular does not loop forever
-            return ['None'].concat(efAttributes);                    
+            return cachedAttributes;
         };
 
+        // Initialize cached sizeable attributes
+        var cachedSizeableAttributes = [{Name: 'None', Type: 'String'}].concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
         runtimeData.obtainSizeableAttributes = function() {
-            return ['None'].concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
+            return cachedSizeableAttributes;
         }
 
         function dataUpdate(data) {
@@ -50,13 +53,22 @@
             exeleTree.Update(apiUrl, dataPath, this.elem, timeProvider.displayTime.start, timeProvider.displayTime.end,
                 this.scope.config.TemplateSelected, this.scope.config.AttributeSelected, this.scope.config.ColorAttributeSelected);
         }
-        // sample event from trend 
+        // sample event from trend
         timeProvider.onDisplayTimeChanged.subscribe();
 
         function configChanged(newConfig, oldConfig) {
             // set the template if the config changes
             if (oldConfig.TemplateSelected != newConfig.TemplateSelected) {
                 mytemplate = newConfig.TemplateSelected;
+
+                // Adjust the attributes data to align with the new template selection
+                //
+                // Remove any attributes past the first ("None") and then add new ones
+                cachedAttributes = cachedAttributes.slice(0, 1);
+                cachedAttributes = cachedAttributes.concat(exeleTree.GetEFAttributeNamesFromTemplate(mytemplate));
+
+                cachedSizeableAttributes = cachedSizeableAttributes.slice(0, 1);
+                cachedSizeableAttributes = cachedSizeableAttributes.concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
             }
         }
 
@@ -79,8 +91,8 @@
                 Height: 500,
                 Width: 600,
                 TemplateSelected: "None",
-                AttributeSelected: "None",
-                ColorAttributeSelected: "None",
+                AttributeSelected: {Name: 'None', Type: 'String'},
+                ColorAttributeSelected: {Name: 'None', Type: 'String'},
                 Test: ''
             };
         },
