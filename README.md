@@ -12,3 +12,4 @@ There is lots of room for improvement and new features. Here are some next steps
 
 * Allowing the user to choose between different color schemes that can be used to color the treemap's cells.
 * Display to the user the domain of their sizing and coloring attributes and where their selected EF falls on that domain.
+* Add the ability to categorize EFs by attributes that are Enumeration Sets. This will allow the viewer to compare and contrast EFs sharing the "categorizing" attribute but differing by the "colorizing" attribute.
