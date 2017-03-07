@@ -553,15 +553,25 @@ function Exele_TreeBuilder() {
             }
         }
 
-        var totalTime = efDurationSum(root);
 
-        var $totalTimeElement = $('.exele-total-time', symbolElement);
-        $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2);
 
-        // Draw the treemap within the selected element using the data in `root`
-        treemapSelection
-            .datum(root)
-            .call(myTreemap);
+     
+        if (Object.keys(efDataHolder).length === 0) {
+            treemapSelection.selectAll("*").remove();
+            treemapSelection.attr("style", "background-color:lightcoral")
+                     .append("p").text("No events within timerange")
+                     .attr("style", "text-align:center");
+        }
+        else {
+            var totalTime = efDurationSum(root);
+
+            var $totalTimeElement = $('.exele-total-time', symbolElement);
+            $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2);
+            // Draw the treemap within the selected element using the data in `root`
+            treemapSelection
+                .datum(root)
+                .call(myTreemap);
+        }
     }
 }
 
