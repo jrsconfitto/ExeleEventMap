@@ -83,11 +83,7 @@ var eventsModule = function () {
                         return "translate(" + d.x0 + "," + d.y0 + ")";
                     })
                     .on('click', function (d) {
-                        //the webID is the unique identifier for each Event Frames.
-                        let efID = d.data.ef.webId;
-                        //                         console.log("You clicked on ef with ID", efID);
-                        //                         GetSingleEFAttributes(efID);
-
+                        // Build attribute table for clicked event frame
                         buildTable(d.data.ef);
                     });
 
@@ -159,31 +155,26 @@ var eventsModule = function () {
 
     function buildTable(ef) {
         
-        GetAttributesValues(ef.templateName, function() {
+        GetSingleEFAttributes(ef.ef.id).then(results=> {
 
-            // Select attribute values from passed event frame
-            var attributeValues = efDataHolder[ef.templateName].frames.find(e=>e.ef.webId === ef.webId).attributeValuesMap;
-            
             // Create HTML for table and header
             var tableContent = '<table class="exele-attr-table"><tr><th>Attribute</th><th>Value</th></tr>';
 
-            if (attributeValues) {
-                for(var attr of attributeValues) {
+            results.Items.forEach(attr=> {
 
-                    if (typeof attr[1] === 'object') {
-                        // Handle object attribute type
-                    } else {
-                        tableContent += '<tr><td>' + attr[0] + '</td><td>' + attr[1] + '</td></tr>';
-                    }
-
+                if (typeof attr.Value === 'object') {
+                    // Handle object attribute type
+                } else {
+                    tableContent += '<tr><td>' + attr.Name + '</td><td>' + attr.Value.Value + '</td></tr>';
                 }
-            }
+            });
 
             // Close table and replace contents of existing table
             tableContent += '</table>';
             $('.exele-attr-table', symbolElement).replaceWith(tableContent);
 
-        });
+        }, error=>console.log(error));
+
     }
 
 
@@ -317,24 +308,11 @@ var eventsModule = function () {
     //get a singleEf
     function GetSingleEFAttributes(id) {
         let efURL = webAPIServerURL + "/streamsets/" + id + "/value";
-        makeDataCall(efURL, "GET", null, null, null)
-        .then(results=> {
-            let attributes = [];
-            // add to the attributes array an object with the attribute name, and value.
-            results.Items.forEach(attribute=> {
-                attributes.push({
-                    Name: attribute.Name,
-                    Value: attribute.Value.Value,
-                });
-            });
-            // probably should return the attribute array here
-            console.log(attributes);
-        }, error=>console.log(error));
-
+        return makeDataCall(efURL, "GET", null, null, null)
     }
 
     // get the attribute values for each EF given an attributeName and template
-    function GetAttributesValues(templateName, displayCallback) {
+    function GetAttributesValues(templateName) {
         var templateUsed = efDataHolder[templateName];
 
         if (templateUsed) {
@@ -350,7 +328,7 @@ var eventsModule = function () {
             });
             // use batch call and call method to add the attribute values as a map to the tree
             makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
-            .then(results=>ProcessAttributeResults(results, templateName, displayCallback))
+            .then(results=>ProcessAttributeResults(results, templateName))
             .then(() => BuildTreemap());
         } else {
             eventsModule.BuildTreemap();
@@ -358,7 +336,7 @@ var eventsModule = function () {
     }
 
     // takes batch call results, and adds values to the correct EF
-    function ProcessAttributeResults(results, templateName, displayCallback) {
+    function ProcessAttributeResults(results, templateName) {
         for (let result in results) {
             if (results[result].Status == 200 && results[result].Content.Items.length > 0) {
                 const attributeMap = new Map();
@@ -372,7 +350,6 @@ var eventsModule = function () {
                 efDataHolder[templateName].frames.find(ef=>ef.id === result).attributeValuesMap = attributeMap;
             }
         }
-        displayCallback();
     }
 
     // This converts EFs in `efDataHolder` to hierarchical data useful for treemaps
