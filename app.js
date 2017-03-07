@@ -228,7 +228,9 @@ function Exele_TreeBuilder() {
             results.Items.forEach(attr=> {
 
                 if (typeof attr.Value.Value === 'object') {
-                    // Handle object attribute type
+                    if (attr.Value.Value.hasOwnProperty('Name')) {
+                        tableContent += '<tr><td>' + attr.Name + '</td><td>' + attr.Value.Value.Name + '</td></tr>';
+                    }
                 } else {
                     tableContent += '<tr><td>' + attr.Name + '</td><td>' + attr.Value.Value + '</td></tr>';
                 }
