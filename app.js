@@ -227,13 +227,22 @@ function Exele_TreeBuilder() {
 
             results.Items.forEach(attr=> {
 
+                var entry = {};
+
                 if (typeof attr.Value.Value === 'object') {
                     if (attr.Value.Value.hasOwnProperty('Name')) {
-                        tableContent += '<tr><td>' + attr.Name + '</td><td>' + attr.Value.Value.Name + '</td></tr>';
+                        entry.value = attr.Value.Value.Name;
                     }
                 } else {
-                    tableContent += '<tr><td>' + attr.Name + '</td><td>' + attr.Value.Value + '</td></tr>';
+                    entry.Value = attr.Value.Value;
                 }
+
+                if (Number(entry.Value) === entry.Value && entry.Value % 1 !== 0) {
+                    entry.Value = entry.Value.toFixed(3);
+                }
+                
+                tableContent += '<tr><td>' + attr.Name + '</td><td class="exele-table-value">' + entry.Value + '</td></tr>';
+
             });
 
             // Close table and replace contents of existing table
