@@ -46,13 +46,13 @@ function updateTreemap($symbol) {
     
     if (selectedColorAttribute !== 'None') {
         selectedColorAttribute = {
-            name: selectedColorAttribute,
-            type: $(':selected', '#efColorAttributes').data('type')
+            Name: selectedColorAttribute,
+            Type: $(':selected', '#efColorAttributes').data('type')
         };
     } else {
         selectedColorAttribute = {
-            name: 'None',
-            type: 'String' // Because we'll color by the cell titles
+            Name: 'None',
+            Type: 'String' // Because we'll color by the cell titles
         }
     }
     
