@@ -245,7 +245,7 @@ function Exele_TreeBuilder() {
                 if (Number(entry.Value) === entry.Value && entry.Value % 1 !== 0) {
                     entry.Value = entry.Value.toFixed(3);
                 }
-                
+
                 tableContent += '<tr><td>' + attr.Name + '</td><td class="exele-table-value">' + entry.Value + '</td></tr>';
 
             });
@@ -402,7 +402,7 @@ function Exele_TreeBuilder() {
     // structure: https://github.com/d3/d3-hierarchy
     function EFsToHierarchy() {
         var colorType = (_colorAttribute && _colorAttribute.Type ? _colorAttribute.Type : 'String');
-        
+
         var efDataRoot = {
             name: '',
             children: [],
