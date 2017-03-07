@@ -414,27 +414,16 @@ function Exele_TreeBuilder() {
             // We also shift positive for coloring, for now.
             function normalizeSummingData(efs) {
                 // TODO: should we be doing some sort of percentile normalization?
-                // TODO: i don't think i need to normalize color information here
                 var sizeValues = efs.map(ef => ef.sizeValue);
-                var colorValues = efs.map(ef => (ef.color && ef.color.value ? ef.color.value : 0));
 
                 var minSize = d3.min(sizeValues);
                 var maxSize = d3.max(sizeValues);
-
-                var minColor = d3.min(colorValues);
-                var maxColor = d3.max(colorValues);
-
                 var minSizeAbs = Math.abs(minSize);
-                var minColorAbs = Math.abs(minColor);
 
                 if (minSize <= 0) {
                     // Then let's normalize(?) the data somehow...
                     // Add every summing value by the minimum to shift it all to positive values.
                     efs.forEach(ef => ef.sizeValue += minSizeAbs + 1);
-                }
-
-                if (minColor < 0) {
-                    efs.forEach(ef => ef.color += minColorAbs + 1);
                 }
             }
 
