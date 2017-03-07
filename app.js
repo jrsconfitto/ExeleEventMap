@@ -158,15 +158,20 @@ var eventsModule = function () {
 
 
     function buildTable(ef) {
-        console.log(ef.webId);
-
+        
         GetAttributesValues(ef.templateName, function() {
 
+            var tableContent = '<table class="exele-attr-table"><tr><th>Attribute</th><th>Value</th></tr>';
             var attributeValues = efDataHolder[ef.templateName].frames.find(e=>e.ef.webId === ef.webId).attributeValuesMap;
 
             if (attributeValues) {
-                
+                for(var attr of attributeValues) {
+                    tableContent += '<tr><td>' + attr[0] + '</td><td>' + attr[1] + '</td></tr>';
+                }
             }
+
+            tableContent += '</table>';
+            $('.exele-attr-table', symbolElement).replaceWith(tableContent);
 
         });
     }
