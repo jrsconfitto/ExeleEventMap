@@ -148,15 +148,8 @@ function Exele_TreeBuilder() {
                         return "translate(" + d.x0 + "," + d.y0 + ")";
                     })
                     .on('click', function (d) {
-                        //the webID is the unique identifier for each Event Frames.
-                        let efID = d.data.ef.webId;
-                        //                         console.log("You clicked on ef with ID", efID);
-                        //                         GetSingleEFAttributes(efID);
-
-                        // Fire a jQuery event notifying that an EF in the treemap was clicked
-                        $(this).trigger('efClick', {
-                            ef: d.data.ef
-                        });
+                        // Build attribute table for clicked event frame
+                        buildTable(d.data.ef);
                     });
 
                 cell.append("rect")
@@ -223,6 +216,32 @@ function Exele_TreeBuilder() {
         // Return a treemap function that someone can call to add data to
         return treemap;
     }
+
+
+    function buildTable(ef) {
+        
+        GetSingleEFAttributes(ef.webId).then(results=> {
+
+            // Create HTML for table and header
+            var tableContent = '<table class="exele-attr-table"><tr><th>Attribute</th><th>Value</th></tr>';
+
+            results.Items.forEach(attr=> {
+
+                if (typeof attr.Value.Value === 'object') {
+                    // Handle object attribute type
+                } else {
+                    tableContent += '<tr><td>' + attr.Name + '</td><td>' + attr.Value.Value + '</td></tr>';
+                }
+            });
+
+            // Close table and replace contents of existing table
+            tableContent += '</table>';
+            $('.exele-attr-table', symbolElement).replaceWith(tableContent);
+
+        }, error=>console.log(error));
+
+    }
+
 
     // creates an eventframe object that is used by the holder
     function myEventFrame(name, TemplateName, startTime, endTime, templatelink, webId) {
@@ -311,22 +330,9 @@ function Exele_TreeBuilder() {
     }
 
     //get a singleEf
-    function GetSingleEFAttributes(id) {
-        let efURL = webAPIServerURL + "/streamsets/" + id + "/value";
-        makeDataCall(efURL, "GET", null, null, null)
-        .then(results=> {
-            let attributes = [];
-            // add to the attributes array an object with the attribute name, and value.
-            results.Items.forEach(attribute=> {
-                attributes.push({
-                    Name: attribute.Name,
-                    Value: attribute.Value.Value,
-                });
-            });
-            // probably should return the attribute array here
-            console.log(attributes);
-        }, error=>console.log(error));
-
+    function GetSingleEFAttributes(webId) {
+        let efURL = webAPIServerURL + "/streamsets/" + webId + "/value";
+        return makeDataCall(efURL, "GET", null, null, null)
     }
 
     // get the attribute values for each EF given an attributeName and template
@@ -348,7 +354,6 @@ function Exele_TreeBuilder() {
             makeDataCall(webAPIServerURL + "/batch", "POST", JSON.stringify(bulkQuery), null, null)
             .then(results=>ProcessAttributeResults(results, templateName))
             .then(() => BuildTreemap());
-            //.catch(error=> console.log(error));
         } else {
             BuildTreemap();
         }

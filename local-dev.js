@@ -56,10 +56,6 @@ function handleError(e) {
     console.log('Error loading import: ' + e.target.href);
 }
 
-$(document).on('efClick', function (ev, data) {
-    console.log('ef was clicked!', data.ef);
-})
-
 function fillSelect($select, items) {
 
     items.unshift('None');
