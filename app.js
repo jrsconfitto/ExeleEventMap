@@ -674,7 +674,7 @@ Exele_TreeBuilder.prototype.GetEFAttributeNamesFromTemplate= function(templateNa
             return {Name: att.Name, Type: att.Type};
         })
         .sort((a, b) => d3.ascending(a.Name, b.Name));
-},
+}
 
 Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function (templateName) {
     // Numerical attribute types this custom symbol supports
