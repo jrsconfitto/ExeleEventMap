@@ -1,17 +1,6 @@
+
 <div class="c-side-pane t-toolbar">
-    <span style="color:#fff; margin-left:15px">Text Color</span>
-</div>
-<div class="config-option-format">
-    <pv-color-picker id="textcolor" ng-model="config.TextColor"></pv-color-picker>
-</div>
-<div class="c-side-pane t-toolbar">
-    <span style="color:#fff; margin-left:15px">Background Color</span>
-</div>
-<div class="config-option-format">
-    <pv-color-picker id="backgroundcolor" ng-model="config.BackgroundColor"></pv-color-picker>
-</div>
-<div class="c-side-pane t-toolbar">
-    <span style="color:#fff; margin-left:15px">Show Options</span>
+    <span style="color:#fff; margin-left:15px">Treemap Options</span>
 </div>
 <div class="c-config-content">Show Label:
     <input type="checkbox" ng-model="config.ShowLabel">
@@ -20,18 +9,51 @@
     <input type="checkbox" ng-model="config.ShowTime">
 </div>
 
-<div class="c-config-content">Select EF Template:
-   <select ng-model="config.TemplateSelected">
+<div class="c-config-content" style="width: 85%; margin: 15px 0 15px 15px;">
+    &nbsp;Template filter<br />
+    <select ng-model="config.TemplateSelected"
+            class="config-option-list">
         <option ng-repeat="t in runtimeData.obtainTemplates()">{{t}}</option>
-   </select>  
+   </select>
 </div>
-<div class="c-config-content">Size by selected EF Attribute:
-   <select ng-model="config.AttributeSelected">
-        <option ng-repeat="a in runtimeData.obtainSizeableAttributes()">{{a}}</option>
-   </select>  
+
+<div class="c-config-content" style="width: 85%; margin: 15px 0 15px 15px;">
+    &nbsp;Size attribute<br />
+    <select ng-model="config.AttributeSelected"
+            ng-options="attribute.Name for attribute in runtimeData.obtainSizeableAttributes()"
+            class="config-option-list">
+    </select>
 </div>
-<div class="c-config-content">Color by selected EF Attribute:
-   <select ng-model="config.ColorAttributeSelected">
-        <option ng-repeat="a in runtimeData.obtainAttributes()">{{a}}</option>
-   </select>  
+
+<div class="c-config-content" style="width: 85%; margin: 15px 0 15px 15px;">
+    &nbsp;Color attribute<br />
+    <select ng-model="config.ColorAttributeSelected"
+            ng-options="attribute.Name for attribute in runtimeData.obtainAttributes()"
+            class="config-option-list">
+    </select>
+</div>
+
+<div class="c-side-pane t-toolbar">
+    <span style="color:#fff; margin-left:15px">About</span>
+</div>
+
+<div style="width: 85%; margin-top: 10px; margin-left:15px;">
+    <p style="margin-top: 10px">
+        Treemap symbol for visualizing Event Frames.  By default the size of the displayed checkbox
+        is proportional to the Event Frame duration.  The color of the box indicates the Event Frame 
+        template.  The view can be scoped to a single template, then the size and color of the box
+        can be based on attributes.
+    </p>
+    <p style="margin-top: 10px">
+        Hovering over a box will show summary data about the Event Frame.  Clicking on a box will
+        attribute values in the table.  Total time off all displayed Event Frames is shown below
+        the Treemap.
+    </p>
+    <p style="margin-top: 10px">
+        This symbol was created by Exele, a PI partner specializing in PI products, services,
+        and PI based environmental monitoring.
+    </p>
+    <p style="margin-top: 10px">
+        <a href="www.exele.com">www.exele.com</a>
+    </p>
 </div>

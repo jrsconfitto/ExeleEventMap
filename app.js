@@ -1,4 +1,3 @@
-
 // Exele Information System Inc, TreeMap for the OSIsoft LLC 2017 hackathon.
 // Main function that does the Exele Tree logic
 function Exele_TreeBuilder() {
@@ -9,9 +8,16 @@ function Exele_TreeBuilder() {
     let symbolElement = {};
     let webAPIServerURL = "";
     var _template = "";
-    var _sizeAttribute = "";
-    var _colorAttribute = "";
+    var _sizeAttribute = {};
+    var _colorAttribute = {};
 
+    let numericalAttributeTypes = [
+        'Double',
+        'Int16',
+        'Int32',
+        'Int64',
+        'Single'
+    ];
 
     //**********public setters***********
     // sets the tree symbol
@@ -108,9 +114,16 @@ function Exele_TreeBuilder() {
             // The following code applies the data tied to the passed in selection(s) and is where we actually build the
             // treemap.
             selection.each(function (data) {
-                var fader = function (color) { return d3.interpolateRgb(color, "#fff")(0.2); },
-                    color = d3.scaleOrdinal(d3.schemeCategory20.map(fader)),
-                    format = d3.format(",d");
+                var format = d3.format(",d");
+
+                var colorStyle = data.data.colorType;
+                var color;
+                if (colorStyle === 'sequential') {
+                    color = d3.scaleSequential(d3.interpolateBlues).domain(data.data.colorDomain);
+                } else {
+                    var fader = function (color) { return d3.interpolateRgb(color, "#fff")(0.2); };
+                    color = d3.scaleOrdinal(d3.schemeCategory20.map(fader));
+                }
 
                 // Create a function that will format the treemap's data according to the
                 // way we want it displayed
@@ -157,17 +170,9 @@ function Exele_TreeBuilder() {
                     .attr("width", function (d) { return d.x1 - d.x0; })
                     .attr("height", function (d) { return d.y1 - d.y0; })
                     .attr("fill", function (d) {
-                        var selectedColor,
-                            defaultColor = (_colorAttribute && _colorAttribute !== 'None' ? color(d.parent.data.name) : color(d.parent.data.id));
-
-                        if (d.data.color) {
-                            selectedColor = color(d.data.color.value);
-                            console.debug('%c Default color' + '%c Attribute color', 'background: ' + defaultColor, 'background: ' + selectedColor);
-                        } else {
-                            console.debug('%c Default color', 'background: ' + defaultColor);
-                        }
-
-                        return (d.data.color ? selectedColor : defaultColor);
+                        var colorValue = (d.data.colorAttributeName !== 'None' ? d.data.colorValue : d.parent.data.name);
+                        console.debug('%c ' + color(colorValue), 'background-color: ' + color(colorValue));
+                        return color(colorValue);
                     })
                     .attr("data-web-id", function (d) { return d.data.ef.webId; });
 
@@ -193,17 +198,17 @@ function Exele_TreeBuilder() {
                             + '\nStart: ' + d.data.startTime.toLocaleString()
                             + '\nEnd: ' + d.data.endTime.toLocaleString();
 
-                        if (_sizeAttribute !== '' && _sizeAttribute !== 'None') {
-                            title += '\n\n(Sizing by: ' + _sizeAttribute + ')';
-                            if (d.data.ef.attributes && d.data.ef.attributes.has(_sizeAttribute)) {
-                                title += '\n\t' + _sizeAttribute + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute);
+                        if (_sizeAttribute && _sizeAttribute.Name !== 'None') {
+                            title += '\n\n(Sizing by: ' + _sizeAttribute.Name + ')';
+                            if (d.data.ef.attributes && d.data.ef.attributes.has(_sizeAttribute.Name)) {
+                                title += '\n\t' + _sizeAttribute.Name + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute.Name) + ' (normalized: ' + d.data.sizeValue + ')';
                             }
                         }
 
-                        if (_colorAttribute !== '' && _colorAttribute !== 'None') {
-                            title += '\n\n(Coloring by: ' + _colorAttribute + ')';
-                            if (d.data.ef.attributes && d.data.ef.attributes.has(_colorAttribute)) {
-                                title += '\n\t' + _colorAttribute + ' Value: ' + d.data.ef.attributes.get(_colorAttribute);
+                        if (_colorAttribute && _colorAttribute.Name !== 'None') {
+                            title += '\n\n(Coloring by: ' + _colorAttribute.Name + ')';
+                            if (d.data.ef.attributes && d.data.ef.attributes.has(_colorAttribute.Name)) {
+                                title += '\n\t' + _colorAttribute.Name + ' Value: ' + d.data.ef.attributes.get(_colorAttribute.Name);
                             }
                         }
 
@@ -223,17 +228,26 @@ function Exele_TreeBuilder() {
         GetSingleEFAttributes(ef.webId).then(results=> {
 
             // Create HTML for table and header
-            var tableContent = '<table class="exele-attr-table"><tr><th>Attribute</th><th>Value</th></tr>';
+            var tableContent = '<table class="exele-attr-table box-table-a"><tr><th>Attribute</th><th>Value</th></tr>';
 
             results.Items.forEach(attr=> {
 
+                var entry = {};
+
                 if (typeof attr.Value.Value === 'object') {
                     if (attr.Value.Value.hasOwnProperty('Name')) {
-                        tableContent += '<tr><td>' + attr.Name + '</td><td>' + attr.Value.Value.Name + '</td></tr>';
+                        entry.Value = attr.Value.Value.Name;
                     }
                 } else {
-                    tableContent += '<tr><td>' + attr.Name + '</td><td>' + attr.Value.Value + '</td></tr>';
+                    entry.Value = attr.Value.Value;
                 }
+
+                if (Number(entry.Value) === entry.Value && entry.Value % 1 !== 0) {
+                    entry.Value = entry.Value.toFixed(3);
+                }
+
+                tableContent += '<tr><td>' + attr.Name + '</td><td class="exele-table-value">' + entry.Value + '</td></tr>';
+
             });
 
             // Close table and replace contents of existing table
@@ -303,7 +317,7 @@ function Exele_TreeBuilder() {
 
         // Get attribute value for provide attribute and template.
         if (_template && _template != "None" &&
-            (_sizeAttribute && _sizeAttribute != "None" || _colorAttribute && _colorAttribute != "None")) {
+            (_sizeAttribute && _sizeAttribute.Name != "None" || _colorAttribute && _colorAttribute.Name != "None")) {
             // Will build the treemap after pulling down attributes' values
             GetAttributesValues(_template);
         } else {
@@ -387,14 +401,34 @@ function Exele_TreeBuilder() {
     // d3-hierarchy provides more information on how to create this kind of data
     // structure: https://github.com/d3/d3-hierarchy
     function EFsToHierarchy() {
+        var colorType = (_colorAttribute && _colorAttribute.Type ? _colorAttribute.Type : 'String');
+
         var efDataRoot = {
             name: '',
             children: [],
+            colorType: (numericalAttributeTypes.indexOf(colorType) === -1 ? 'discrete' : 'sequential')
         };
 
         // Converts the passed EFs into data objects for use in the treemap
         function getChildrenFromFrames(frames) {
-            return frames
+            // Since the treemap doesn't like negative values, we shift everything positive for sizing.
+            // We also shift positive for coloring, for now.
+            function normalizeSummingData(efs) {
+                // TODO: should we be doing some sort of percentile normalization?
+                var sizeValues = efs.map(ef => ef.sizeValue);
+
+                var minSize = d3.min(sizeValues);
+                var maxSize = d3.max(sizeValues);
+                var minSizeAbs = Math.abs(minSize);
+
+                if (minSize <= 0) {
+                    // Then let's normalize(?) the data somehow...
+                    // Add every summing value by the minimum to shift it all to positive values.
+                    efs.forEach(ef => ef.sizeValue += minSizeAbs + 1);
+                }
+            }
+
+            var efs = frames
                 .map(function (f) {
                     // Include any attributes into the ef object
                     var color;
@@ -402,12 +436,37 @@ function Exele_TreeBuilder() {
                     if (f.attributeValuesMap) {
                         f.ef.attributes = f.attributeValuesMap;
 
-                        if (_colorAttribute && f.ef.attributes.has(_colorAttribute)) {
+                        if (_colorAttribute && _colorAttribute.Name && f.ef.attributes.has(_colorAttribute.Name)) {
                             color = {
-                                attributeName: _colorAttribute,
-                                value: f.attributeValuesMap.get(_colorAttribute)
+                                attributeName: _colorAttribute.Name,
+                                value: f.attributeValuesMap.get(_colorAttribute.Name)
                             };
                         }
+                    }
+
+                    // Calculate the duration of the EF, this will also be used as the default value for summing cells
+                    // for treemap display calculations.
+                    var durationMinutes = ((f.ef.EndTime - f.ef.StartTime) / 1000 / 60);
+
+                    var sizeValue;
+
+                    // Lots of things are being verified here before we use the attribute's value for cell sizing:
+                    //
+                    // * Is there a selected template and attribute?
+                    // * Does the template of this EF match the selected template?
+                    // * Does the attributes map exist on the data point's (i.e. `d`) `ef` property?
+                    // * Does the attributes map contain the selected attribute?
+                    if (_template
+                        && _sizeAttribute
+                        && f.ef
+                        && _template == f.ef.templateName
+                        && f.ef.attributes
+                        && f.ef.attributes.has(_sizeAttribute.Name)) {
+
+                        // Return the value of the selected attribute
+                        sizeValue = f.ef.attributes.get(_sizeAttribute.Name);
+                    } else {
+                        sizeValue = durationMinutes;
                     }
 
                     // The data object is what will be passed into the d3 visualization
@@ -420,20 +479,29 @@ function Exele_TreeBuilder() {
                         ef: f.ef,
                         startTime: f.ef.StartTime,
                         endTime: f.ef.EndTime,
-                        durationMinutes: ((f.ef.EndTime - f.ef.StartTime) / 1000 / 60)
-                    }
-
-                    if (color) {
-                        data.color = color;
+                        durationMinutes: durationMinutes,
+                        sizeValue: sizeValue,
+                        colorAttributeName: (color && color.attributeName ? color.attributeName : (_colorAttribute && _colorAttribute.Name ? _colorAttribute.Name : 'None')),
+                        colorValue: (color && color.value ? color.value : f.ef.name)
                     }
 
                     return data;
                 });
+
+            // Normalize the summing data, if necessary.
+            if (_template && _sizeAttribute
+                && _template !== 'None'
+                && _sizeAttribute.Name !== 'None') {
+                normalizeSummingData(efs);
+            }
+
+            return efs;
         }
 
         if (_template && _template !== 'None' && efDataHolder[_template]) {
 
             var efs = efDataHolder[_template];
+
             efDataRoot.name = _template;
             efDataRoot.children = getChildrenFromFrames(efs.frames);
 
@@ -446,9 +514,11 @@ function Exele_TreeBuilder() {
             for (var efName in efDataHolder) {
                 var efs = efDataHolder[efName];
 
+                var efsAsChildren = getChildrenFromFrames(efs.frames);
+
                 efDataRoot.children.push({
                     name: efName,
-                    children: getChildrenFromFrames(efs.frames)
+                    children: efsAsChildren
                 });
             }
         }
@@ -469,8 +539,37 @@ function Exele_TreeBuilder() {
                   d.data.durationMinutes = d.children.reduce(function (a, b) {
                       return a + b.data.durationMinutes;
                   }, 0)
+
+                  d.data.sizeDomain = d.children.map(function(c) {
+
+                      // Gets back the domain of the data object
+                      var sizeValues = [];
+
+                      if (c.data.sizeDomain) {
+                          sizeValues.push(c.data.sizeDomain);
+                      } else if (c.data.sizeValue) {
+                          sizeValues.push(c.data.sizeValue);
+                      }
+
+                      return [d3.min(sizeValues), d3.max(sizeValues)];
+
+                  }).reduce(function(a, b) {
+                      b.push(a);
+                      var combined = d3.merge(b);
+                      return [d3.min(combined), d3.max(combined)];
+                  }, [0, 0]);
+
+                  d.data.colorDomain = d.children.reduce(function(a, b) {
+                    if (b.data.colorValue) {
+                        a.push(b.data.colorValue);
+                    }
+                    return [d3.min(a), d3.max(a)];
+                  }, []);
+              } else {
+                  d.data.sizeDomain = [d.data.sizeValue, d.data.sizeValue];
               }
           })
+          // TODO: Move this into the treemap code where i can sum based on the normalization information in the root node?
           .sum(function (d) {
               // The `sum` determines the size of the cells within the treemap.
 
@@ -485,25 +584,8 @@ function Exele_TreeBuilder() {
               //
               // The EF's duration (default)
 
-              // Lots of things are being verified here before we use the attribute's value for cell sizing:
-              //
-              // * Is there a selected template and attribute?
-              // * Does the template of this EF match the selected template?
-              // * Does the attributes map exist on the data point's (i.e. `d`) `ef` property?
-              // * Does the attributes map contain the selected attribute?
-              if (_template
-                  && _sizeAttribute
-                  && d.ef
-                  && _template == d.ef.templateName
-                  && d.ef.attributes
-                  && d.ef.attributes.has(_sizeAttribute)) {
-
-                  // Return the value of the selected attribute
-                  return d.ef.attributes.get(_sizeAttribute);
-              }
-
               // Otherwise, default to summing by EF duration
-              return (d.endTime - d.startTime) / 1000 / 60;
+              return d.sizeValue;
           })
           .sort(function (a, b) {
               // Sorts by the height (greatest distance from descendant leaf)
@@ -539,6 +621,7 @@ function Exele_TreeBuilder() {
         //   values (CSV), into a hierarchy using d3.stratify.
         var root = EFsToHierarchy();
 
+        // TODO: remove the following, it's duplicating calcs done in the EFs hierarchy
         var efDurationSum = function (efNode) {
             if (efNode.children) {
                 // Node has children, compute duration of each child
@@ -555,11 +638,15 @@ function Exele_TreeBuilder() {
 
 
 
+        var $totalTimeElement = $('.exele-total-time', symbolElement);
+        $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2) + ' minutes';
+
+
      
         if (Object.keys(efDataHolder).length === 0) {
             treemapSelection.selectAll("*").remove();
             treemapSelection.attr("style", "background-color:lightcoral")
-                     .append("p").text("No events within timerange")
+                     .append("p").text("No events within time range")
                      .attr("style", "text-align:center");
         }
         else {
@@ -596,9 +683,11 @@ Exele_TreeBuilder.prototype.GetEFTemplates = function () {
 // get the Attributes provide a tepmlate
 Exele_TreeBuilder.prototype.GetEFAttributeNamesFromTemplate = function (templateName) {
     return this.GetEFAttributesFromTemplate(templateName)
-        .map(att => att.Name)
-        .sort(d3.ascending);
-},
+        .map(att => {
+            return {Name: att.Name, Type: att.Type};
+        })
+        .sort((a, b) => d3.ascending(a.Name, b.Name));
+}
 
 Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function (templateName) {
     // Numerical attribute types this custom symbol supports
@@ -613,8 +702,10 @@ Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function 
     // Return an empty array if we don't find a match
     return this.GetEFAttributesFromTemplate(templateName)
         .filter(att => numericalAttributeTypes.indexOf(att.Type) !== -1)
-        .map(att => att.Name)
-        .sort(d3.ascending);
+        .map(att => {
+            return {Name: att.Name, Type: att.Type}
+        })
+        .sort((a, b) => d3.ascending(a.Name, b.Name));
 }
 
 // JQuery method used to get data

@@ -21,7 +21,7 @@ function handleLoad(e) {
         var selectedTemplate = $(':selected', '#efTemplates').val() || 'None';
         var numericalAttributeNames = ExeleTree.GetNumericalEFAttributeNamesFromTemplate(selectedTemplate);
         var allAttributeNames = ExeleTree.GetEFAttributeNamesFromTemplate(selectedTemplate);
-        
+
         // Fill the size select with only numerical EF template attributes
         fillSelect($('#efSizeAttributes'), numericalAttributeNames);
 
@@ -43,7 +43,31 @@ function updateTreemap($symbol) {
     var selectedTemplate = $(':selected', '#efTemplates').val() || 'None',
         selectedSizeAttribute = $(':selected', '#efSizeAttributes').val() || 'None',
         selectedColorAttribute = $(':selected', '#efColorAttributes').val() || 'None';
-    
+
+    if (selectedSizeAttribute !== 'None') {
+        selectedSizeAttribute = {
+            Name: selectedSizeAttribute,
+            Type: $(':selected', '#efSizeAttributes').data('type')
+        };
+    } else {
+        selectedSizeAttribute = {
+            Name: 'None',
+            Type: 'String' // Because we'll color by the cell titles
+        }
+    }
+
+    if (selectedColorAttribute !== 'None') {
+        selectedColorAttribute = {
+            Name: selectedColorAttribute,
+            Type: $(':selected', '#efColorAttributes').data('type')
+        };
+    } else {
+        selectedColorAttribute = {
+            Name: 'None',
+            Type: 'String' // Because we'll color by the cell titles
+        }
+    }
+
     // Update treemap using selected parameters
     ExeleTree.Update(apiServer, elementPath, $('.exele-treemap-symbol'), tStart, tEnd, selectedTemplate, selectedSizeAttribute, selectedColorAttribute);
 
@@ -61,7 +85,7 @@ function fillSelect($select, items) {
     items.unshift('None');
     // Initialize the selected template and attributes
     var options = items.map(function(t) {
-        return '<option value="' + t + '">' + t + '</option>';
+        return '<option data-type="' + (t.Type || '') + '" value="' + (t.Name || t || 'None') + '">' + (t.Name || t || 'None') + '</option>';
     });
 
     var optionsHtml = options.reduce(function(a, b) { return a + b; }, '');

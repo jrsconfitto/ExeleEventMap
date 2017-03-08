@@ -1,15 +1,72 @@
-.exele-treemap-symbol,
-.exele-treemap {
+
+.exele-treemap-symbol {
     width: 100%;
     height: 100%;
 }
 
+.exele-treemap-holder {
+    width: calc(100% - 11.75em);
+    height: 100%;
+    float: left;
+}
+
 .exele-treemap {
+    width: 100%;
+    height: calc(100% - 0.75em);
     text-align: left;
 }
 
-.exele-attribute-table {
-    padding: 10px;
-    font: 10px sans-serif;
-    display:inline;
+.exele-treemap tspan {
+    font-size: 0.75em;
 }
+
+.exele-attr-table {
+    table-layout: fixed;
+    width: 15em;
+    padding: 1em;
+    float: right;
+}
+
+.exele-table-value {
+    text-align: right;
+}
+
+.exele-total-time {
+    margin-top: 0.75em;
+    float: left;
+    height: 1em;
+    width: 100%;
+    background: #4C92C3;
+    color: #F5FAFC;
+}
+
+
+.box-table-a {
+    font-size: 12px;
+    text-align: left;
+    border-collapse: collapse;
+}
+
+    .box-table-a th {
+        width: 50%;
+        text-align: center;
+        font-size: 13px;
+        font-weight: bold;
+        padding: 8px;
+        background: #4C92C3;
+        border-bottom: 1px solid #fff;
+        color: #F5FAFC;
+    }
+
+    .box-table-a td {
+        width: 50%;
+        padding: 8px;
+        background: #A7C9DF;
+        border-bottom: 1px solid #fff;
+        color: #183649;
+        border-top: 1px solid transparent;
+    }
+
+    .box-table-a tr:hover td {
+        background: #4D95C4;
+    }
