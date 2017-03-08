@@ -4,27 +4,25 @@
     height: 100%;
 }
 
-.exele-treemap-holder {
-    width: calc(100% - 11.75em);
-    height: 100%;
-    float: left;
-}
-
 .exele-treemap {
-    width: 100%;
-    height: calc(100% - 0.75em);
+    width: calc(100% - 15.5em);
+    height: 100%;
     text-align: left;
+    float: left;
 }
 
 .exele-treemap tspan {
     font-size: 0.75em;
 }
 
-.exele-attr-table {
-    table-layout: fixed;
+.exele-attr-panel {
     width: 15em;
-    padding: 1em;
     float: right;
+}
+
+.exele-attr-table {
+    width: 100%;
+    table-layout: fixed;
 }
 
 .exele-table-value {
