@@ -1,12 +1,6 @@
 
-<div class="c-side-pane t-toolbar">
+<div class="c-side-pane t-toolbar" style="margin-top: 10px">
     <span style="color:#fff; margin-left:15px">Event Map Options</span>
-</div>
-<div class="c-config-content">Show Label:
-    <input type="checkbox" ng-model="config.ShowLabel">
-</div>
-<div class="c-config-content">Show Time:
-    <input type="checkbox" ng-model="config.ShowTime">
 </div>
 
 <div class="c-config-content" style="width: 85%; margin: 15px 0 15px 15px;">
@@ -39,15 +33,14 @@
 
 <div style="width: 85%; margin-top: 10px; margin-left:15px;">
     <p style="margin-top: 10px">
-        Event Map symbol for visualizing Event Frames.  By default the size of the displayed checkbox
-        is proportional to the Event Frame duration.  The color of the box indicates the Event Frame 
-        template.  The view can be scoped to a single template, then the size and color of the box
-        can be based on attributes.
+        Event Map symbol for visualizing Event Frames.  By default the size of the displayed box
+        is proportional to the Event Frame duration and the color of the box indicates the Event
+        Frame template.  If a template filter is applied then attributes can be selected to control
+        the size and color of the box.
     </p>
     <p style="margin-top: 10px">
-        Hovering over a box will show summary data about the Event Frame.  Clicking on a box will
-        attribute values in the table.  Total time off all displayed Event Frames is shown below
-        the Event Map.
+        Hovering over a box will show summary data about the Event Frame.  Clicking on a box
+        displays attribute values in a table.
     </p>
     <p style="margin-top: 10px">
         This symbol was created by Exele, a PI partner specializing in PI products, services,
