@@ -80,7 +80,7 @@
                 dataPath = dataPath.substr(0, attributePipeLocation)
             }
             
-            // Update treemap, providing URL, elementPath, start and end times
+            // Update eventmap, providing URL, elementPath, start and end times
             exeleTree.Update(apiUrl, dataPath, symbolElement, timeProvider.displayTime.start, timeProvider.displayTime.end,
                 symbolScope.config.TemplateSelected, symbolScope.config.AttributeSelected, symbolScope.config.ColorAttributeSelected);
 
@@ -91,10 +91,10 @@
 
     // Create symbol definition object
     var def = {
-        typeName: 'Event Map',
+        typeName: 'EventMap',
         inject: ['timeProvider'],
         datasourceBehavior: PV.Extensibility.Enums.DatasourceBehaviors.Multiple,
-        iconUrl: 'Images/treemap.svg',
+        iconUrl: 'Images/eventmap.svg',
         visObjectType: symbolVis,
         getDefaultConfig: function () {
             return {
