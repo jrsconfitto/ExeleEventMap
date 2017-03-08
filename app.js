@@ -329,7 +329,7 @@ function Exele_TreeBuilder() {
                 ef: EF
             });
         }
-        // get the attribute tepmlates to cache them here to show in the grid, we should move to own cache
+        // get the attribute templates to cache them here to show in the grid, we should move to own cache
         GetAllTemplateAttributes();
 
         // Get attribute value for provide attribute and template.
