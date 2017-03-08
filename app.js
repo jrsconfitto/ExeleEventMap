@@ -181,21 +181,11 @@ function Exele_TreeBuilder() {
 
                 cell.append("text")
                     .attr("clip-path", function (d) { return "url(#clip-" + d.data.id + ")"; })
-                    .attr('x', function(d, i) {
-                        return i * 2;
-                    })
-                    .attr("y", function (d, i) {
-                        return i * 2;
-                    })
+                    .attr('x', 1)
+                    .attr('y', 1)
                     .attr('dy', function(d, i) {
                         return "1em";
                     })
-                  //.selectAll("tspan")
-                  //  .data(function (d) { return d.data.name.split(/(?=[A-Z][^A-Z])/g); })
-                  //.enter().append("tspan")
-                  //  .attr("x", 4)
-                  //  .attr("y", function (d, i) { return 13 + i * 10; })
-                  //  .text(function (d) { return d; });
 
                 cell.append("title")
                     .text(function (d) {
@@ -223,7 +213,7 @@ function Exele_TreeBuilder() {
                     });
 
                 cell.selectAll('text')
-                    .call(wrap, 900);
+                    .call(wrap, 100);
             });
         }
 
