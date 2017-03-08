@@ -5,8 +5,8 @@
 }
 
 .exele-treemap-holder {
-    width: calc(100% - 475px);
-    height: calc(100% - 20px);
+    width: calc(100% - 15.5em);
+    height: calc(100% - 2em);
     float: left;
 }
 
@@ -21,8 +21,8 @@
 }
 
 .exele-attr-table {
-    width: 450px;
-    padding: 10px;
+    width: 20em;
+    padding: 1em;
     float: right;
 }
 
