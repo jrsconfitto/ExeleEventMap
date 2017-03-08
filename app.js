@@ -312,9 +312,10 @@ function Exele_TreeBuilder() {
         efDataHolder = {};
         for (let item in items) {
             let apiFrameResult = items[item];
+
             // create a simple EF object
-            let EF = new myEventFrame(apiFrameResult.Name, apiFrameResult.TemplateName, apiFrameResult.StartTime, apiFrameResult.EndTime,
-                apiFrameResult.Links.Template, apiFrameResult.WebId);
+            let EF = new myEventFrame(apiFrameResult.Name, apiFrameResult.TemplateName, apiFrameResult.StartTime, apiFrameResult.EndTime, apiFrameResult.Links.Template, apiFrameResult.WebId);
+
             // if the EF template is not a property of the object, add it
             if (efDataHolder[EF.templateName] === undefined) {
 
@@ -323,7 +324,7 @@ function Exele_TreeBuilder() {
                     "frames": [],
                 }
             }
-            // for all EF, add an arry of the EF with properties of id and the actual EF object
+            // for all EF, add an array of the EF with properties of id and the actual EF object
             efDataHolder[EF.templateName].frames.push({
                 id: EF.webId,
                 ef: EF
@@ -348,11 +349,13 @@ function Exele_TreeBuilder() {
         // loop throught each template in efDataHolder
         for (let templates in efDataHolder) {
             // use the template link to get the links and call method to get attribute templates
-            makeDataCall(efDataHolder[templates].Links + "?selectedFields=Links.AttributeTemplates", 'get', null, getAtributeTemplates)
+            makeDataCall(efDataHolder[templates].Links + "?selectedFields=Links.AttributeTemplates", 'get', null, getAttributeTemplates)
+
             // once we have the template, make call to get attribute templates and extract names (get)
-            function getAtributeTemplates(results) {
+            function getAttributeTemplates(results) {
                 makeDataCall(results.Links.AttributeTemplates + "?selectedFields=Items.Name;Items.Type;", 'get', null, getAttributeTemplateNames);
             }
+
             // put attribute template names into array
             function getAttributeTemplateNames(results) {
                 if (efDataHolder[templates]) {
