@@ -9,20 +9,29 @@
     <input type="checkbox" ng-model="config.ShowTime">
 </div>
 
-<div class="c-config-content">Filter to Template:
-   <select ng-model="config.TemplateSelected">
+<div class="c-config-content" style="width: 85%; margin: 15px 0 15px 15px;">
+    &nbsp;Template filter<br />
+    <select ng-model="config.TemplateSelected"
+            class="config-option-list">
         <option ng-repeat="t in runtimeData.obtainTemplates()">{{t}}</option>
    </select>
 </div>
-<div class="c-config-content">Size attribute:
+
+<div class="c-config-content" style="width: 85%; margin: 15px 0 15px 15px;">
+    &nbsp;Size attribute<br />
     <select ng-model="config.AttributeSelected"
-            ng-options="attribute.Name for attribute in runtimeData.obtainSizeableAttributes()"></select>
-</div>
-<div class="c-config-content">Color attribute:
-   <select ng-model="config.ColorAttributeSelected"
-           ng-options="attribute.Name for attribute in runtimeData.obtainAttributes()"></select>
+            ng-options="attribute.Name for attribute in runtimeData.obtainSizeableAttributes()"
+            class="config-option-list">
+    </select>
 </div>
 
+<div class="c-config-content" style="width: 85%; margin: 15px 0 15px 15px;">
+    &nbsp;Color attribute<br />
+    <select ng-model="config.ColorAttributeSelected"
+            ng-options="attribute.Name for attribute in runtimeData.obtainAttributes()"
+            class="config-option-list">
+    </select>
+</div>
 
 <div class="c-side-pane t-toolbar">
     <span style="color:#fff; margin-left:15px">About</span>
