@@ -181,9 +181,15 @@ function Exele_TreeBuilder() {
 
                 cell.append("text")
                     .attr("clip-path", function (d) { return "url(#clip-" + d.data.id + ")"; })
-                    .attr('x', d => d.x0 + 10)
-                    .attr("y", d => d.y0 + 10) //d => d.y)
-                    .attr('dy', function(d) { return d.y0; })
+                    .attr('x', function(d, i) {
+                        return i * 2;
+                    })
+                    .attr("y", function (d, i) {
+                        return i * 2;
+                    })
+                    .attr('dy', function(d, i) {
+                        return "1em";
+                    })
                   //.selectAll("tspan")
                   //  .data(function (d) { return d.data.name.split(/(?=[A-Z][^A-Z])/g); })
                   //.enter().append("tspan")
