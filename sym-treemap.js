@@ -37,26 +37,16 @@
         }
 
         function dataUpdate(data) {
-
-            // Set PI web API address
-            var apiUrl = "https://pisrv01.pischool.int/piwebapi";
-
-            // Get path from first data source
-            var dataPath = this.scope.symbol.DataSources[0].substr(3);
-
-            // Remove attribute from element path
-            var attributePipeLocation = dataPath.indexOf("|");
-            if (attributePipeLocation > -1) {
-                dataPath = dataPath.substr(0, attributePipeLocation)
-            }
-            // Update treemap, providing URL, elementPath, start and end times
-            exeleTree.Update(apiUrl, dataPath, this.elem, timeProvider.displayTime.start, timeProvider.displayTime.end,
-                this.scope.config.TemplateSelected, this.scope.config.AttributeSelected, this.scope.config.ColorAttributeSelected);
+            treemapUpdate(this.scope, this.elem);
         }
+
         // sample event from trend
         timeProvider.onDisplayTimeChanged.subscribe();
 
         function configChanged(newConfig, oldConfig) {
+
+            treemapUpdate(this.scope, this.elem);
+
             // set the template if the config changes
             if (oldConfig.TemplateSelected != newConfig.TemplateSelected) {
                 mytemplate = newConfig.TemplateSelected;
@@ -75,6 +65,27 @@
         function resize(width, height) {
             // ...
         }
+
+        function treemapUpdate(symbolScope, symbolElement) {
+
+            // Set PI web API address
+            var apiUrl = "https://pisrv01.pischool.int/piwebapi";
+
+            // Get path from first data source
+            var dataPath = symbolScope.symbol.DataSources[0].substr(3);
+
+            // Remove attribute from element path
+            var attributePipeLocation = dataPath.indexOf("|");
+            if (attributePipeLocation > -1) {
+                dataPath = dataPath.substr(0, attributePipeLocation)
+            }
+            
+            // Update treemap, providing URL, elementPath, start and end times
+            exeleTree.Update(apiUrl, dataPath, symbolElement, timeProvider.displayTime.start, timeProvider.displayTime.end,
+                symbolScope.config.TemplateSelected, symbolScope.config.AttributeSelected, symbolScope.config.ColorAttributeSelected);
+
+        }
+
     };
 
 
