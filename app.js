@@ -636,22 +636,33 @@ function Exele_TreeBuilder() {
             }
         }
 
-        if (Object.keys(efDataHolder).length === 0) {
-            treemapSelection.selectAll("*").remove();
-            treemapSelection.attr("style", "background-color:lightcoral")
-                     .append("p").text("No events within time range")
-                     .attr("style", "text-align:center");
-        } else {
-            var totalTime = efDurationSum(root);
+        var totalTime = {}
 
-            var $totalTimeElement = $('.exele-total-time-value', symbolElement);
-            $totalTimeElement[0].innerHTML = root.data.durationMinutes.toFixed(2) + ' minutes';
+        if (Object.keys(efDataHolder).length === 0) {
+
+            totalTime.Value = "---"
+
+            // Display message that no events exist within time range
+            treemapSelection.selectAll("*").remove();
+            treemapSelection
+                .classed("no-events", true)
+                .append("p")
+                .text("No events within time range");
+
+        } else {
+
+            totalTime.Value = root.data.durationMinutes.toFixed(2) + ' minutes';
 
             // Draw the treemap within the selected element using the data in `root`
             treemapSelection
+                .classed("no-events", false)
                 .datum(root)
                 .call(myTreemap);
         }
+
+        var $totalTimeElement = $('.exele-total-time-value', symbolElement);
+        $totalTimeElement[0].innerHTML = totalTime.Value;
+
     }
 }
 
