@@ -246,6 +246,11 @@ function Exele_TreeBuilder() {
                     entry.Value = entry.Value.toFixed(3);
                 }
 
+                // Add unit abbreviations, if available
+                if (attr.Value.UnitsAbbreviation) {
+                    entry.Value = entry.Value.toString() + ' ' + attr.Value.UnitsAbbreviation;
+                }
+
                 tableContent += '<tr><td>' + attr.Name + '</td><td class="exele-table-value">' + entry.Value + '</td></tr>';
 
             });
