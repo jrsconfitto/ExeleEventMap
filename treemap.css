@@ -49,21 +49,19 @@
         font-weight: bold;
         padding: 8px;
         background: #4C92C3;
-        border-top: 4px solid #63A2CB;
         border-bottom: 1px solid #fff;
-        color: #E2EEF5;
+        color: #F5FAFC;
     }
 
     .box-table-a td {
         width: 50%;
         padding: 8px;
-        background: #e8edff;
+        background: #A7C9DF;
         border-bottom: 1px solid #fff;
         color: #183649;
         border-top: 1px solid transparent;
     }
 
     .box-table-a tr:hover td {
-        background: #d0dafd;
-        color: #339;
+        background: #4D95C4;
     }
