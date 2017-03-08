@@ -181,12 +181,10 @@ function Exele_TreeBuilder() {
 
                 cell.append("text")
                     .attr("clip-path", function (d) { return "url(#clip-" + d.data.id + ")"; })
-                  .selectAll("tspan")
-                    .data(function (d) { return d.data.name.split(/(?=[A-Z][^A-Z])/g); })
-                  .enter().append("tspan")
-                    .attr("x", 4)
-                    .attr("y", function (d, i) { return 13 + i * 10; })
-                    .text(function (d) { return d; });
+                    .attr('x', 1)
+                    .attr('y', 1)
+                    .attr('w', function (d) { return d.x1 - d.x0; })
+                    .attr('dy', '1em')
 
                 cell.append("title")
                     .text(function (d) {
@@ -213,6 +211,34 @@ function Exele_TreeBuilder() {
                         return title;
                     });
 
+                cell.selectAll('text')
+                    .call(wrap);
+            });
+        }
+
+        function wrap(text) {
+            text.each(function () {
+                var text = d3.select(this),
+                    datum = text.datum().data,
+                    words = datum.name.split(/\s+/).reverse(),
+                    word,
+                    line = [],
+                    lineNumber = 0,
+                    lineHeight = 1.1, // ems
+                    y = text.attr("y"),
+                    w = text.attr("w"),
+                    dy = parseFloat(text.attr("dy")),
+                    tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > w) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                    }
+                }
             });
         }
 

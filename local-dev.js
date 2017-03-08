@@ -10,7 +10,7 @@ function handleLoad(e) {
     $symbol.html(importedSymbol);
     ExeleTree = new Exele_TreeBuilder();
     // Update treemap once when page loads
-    updateTreemap();
+    updateTreemap();    
 
     // Update treemap every 5 seconds (mimic PI Vision behavior)
     setInterval(function () {
