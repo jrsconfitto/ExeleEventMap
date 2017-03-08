@@ -351,7 +351,7 @@ function Exele_TreeBuilder() {
             makeDataCall(efDataHolder[templates].Links + "?selectedFields=Links.AttributeTemplates", 'get', null, getAtributeTemplates)
             // once we have the template, make call to get attribute templates and extract names (get)
             function getAtributeTemplates(results) {
-                makeDataCall(results.Links.AttributeTemplates + "?selectedFields=Items.Name; tems.Type;", 'get', null, getAttributeTemplateNames);
+                makeDataCall(results.Links.AttributeTemplates + "?selectedFields=Items.Name;Items.Type;", 'get', null, getAttributeTemplateNames);
             }
             // put attribute template names into array
             function getAttributeTemplateNames(results) {
