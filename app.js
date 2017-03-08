@@ -170,9 +170,7 @@ function Exele_TreeBuilder() {
                     .attr("width", function (d) { return d.x1 - d.x0; })
                     .attr("height", function (d) { return d.y1 - d.y0; })
                     .attr("fill", function (d) {
-                        var colorValue = (d.data.colorAttributeName !== 'None' ? d.data.colorValue : d.parent.data.name);
-                        console.debug('%c ' + color(colorValue), 'background-color: ' + color(colorValue));
-                        return color(colorValue);
+                        return color(d.data.colorAttributeName !== 'None' ? d.data.colorValue : d.parent.data.name);
                     })
                     .attr("data-web-id", function (d) { return d.data.ef.webId; });
 
