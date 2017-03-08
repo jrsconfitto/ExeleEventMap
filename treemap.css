@@ -20,15 +20,6 @@
     float: right;
 }
 
-.exele-attr-table {
-    width: 100%;
-    table-layout: fixed;
-}
-
-.exele-table-value {
-    text-align: right;
-}
-
 .exele-total-time-heading {
     padding: 0.5em 0 0.5em 0;
     float: left;
@@ -54,6 +45,14 @@
     font-size: 12px;
 }
 
+.exele-attr-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.exele-table-value {
+    text-align: right;
+}
 
 .box-table-a {
     font-size: 12px;
