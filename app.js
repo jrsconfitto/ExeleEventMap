@@ -62,7 +62,7 @@ function Exele_TreeBuilder() {
     // gets the element, gets the EF on the element
     this.GetEFData = function (elementPath, startTime, endTime) {
         // First make a call to get the element using PI Web API
-        let url = webAPIServerURL + '//' + "elements?path=" + elementPath;
+        let url = webAPIServerURL + '//' + "elements?path=" + elementPath + "&selectedFields=Name;Path;WebId;Links.EventFrames";
         makeDataCall(url, 'get', null, PathResults, error);
 
         // get the results, create a mock element, and call function to get the EF
@@ -72,7 +72,7 @@ function Exele_TreeBuilder() {
         }
         // get the resulting EF within the time range, and calls ExtractEF when completed
         function GETEFByElementID(elementIDbase, startTime, endtime, successCallBack) {
-            url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive";
+            url = elementIDbase + "?StartTime=" + startTime + "&" + "Endtime=" + endtime + "&searchmode=StartInclusive&selectedFields=Items.StartTime;Items.EndTime;Items.Name;Items.WebId;Items.TemplateName;Items.Links.Template";
             this.symbolElement = symbolElement;
             makeDataCall(url, 'get', null, successCallBack, error);
         }
@@ -331,10 +331,10 @@ function Exele_TreeBuilder() {
         // loop throught each template in efDataHolder
         for (let templates in efDataHolder) {
             // use the template link to get the links and call method to get attribute templates
-            makeDataCall(efDataHolder[templates].Links, 'get', null, getAtributeTemplates)
+            makeDataCall(efDataHolder[templates].Links + "?selectedFields=Links.AttributeTemplates", 'get', null, getAtributeTemplates)
             // once we have the template, make call to get attribute templates and extract names (get)
             function getAtributeTemplates(results) {
-                makeDataCall(results.Links.AttributeTemplates, 'get', null, getAttributeTemplateNames);
+                makeDataCall(results.Links.AttributeTemplates + "?selectedFields=Items.Name; tems.Type;", 'get', null, getAttributeTemplateNames);
             }
             // put attribute template names into array
             function getAttributeTemplateNames(results) {
