@@ -638,8 +638,8 @@ function Exele_TreeBuilder() {
 
 
 
-        var $totalTimeElement = $('.exele-total-time', symbolElement);
-        $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2) + ' minutes';
+        var $totalTimeElement = $('.exele-total-time-value', symbolElement);
+        $totalTimeElement[0].innerHTML = root.data.durationMinutes.toFixed(2) + ' minutes';
 
 
      

@@ -4,44 +4,41 @@
     height: 100%;
 }
 
-.exele-treemap-holder {
-    width: calc(100% - 11.75em);
-    height: 100%;
-    float: left;
-}
-
 .exele-treemap {
-    width: 100%;
-    height: calc(100% - 0.75em);
+    width: calc(100% - 15.5em);
+    height: 100%;
     text-align: left;
+    float: left;
 }
 
 .exele-treemap tspan {
     font-size: 0.75em;
 }
 
-.exele-attr-table {
-    table-layout: fixed;
+.exele-attr-panel {
     width: 15em;
-    padding: 1em;
     float: right;
+}
+
+.exele-attr-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.exele-time-table {
+    margin-bottom: 1em;
+}
+
+.exele-total-time-value td {
+    width: 100%;
 }
 
 .exele-table-value {
     text-align: right;
 }
 
-.exele-total-time {
-    margin-top: 0.75em;
-    float: left;
-    height: 1em;
-    width: 100%;
-    background: #4C92C3;
-    color: #F5FAFC;
-}
-
-
 .box-table-a {
+    width: 100%;
     font-size: 12px;
     text-align: left;
     border-collapse: collapse;
@@ -61,7 +58,7 @@
     .box-table-a td {
         width: 50%;
         padding: 8px;
-        background: #A7C9DF;
+        background: #BED2ED;
         border-bottom: 1px solid #fff;
         color: #183649;
         border-top: 1px solid transparent;
