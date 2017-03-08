@@ -29,13 +29,25 @@
     text-align: right;
 }
 
-.exele-total-time {
-    margin-top: 0.75em;
+.exele-total-time-heading {
+    padding: 0.5em 0 0.5em 0;
     float: left;
     height: 1em;
     width: 100%;
     background: #4C92C3;
     color: #F5FAFC;
+    text-align: center;
+}
+
+.exele-total-time-value {
+    padding: 0.5em 0 0.5em 0;
+    margin-bottom: 1em;
+    float: left;
+    height: 1em;
+    width: 100%;
+    background: #A7C9DF;
+    color: #183649;
+    text-align: right;
 }
 
 
