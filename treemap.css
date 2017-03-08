@@ -21,6 +21,7 @@
 }
 
 .exele-attr-table {
+    table-layout: fixed;
     width: 15em;
     padding: 1em;
     float: right;
@@ -42,6 +43,7 @@
 }
 
     .box-table-a th {
+        width: 50%;
         text-align: center;
         font-size: 13px;
         font-weight: normal;
@@ -53,6 +55,7 @@
     }
 
     .box-table-a td {
+        width: 50%;
         padding: 8px;
         background: #e8edff;
         border-bottom: 1px solid #fff;
