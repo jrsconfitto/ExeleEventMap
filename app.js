@@ -223,6 +223,20 @@ function Exele_TreeBuilder() {
     }
 
 
+    function resetTable() {
+
+        // Create empty attribute table
+        var tableContent = '<table class="exele-attr-table exele-table-a"><tr><th>Attribute</th><th>Value</th></tr>';
+        tableContent += '<tr><td>---</td><td class="exele-table-value">---</td></tr>';
+        tableContent += '<tr><td>---</td><td class="exele-table-value">---</td></tr>';
+        tableContent += '<tr><td>---</td><td class="exele-table-value">---</td></tr>';
+        tableContent += '</table>';
+
+        // Replace contents of existing table
+        $('.exele-attr-table', symbolElement).replaceWith(tableContent);
+
+    }
+
     function buildTable(ef) {
 
         GetSingleEFAttributes(ef.webId).then(results=> {
@@ -652,6 +666,7 @@ function Exele_TreeBuilder() {
 
         if (Object.keys(efDataHolder).length === 0) {
 
+            resetTable();
             totalTime.Value = "---"
 
             // Display message that no events exist within time range
