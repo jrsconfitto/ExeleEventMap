@@ -181,12 +181,15 @@ function Exele_TreeBuilder() {
 
                 cell.append("text")
                     .attr("clip-path", function (d) { return "url(#clip-" + d.data.id + ")"; })
-                  .selectAll("tspan")
-                    .data(function (d) { return d.data.name.split(/(?=[A-Z][^A-Z])/g); })
-                  .enter().append("tspan")
-                    .attr("x", 4)
-                    .attr("y", function (d, i) { return 13 + i * 10; })
-                    .text(function (d) { return d; });
+                    .attr('x', d => d.x0 + 10)
+                    .attr("y", d => d.y0 + 10) //d => d.y)
+                    .attr('dy', function(d) { return d.y0; })
+                  //.selectAll("tspan")
+                  //  .data(function (d) { return d.data.name.split(/(?=[A-Z][^A-Z])/g); })
+                  //.enter().append("tspan")
+                  //  .attr("x", 4)
+                  //  .attr("y", function (d, i) { return 13 + i * 10; })
+                  //  .text(function (d) { return d; });
 
                 cell.append("title")
                     .text(function (d) {
@@ -213,6 +216,33 @@ function Exele_TreeBuilder() {
                         return title;
                     });
 
+                cell.selectAll('text')
+                    .call(wrap, 900);
+            });
+        }
+
+        function wrap(text, width) {
+            text.each(function () {
+                var text = d3.select(this),
+                    datum = text.datum().data,
+                    words = datum.name.split(/\s+/).reverse(),
+                    word,
+                    line = [],
+                    lineNumber = 0,
+                    lineHeight = 1.1, // ems
+                    y = text.attr("y"),
+                    dy = parseFloat(text.attr("dy")),
+                    tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > width) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                    }
+                }
             });
         }
 
