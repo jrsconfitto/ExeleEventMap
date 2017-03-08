@@ -62,7 +62,7 @@ function Exele_TreeBuilder() {
     // gets the element, gets the EF on the element
     this.GetEFData = function (elementPath, startTime, endTime) {
         // First make a call to get the element using PI Web API
-        let url = webAPIServerURL + '//' + "elements?path=" + elementPath + "&selectedFields=Name;Path;WebId;Links.EventFrames";
+        let url = webAPIServerURL + '/' + "elements?path=" + elementPath + "&selectedFields=Name;Path;WebId;Links.EventFrames";
         makeDataCall(url, 'get', null, PathResults, error);
 
         // get the results, create a mock element, and call function to get the EF
