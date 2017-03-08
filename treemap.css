@@ -21,8 +21,10 @@
 }
 
 .no-events {
-    background-color: #E3EEF9;
-    text-align: center;
+    background-color: #BED2ED;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .exele-attr-table {
