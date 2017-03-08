@@ -638,9 +638,9 @@ function Exele_TreeBuilder() {
 
         if (Object.keys(efDataHolder).length === 0) {
             treemapSelection.selectAll("*").remove();
-            treemapSelection.attr("style", "background-color:lightcoral")
-                     .append("p").text("No events within time range")
-                     .attr("style", "text-align:center");
+            treemapSelection
+                .classed("no-events", true)
+                .text("No events within time range");
         } else {
             var totalTime = efDurationSum(root);
 
@@ -649,6 +649,7 @@ function Exele_TreeBuilder() {
 
             // Draw the treemap within the selected element using the data in `root`
             treemapSelection
+                .classed("no-events", false)
                 .datum(root)
                 .call(myTreemap);
         }
@@ -694,7 +695,7 @@ Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function 
 
     // Return an empty array if we don't find a match
     return this.GetEFAttributesFromTemplate(templateName)
-        .filter(att => numericalAttributeTypes.indexOf(att.Type) !== -1)
+        .filter(att => numericalAttributeTypes.indexOf(att.Type) !== - 1)
         .map(att => {
             return { Name: att.Name, Type: att.Type }
         })
