@@ -20,34 +20,17 @@
     float: right;
 }
 
-.exele-total-time-heading {
-    padding: 0.5em 0 0.5em 0;
-    float: left;
-    height: 1em;
-    width: 100%;
-    background: #4C92C3;
-    color: #F5FAFC;
-    text-align: center;
-    font-weight: bold;
-    font-size: 13px;
-    border-bottom: 1px solid #fff;
-}
-
-.exele-total-time-value {
-    padding: 0.5em 0 0.5em 0;
-    margin-bottom: 1em;
-    float: left;
-    height: 1em;
-    width: 100%;
-    background: #A7C9DF;
-    color: #183649;
-    text-align: right;
-    font-size: 12px;
-}
-
 .exele-attr-table {
     width: 100%;
     table-layout: fixed;
+}
+
+.exele-time-table {
+    margin-bottom: 1em;
+}
+
+.exele-total-time-value td {
+    width: 100%;
 }
 
 .exele-table-value {
@@ -55,6 +38,7 @@
 }
 
 .box-table-a {
+    width: 100%;
     font-size: 12px;
     text-align: left;
     border-collapse: collapse;
