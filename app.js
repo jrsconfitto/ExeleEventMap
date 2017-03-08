@@ -442,9 +442,16 @@ function Exele_TreeBuilder() {
                         f.ef.attributes = f.attributeValuesMap;
 
                         if (_colorAttribute && _colorAttribute.Name && f.ef.attributes.has(_colorAttribute.Name)) {
+                            // Accomodate attributes whose values are objects!
+                            var colorValue = f.attributeValuesMap.get(_colorAttribute.Name);
+
+                            if (typeof colorValue == 'object' && colorValue.Value) {
+                                colorValue = colorValue.Value;
+                            }
+
                             color = {
                                 attributeName: _colorAttribute.Name,
-                                value: f.attributeValuesMap.get(_colorAttribute.Name)
+                                value: colorValue
                             };
                         }
                     }
