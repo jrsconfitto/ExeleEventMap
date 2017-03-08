@@ -37,6 +37,13 @@
         }
 
         function dataUpdate(data) {
+            // ...
+        }
+
+        // sample event from trend
+        timeProvider.onDisplayTimeChanged.subscribe();
+
+        function configChanged(newConfig, oldConfig) {
 
             // Set PI web API address
             var apiUrl = "https://pisrv01.pischool.int/piwebapi";
@@ -52,11 +59,8 @@
             // Update treemap, providing URL, elementPath, start and end times
             exeleTree.Update(apiUrl, dataPath, this.elem, timeProvider.displayTime.start, timeProvider.displayTime.end,
                 this.scope.config.TemplateSelected, this.scope.config.AttributeSelected, this.scope.config.ColorAttributeSelected);
-        }
-        // sample event from trend
-        timeProvider.onDisplayTimeChanged.subscribe();
 
-        function configChanged(newConfig, oldConfig) {
+
             // set the template if the config changes
             if (oldConfig.TemplateSelected != newConfig.TemplateSelected) {
                 mytemplate = newConfig.TemplateSelected;
