@@ -540,7 +540,7 @@ function Exele_TreeBuilder() {
                       return a + b.data.durationMinutes;
                   }, 0)
 
-                  d.data.sizeDomain = d.children.map(function(c) {
+                  d.data.sizeDomain = d.children.map(function (c) {
 
                       // Gets back the domain of the data object
                       var sizeValues = [];
@@ -553,17 +553,17 @@ function Exele_TreeBuilder() {
 
                       return [d3.min(sizeValues), d3.max(sizeValues)];
 
-                  }).reduce(function(a, b) {
+                  }).reduce(function (a, b) {
                       b.push(a);
                       var combined = d3.merge(b);
                       return [d3.min(combined), d3.max(combined)];
                   }, [0, 0]);
 
-                  d.data.colorDomain = d.children.reduce(function(a, b) {
-                    if (b.data.colorValue) {
-                        a.push(b.data.colorValue);
-                    }
-                    return [d3.min(a), d3.max(a)];
+                  d.data.colorDomain = d.children.reduce(function (a, b) {
+                      if (b.data.colorValue) {
+                          a.push(b.data.colorValue);
+                      }
+                      return [d3.min(a), d3.max(a)];
                   }, []);
               } else {
                   d.data.sizeDomain = [d.data.sizeValue, d.data.sizeValue];
@@ -636,24 +636,17 @@ function Exele_TreeBuilder() {
             }
         }
 
-
-
-        var $totalTimeElement = $('.exele-total-time-value', symbolElement);
-        $totalTimeElement[0].innerHTML = root.data.durationMinutes.toFixed(2) + ' minutes';
-
-
-     
         if (Object.keys(efDataHolder).length === 0) {
             treemapSelection.selectAll("*").remove();
             treemapSelection.attr("style", "background-color:lightcoral")
                      .append("p").text("No events within time range")
                      .attr("style", "text-align:center");
-        }
-        else {
+        } else {
             var totalTime = efDurationSum(root);
 
-            var $totalTimeElement = $('.exele-total-time', symbolElement);
-            $totalTimeElement[0].innerHTML = 'Total event time: ' + root.data.durationMinutes.toFixed(2);
+            var $totalTimeElement = $('.exele-total-time-value', symbolElement);
+            $totalTimeElement[0].innerHTML = root.data.durationMinutes.toFixed(2) + ' minutes';
+
             // Draw the treemap within the selected element using the data in `root`
             treemapSelection
                 .datum(root)
@@ -684,7 +677,7 @@ Exele_TreeBuilder.prototype.GetEFTemplates = function () {
 Exele_TreeBuilder.prototype.GetEFAttributeNamesFromTemplate = function (templateName) {
     return this.GetEFAttributesFromTemplate(templateName)
         .map(att => {
-            return {Name: att.Name, Type: att.Type};
+            return { Name: att.Name, Type: att.Type };
         })
         .sort((a, b) => d3.ascending(a.Name, b.Name));
 }
@@ -703,7 +696,7 @@ Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function 
     return this.GetEFAttributesFromTemplate(templateName)
         .filter(att => numericalAttributeTypes.indexOf(att.Type) !== -1)
         .map(att => {
-            return {Name: att.Name, Type: att.Type}
+            return { Name: att.Name, Type: att.Type }
         })
         .sort((a, b) => d3.ascending(a.Name, b.Name));
 }
