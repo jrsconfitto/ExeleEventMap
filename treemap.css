@@ -20,6 +20,13 @@
     float: right;
 }
 
+.no-events {
+    background-color: #BED2ED;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .exele-attr-table {
     width: 100%;
     table-layout: fixed;
