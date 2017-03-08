@@ -48,10 +48,10 @@
         font-size: 13px;
         font-weight: bold;
         padding: 8px;
-        background: #b9c9fe;
-        border-top: 4px solid #aabcfe;
+        background: #4C92C3;
+        border-top: 4px solid #63A2CB;
         border-bottom: 1px solid #fff;
-        color: #039;
+        color: #E2EEF5;
     }
 
     .box-table-a td {
@@ -59,7 +59,7 @@
         padding: 8px;
         background: #e8edff;
         border-bottom: 1px solid #fff;
-        color: #669;
+        color: #183649;
         border-top: 1px solid transparent;
     }
 
