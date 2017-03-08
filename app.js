@@ -228,7 +228,7 @@ function Exele_TreeBuilder() {
         GetSingleEFAttributes(ef.webId).then(results=> {
 
             // Create HTML for table and header
-            var tableContent = '<table class="exele-attr-table box-table-a"><tr><th>Attribute</th><th>Value</th></tr>';
+            var tableContent = '<table class="exele-attr-table exele-table-a"><tr><th>Attribute</th><th>Value</th></tr>';
 
             results.Items.forEach(attr=> {
 

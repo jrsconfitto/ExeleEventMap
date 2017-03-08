@@ -44,14 +44,14 @@
     text-align: right;
 }
 
-.box-table-a {
+.exele-table-a {
     width: 100%;
     font-size: 12px;
     text-align: left;
     border-collapse: collapse;
 }
 
-    .box-table-a th {
+    .exele-table-a th {
         width: 50%;
         text-align: center;
         font-size: 13px;
@@ -62,7 +62,7 @@
         color: #F5FAFC;
     }
 
-    .box-table-a td {
+    .exele-table-a td {
         width: 50%;
         padding: 8px;
         background: #BED2ED;
@@ -71,6 +71,6 @@
         border-top: 1px solid transparent;
     }
 
-    .box-table-a tr:hover td {
+    .exele-table-a tr:hover td {
         background: #4D95C4;
     }
