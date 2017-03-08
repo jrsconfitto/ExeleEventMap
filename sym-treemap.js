@@ -91,7 +91,7 @@
 
     // Create symbol definition object
     var def = {
-        typeName: 'treemap',
+        typeName: 'Event Map',
         inject: ['timeProvider'],
         datasourceBehavior: PV.Extensibility.Enums.DatasourceBehaviors.Multiple,
         iconUrl: 'Images/treemap.svg',
@@ -107,11 +107,9 @@
                 Test: ''
             };
         },
-        configTitle: 'Format Symbol'
-        //Templates: templates,
-        //Attributes: attributes,
-
+        configTitle: 'Format Event Map'
     };
+    
     PV.symbolCatalog.register(def);
 
 })(window.PIVisualization);
