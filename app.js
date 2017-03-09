@@ -772,7 +772,6 @@ var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
         url: encodeURI(url),
         type: type,
         data: data,
-        cache: false,
         contentType: "application/json; charset=UTF-8",
         success: successCallBack,
         error: errorCallBack
