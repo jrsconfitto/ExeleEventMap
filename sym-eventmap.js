@@ -23,7 +23,7 @@
         };
 
         // Initialize cached EF attributes
-        var cachedAttributes = [{Name: 'None', Type: 'String'}].concat(exeleTree.GetEFAttributeNamesFromTemplate(mytemplate));
+        var cachedAttributes = ['None'].concat(exeleTree.GetEFAttributeNamesFromTemplate(mytemplate));
         // method used to get the current attributes from the template
         runtimeData.obtainAttributes = function() {
             // return like this so angular does not loop forever
@@ -31,7 +31,7 @@
         };
 
         // Initialize cached sizeable attributes
-        var cachedSizeableAttributes = [{Name: 'None', Type: 'String'}].concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
+        var cachedSizeableAttributes = ['None'].concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
         runtimeData.obtainSizeableAttributes = function() {
             return cachedSizeableAttributes;
         }
@@ -103,9 +103,9 @@
                 DataShape: 'Value',
                 Height: 500,
                 Width: 600,
-                TemplateSelected: "None",
-                AttributeSelected: {Name: 'None', Type: 'String'},
-                ColorAttributeSelected: {Name: 'None', Type: 'String'},
+                TemplateSelected: 'None',
+                AttributeSelected: 'None',
+                ColorAttributeSelected: 'None',
                 Test: ''
             };
         },
