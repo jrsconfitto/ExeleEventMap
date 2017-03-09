@@ -357,38 +357,70 @@ function Exele_TreeBuilder() {
             });
         }
         // get the attribute templates to cache them here to show in the grid, we should move to own cache
-        GetAllTemplateAttributes();
+        GetAllTemplateAttributes().then(templateAttributes => {
+            EFTemplatesAttributes = templateAttributes;
+    
+            templateAttributes.forEach(function(t) {
+                var templateName = t.templateName;
+                if (efDataHolder[templateName]) {
+                    efDataHolder[templateName].attributes = t.attributeNames;
+                }    
+            });
+            
+            // Get attribute value for provide attribute and template.
+            if (_template != "None" &&
+                (_sizeAttribute !== "None" || _colorAttribute !== "None")) {
+                
+                // Will build the treemap after pulling down attributes' values
+                GetAttributesValues(_template);
+            
+            } else {
 
-        // Get attribute value for provide attribute and template.
-        if (_template && _template != "None" &&
-            (_sizeAttribute && _sizeAttribute.Name != "None" || _colorAttribute && _colorAttribute.Name != "None")) {
-            // Will build the treemap after pulling down attributes' values
-            GetAttributesValues(_template);
-        } else {
-            //reference the treeview and build it here
-            BuildTreemap();
-        }
+                //reference the treeview and build it here
+                BuildTreemap();
+
+            }
+
+            
+        }).catch(problems => {
+            console.log(problems);
+        });
     }
 
-    // adds attribute names to the model such that the config panel displays the Values
-    function GetAllTemplateAttributes() {
-        // loop throught each template in efDataHolder
-        for (let templates in efDataHolder) {
-            // use the template link to get the links and call method to get attribute templates
-            makeDataCall(efDataHolder[templates].Links + "?selectedFields=Links.AttributeTemplates", 'get', null, getAttributeTemplates)
+    // Finds all the attribute names for the passed array of template names
+    //
+    // param `templateNames`: an array of EF template names
+    //
+    // returns a single promise containing an array of Objects containing a template name paired with its attribute names.
+    function GetAllTemplateAttributes(templateNames) {    
+        // Promise.all which returns lots of templates! Converts multiple requests to a single promise result,
+        // which may be desirable because this may be the first thing we want to get when looking
+        // for the attributes within an EF Template for an Element.
+        var templates = Object.keys(efDataHolder);
+        templates = templates.map(function(t) {
+          return {
+            templateName: t,
+            Links: efDataHolder[t].Links
+          };
+        });
 
-            // once we have the template, make call to get attribute templates and extract names (get)
-            function getAttributeTemplates(results) {
-                makeDataCall(results.Links.AttributeTemplates + "?selectedFields=Items.Name;Items.Type;", 'get', null, getAttributeTemplateNames);
-            }
-
-            // put attribute template names into array
-            function getAttributeTemplateNames(results) {
-                if (efDataHolder[templates]) {
-                    efDataHolder[templates].attributes = results.Items;
-                }
-            }
-        }
+        // Convert to use a batch API call
+        return Promise.all(
+            templates.map(function(t) {
+              // use the template link to get the links and call method to get attribute templates
+              return makeDataCall(t.Links, 'get', null)
+                .then(results => {
+                  // once we have the template, make call to get attribute templates and extract names (get)
+                  return makeDataCall(results.Links.AttributeTemplates, 'get')
+                    .then(results => {
+                      return {
+                          templateName: t.templateName,
+                          attributeNames: results.Items.map(function (att) { return att.Name; })
+                      };
+                    });
+                  });
+            })
+        );
     }
 
     //get a singleEf
