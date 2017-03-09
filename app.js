@@ -402,22 +402,22 @@ function Exele_TreeBuilder() {
           };
         });
 
-        // Convert to use a batch API call
+        // TODO: Convert to use a batch API call
         return Promise.all(
-            templates.map(function(t) {
-              // use the template link to get the links and call method to get attribute templates
-              return makeDataCall(t.Links, 'get', null)
-                .then(results => {
-                  // once we have the template, make call to get attribute templates and extract names (get)
-                  return makeDataCall(results.Links.AttributeTemplates + '?selectedFields=Items.Name;Items.Type', 'get')
+            templates.map(function (t) {
+                // use the template link to get the links and call method to get attribute templates
+                return makeDataCall(t.Links, 'get', null)
                     .then(results => {
-                      return {
-                          templateName: t.templateName,
-                          attributes: results.Items
-                      };
+                        // once we have the template, make call to get attribute templates and extract names (get)
+                        return makeDataCall(results.Links.AttributeTemplates + '?selectedFields=Items.Name;Items.Type', 'get')
+                            .then(results => {
+                                return {
+                                    templateName: t.templateName,
+                                    attributes: results.Items
+                                };
+                            });
                     });
-                  });
-            })
+            });
         );
     }
 
