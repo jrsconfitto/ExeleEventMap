@@ -417,7 +417,7 @@ function Exele_TreeBuilder() {
                                 };
                             });
                     });
-            });
+            })
         );
     }
 
