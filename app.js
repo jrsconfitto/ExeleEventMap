@@ -6,10 +6,10 @@ function Exele_TreeBuilder() {
     let efDataHolder = {};
     let myel = {};
     let symbolElement = {};
-    let webAPIServerURL = "";
-    var _template = "";
-    var _sizeAttribute = {};
-    var _colorAttribute = {};
+    let webAPIServerURL = '';
+    var _template = '';
+    var _sizeAttribute = '';
+    var _colorAttribute = '';
 
     let numericalAttributeTypes = [
         'Double',
@@ -194,17 +194,17 @@ function Exele_TreeBuilder() {
                             + '\nStart: ' + d.data.startTime.toLocaleString()
                             + '\nEnd: ' + d.data.endTime.toLocaleString();
 
-                        if (_sizeAttribute && _sizeAttribute.Name !== 'None') {
-                            title += '\n\n(Sizing by: ' + _sizeAttribute.Name + ')';
-                            if (d.data.ef.attributes && d.data.ef.attributes.has(_sizeAttribute.Name)) {
-                                title += '\n\t' + _sizeAttribute.Name + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute.Name);
+                        if (_sizeAttribute !== 'None') {
+                            title += '\n\n(Sizing by: ' + _sizeAttribute + ')';
+                            if (d.data.ef.attributes && d.data.ef.attributes.has(_sizeAttribute)) {
+                                title += '\n\t' + _sizeAttribute + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute);
                             }
                         }
 
-                        if (_colorAttribute && _colorAttribute.Name !== 'None') {
-                            title += '\n\n(Coloring by: ' + _colorAttribute.Name + ')';
-                            if (d.data.ef.attributes && d.data.ef.attributes.has(_colorAttribute.Name)) {
-                                title += '\n\t' + _colorAttribute.Name + ' Value: ' + d.data.ef.attributes.get(_colorAttribute.Name);
+                        if (_colorAttribute !== 'None') {
+                            title += '\n\n(Coloring by: ' + _colorAttribute + ')';
+                            if (d.data.ef.attributes && d.data.ef.attributes.has(_colorAttribute)) {
+                                title += '\n\t' + _colorAttribute + ' Value: ' + d.data.ef.attributes.get(_colorAttribute);
                             }
                         }
 
@@ -447,7 +447,8 @@ function Exele_TreeBuilder() {
     // d3-hierarchy provides more information on how to create this kind of data
     // structure: https://github.com/d3/d3-hierarchy
     function EFsToHierarchy() {
-        var colorType = (_colorAttribute && _colorAttribute.Type ? _colorAttribute.Type : 'String');
+        // TODO: fix. This needs the `attributes` object to be on the efDataHolder, but it isn't present because the data calls complete "after" this is executed.
+        var colorType = 'String';
 
         var efDataRoot = {
             name: '',
@@ -482,16 +483,16 @@ function Exele_TreeBuilder() {
                     if (f.attributeValuesMap) {
                         f.ef.attributes = f.attributeValuesMap;
 
-                        if (_colorAttribute && _colorAttribute.Name && f.ef.attributes.has(_colorAttribute.Name)) {
+                        if (_colorAttribute && f.ef.attributes.has(_colorAttribute)) {
                             // Accomodate attributes whose values are objects!
-                            var colorValue = f.attributeValuesMap.get(_colorAttribute.Name);
+                            var colorValue = f.attributeValuesMap.get(_colorAttribute);
 
                             if (typeof colorValue == 'object' && colorValue.Value) {
                                 colorValue = colorValue.Value;
                             }
 
                             color = {
-                                attributeName: _colorAttribute.Name,
+                                attributeName: _colorAttribute,
                                 value: colorValue
                             };
                         }
@@ -514,10 +515,10 @@ function Exele_TreeBuilder() {
                         && f.ef
                         && _template == f.ef.templateName
                         && f.ef.attributes
-                        && f.ef.attributes.has(_sizeAttribute.Name)) {
+                        && f.ef.attributes.has(_sizeAttribute)) {
 
                         // Return the value of the selected attribute
-                        sizeValue = f.ef.attributes.get(_sizeAttribute.Name);
+                        sizeValue = f.ef.attributes.get(_sizeAttribute);
                     } else {
                         sizeValue = durationMinutes;
                     }
@@ -534,7 +535,7 @@ function Exele_TreeBuilder() {
                         endTime: f.ef.EndTime,
                         durationMinutes: durationMinutes,
                         sizeValue: sizeValue,
-                        colorAttributeName: (color && color.attributeName ? color.attributeName : (_colorAttribute && _colorAttribute.Name ? _colorAttribute.Name : 'None')),
+                        colorAttributeName: (color && color.attributeName ? color.attributeName : _colorAttribute),
                         colorValue: (color && color.value ? color.value : f.ef.name)
                     }
 
@@ -544,7 +545,7 @@ function Exele_TreeBuilder() {
             // Normalize the summing data, if necessary.
             if (_template && _sizeAttribute
                 && _template !== 'None'
-                && _sizeAttribute.Name !== 'None') {
+                && _sizeAttribute !== 'None') {
                 normalizeSummingData(efs);
             }
 
