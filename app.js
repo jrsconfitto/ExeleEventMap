@@ -358,8 +358,6 @@ function Exele_TreeBuilder() {
         }
         // get the attribute templates to cache them here to show in the grid, we should move to own cache
         GetAllTemplateAttributes().then(templateAttributes => {
-            EFTemplatesAttributes = templateAttributes;
-    
             templateAttributes.forEach(function(t) {
                 var templateName = t.templateName;
                 if (efDataHolder[templateName]) {
