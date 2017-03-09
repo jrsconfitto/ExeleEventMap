@@ -36,12 +36,14 @@
             return cachedSizeableAttributes;
         }
 
+        // sample event from trend
+        timeProvider.onDisplayTimeChanged.subscribe();
+        
+        treemapUpdate(scope, element);
+        
         function dataUpdate(data) {
             treemapUpdate(this.scope, this.elem);
         }
-
-        // sample event from trend
-        timeProvider.onDisplayTimeChanged.subscribe();
 
         function configChanged(newConfig, oldConfig) {
 

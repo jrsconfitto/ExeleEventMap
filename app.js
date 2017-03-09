@@ -197,7 +197,7 @@ function Exele_TreeBuilder() {
                         if (_sizeAttribute && _sizeAttribute.Name !== 'None') {
                             title += '\n\n(Sizing by: ' + _sizeAttribute.Name + ')';
                             if (d.data.ef.attributes && d.data.ef.attributes.has(_sizeAttribute.Name)) {
-                                title += '\n\t' + _sizeAttribute.Name + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute.Name) + ' (normalized: ' + d.data.sizeValue + ')';
+                                title += '\n\t' + _sizeAttribute.Name + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute.Name);
                             }
                         }
 
@@ -772,7 +772,6 @@ var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
         url: encodeURI(url),
         type: type,
         data: data,
-        cache: false,
         contentType: "application/json; charset=UTF-8",
         success: successCallBack,
         error: errorCallBack
