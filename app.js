@@ -363,7 +363,7 @@ function Exele_TreeBuilder() {
             templateAttributes.forEach(function(t) {
                 var templateName = t.templateName;
                 if (efDataHolder[templateName]) {
-                    efDataHolder[templateName].attributes = t.attributeNames;
+                    efDataHolder[templateName].attributes = t.attributes;
                 }    
             });
             
@@ -411,11 +411,11 @@ function Exele_TreeBuilder() {
               return makeDataCall(t.Links, 'get', null)
                 .then(results => {
                   // once we have the template, make call to get attribute templates and extract names (get)
-                  return makeDataCall(results.Links.AttributeTemplates, 'get')
+                  return makeDataCall(results.Links.AttributeTemplates + '?selectedFields=Items.Name;Items.Type', 'get')
                     .then(results => {
                       return {
                           templateName: t.templateName,
-                          attributeNames: results.Items.map(function (att) { return att.Name; })
+                          attributes: results.Items
                       };
                     });
                   });
