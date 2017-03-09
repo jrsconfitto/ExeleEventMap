@@ -1,5 +1,4 @@
 // Start development when imported symbol template is loaded
-var t = {};
 function handleLoad(e) {
     // Get the imported document
     var importedDocument = document.querySelector('link[rel="import"]').import;
