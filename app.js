@@ -358,10 +358,9 @@ function Exele_TreeBuilder() {
         }
         // get the attribute templates to cache them here to show in the grid, we should move to own cache
         GetAllTemplateAttributes().then(templateAttributes => {
-            templateAttributes.forEach(function(t) {
-                var templateName = t.templateName;
+            templateAttributes.forEach(function(attributes, templateName) {
                 if (efDataHolder[templateName]) {
-                    efDataHolder[templateName].attributes = t.attributes;
+                    efDataHolder[templateName].attributes = attributes;
                 }    
             });
             
@@ -394,31 +393,48 @@ function Exele_TreeBuilder() {
         // Promise.all which returns lots of templates! Converts multiple requests to a single promise result,
         // which may be desirable because this may be the first thing we want to get when looking
         // for the attributes within an EF Template for an Element.
-        var templates = Object.keys(efDataHolder);
-        templates = templates.map(function(t) {
+        var templateLinkBatchCalls = Object.keys(efDataHolder).map(function(t) {
           return {
             templateName: t,
-            Links: efDataHolder[t].Links
+            batchRequest: {
+                "Method": "GET",
+                "Resource": efDataHolder[t].Links
+            }
           };
         });
 
-        // TODO: Convert to use a batch API call
-        return Promise.all(
-            templates.map(function (t) {
-                // use the template link to get the links and call method to get attribute templates
-                return makeDataCall(t.Links, 'get', null)
-                    .then(results => {
-                        // once we have the template, make call to get attribute templates and extract names (get)
-                        return makeDataCall(results.Links.AttributeTemplates + '?selectedFields=Items.Name;Items.Type', 'get')
-                            .then(results => {
-                                return {
-                                    templateName: t.templateName,
-                                    attributes: results.Items
-                                };
-                            });
-                    });
-            })
-        );
+        // Construct the initial batch query
+        let batchQuery1 = {};
+        templateLinkBatchCalls.forEach((tCall, i) => {
+            batchQuery1[i] = tCall.batchRequest;
+        });
+        
+        return makeDataCall(webAPIServerURL + '/batch', 'POST', JSON.stringify(batchQuery1), null, null)
+            .then(function(batchResponse1) {        // use the template link to get the links and call method to get attribute templates
+                let batchQuery2 = {};
+                for (var batchResponse in batchResponse1) {
+                    batchQuery2[batchResponse] = {
+                        'Method': 'GET',
+                        'Resource': batchResponse1[batchResponse].Content.Links.AttributeTemplates + '?selectedFields=Items.Name;Items.Type'
+                    };
+                }
+
+                let templates = this;
+                
+                return makeDataCall(webAPIServerURL + '/batch', 'POST', JSON.stringify(batchQuery2), null, null, templates)
+                    .then(function(batchResponse2) {
+                        var resultingTemplates = new Map();
+
+                        for(var resp in batchResponse2) {
+                            var respObj = batchResponse2[resp];
+                            var templateName = this[+resp].templateName;
+                            
+                            resultingTemplates.set(templateName, respObj.Content.Items);
+                        }
+                        
+                        return resultingTemplates;
+                    }.bind(templates));
+             }.bind(templateLinkBatchCalls));
     }
 
     //get a singleEf
