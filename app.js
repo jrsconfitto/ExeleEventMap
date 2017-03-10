@@ -773,6 +773,7 @@ var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
         type: type,
         data: data,
         contentType: "application/json; charset=UTF-8",
+        xhrFields: { withCredentials: true},
         success: successCallBack,
         error: errorCallBack
     });
