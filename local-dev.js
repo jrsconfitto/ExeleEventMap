@@ -1,5 +1,4 @@
 // Start development when imported symbol template is loaded
-var t = {};
 function handleLoad(e) {
     // Get the imported document
     var importedDocument = document.querySelector('link[rel="import"]').import;
@@ -8,13 +7,13 @@ function handleLoad(e) {
     // Insert imported content into our page
     var $symbol = $('#imported-symbol')
     $symbol.html(importedSymbol);
-    ExeleTree = new Exele_TreeBuilder();
+    ExeleTree = new EventMap();
     // Update treemap once when page loads
-    updateTreemap();    
+    updateEventMap();    
 
     // Update treemap every 5 seconds (mimic PI Vision behavior)
     setInterval(function () {
-        updateTreemap();
+        updateEventMap();
     }, 5000);
 
     $('#efTemplates').on('change', function (e, el) {
@@ -31,7 +30,7 @@ function handleLoad(e) {
 }
 
 // `symbolDocument` is the document containing our symbol's template (the one we import into this file)
-function updateTreemap($symbol) {
+function updateEventMap($symbol) {
 
     // Get parameters from fields on page
     var apiServer = document.getElementById("tUrl").value;

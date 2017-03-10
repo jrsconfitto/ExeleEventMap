@@ -14,7 +14,7 @@
         // put runtimeData in scope
         var runtimeData = scope.runtimeData;
 
-        var exeleTree = new Exele_TreeBuilder();
+        var exeleTree = new EventMap();
 
         // method use to get the current EF
         runtimeData.obtainTemplates = function() {

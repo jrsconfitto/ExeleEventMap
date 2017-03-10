@@ -1,6 +1,6 @@
 // Exele Information System Inc, TreeMap for the OSIsoft LLC 2017 hackathon.
 // Main function that does the Exele Tree logic
-function Exele_TreeBuilder() {
+function EventMap() {
     //****Private variables
     let templates = [];
     let efDataHolder = {};
@@ -720,9 +720,9 @@ function Exele_TreeBuilder() {
     }
 }
 
-// *********Prototypes of Exele_TreeBuilder************
+// *********Prototypes of EventMap************
 
-Exele_TreeBuilder.prototype.Update = function (APIServer, elementPath, symbolElement, startTime, endTime, template, sizeAttribute, colorAttribute) {
+EventMap.prototype.Update = function (APIServer, elementPath, symbolElement, startTime, endTime, template, sizeAttribute, colorAttribute) {
     // store the symbol and the apiserver as private variables in the module, we should initiallize first.
     this.SetSymbol(symbolElement);
     this.SetWebAPIURL(APIServer);
@@ -734,12 +734,12 @@ Exele_TreeBuilder.prototype.Update = function (APIServer, elementPath, symbolEle
 }
 
 // get EF templates
-Exele_TreeBuilder.prototype.GetEFTemplates = function () {
+EventMap.prototype.GetEFTemplates = function () {
     return this.GetTemplates();
 }
 
 // get the Attributes provide a tepmlate
-Exele_TreeBuilder.prototype.GetEFAttributeNamesFromTemplate = function (templateName) {
+EventMap.prototype.GetEFAttributeNamesFromTemplate = function (templateName) {
     return this.GetEFAttributesFromTemplate(templateName)
         .map(att => {
             return { Name: att.Name, Type: att.Type };
@@ -747,7 +747,7 @@ Exele_TreeBuilder.prototype.GetEFAttributeNamesFromTemplate = function (template
         .sort((a, b) => d3.ascending(a.Name, b.Name));
 }
 
-Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function (templateName) {
+EventMap.prototype.GetNumericalEFAttributeNamesFromTemplate = function (templateName) {
     // Numerical attribute types this custom symbol supports
     var numericalAttributeTypes = [
         'Double',
