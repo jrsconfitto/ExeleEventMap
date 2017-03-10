@@ -203,9 +203,7 @@ function EventMap() {
 
                         if (_colorAttribute && _colorAttribute.Name !== 'None') {
                             title += '\n\n(Coloring by: ' + _colorAttribute.Name + ')';
-                            if (d.data.ef.attributes && d.data.ef.attributes.has(_colorAttribute.Name)) {
-                                title += '\n\t' + _colorAttribute.Name + ' Value: ' + d.data.ef.attributes.get(_colorAttribute.Name);
-                            }
+                            title += '\n\t' + d.data.colorAttributeName + ' Value: ' + d.data.colorValue;
                         }
 
                         return title;
@@ -486,7 +484,9 @@ function EventMap() {
                             // Accomodate attributes whose values are objects!
                             var colorValue = f.attributeValuesMap.get(_colorAttribute.Name);
 
-                            if (typeof colorValue == 'object' && colorValue.Value) {
+                            if (_colorAttribute.Type === 'EnumerationValue') {
+                                colorValue = colorValue.Name;
+                            } else if (typeof colorValue == 'object' && colorValue.Value != null) {
                                 colorValue = colorValue.Value;
                             }
 
