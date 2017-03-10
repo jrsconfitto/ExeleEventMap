@@ -10,8 +10,11 @@
         this.onDataUpdate = dataUpdate;
         this.onConfigChange = configChanged;
         this.onResize = resize;
+
+        // Tracks the currently selected EF template for the event map
         var mytemplate = "";
-        // put runtimeData in scope
+
+        // Puts runtimeData in scope
         var runtimeData = scope.runtimeData;
 
         var exeleTree = new EventMap();
