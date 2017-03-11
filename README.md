@@ -2,7 +2,7 @@
 
 A Project Vision custom symbol, from [Exele][exele], for entry in [OSIsoft's Visualization Virtual Hackathon 2017](https://pisquare.osisoft.com/community/developers-club/hackathons/blog/2017/01/13/visualization-virtual-hackathon).
 
-![The Exele Event Map](https://cloud.githubusercontent.com/assets/238079/23826249/baecb3b8-0666-11e7-9ee3-645022ce001e.png)
+![The Exele Event Map](https://cloud.githubusercontent.com/assets/238079/23826489/dab12766-066a-11e7-8f28-5832ee33aa28.gif)
 
 ## Exele Event Map
 
