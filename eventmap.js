@@ -552,7 +552,6 @@ function EventMap() {
                     // for treemap display calculations.
                     var durationMinutes = ((f.ef.EndTime - f.ef.StartTime) / 1000 / 60);
 
-                    var sizeAttributeName = (_sizeAttribute === 'None' ? 'Duration' : _sizeAttribute);
                     var sizeValue;
 
                     // Lots of things are being verified here before we use the attribute's value for cell sizing:
