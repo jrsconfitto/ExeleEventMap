@@ -1,6 +1,6 @@
 // Exele Information System Inc, TreeMap for the OSIsoft LLC 2017 hackathon.
 // Main function that does the Exele Tree logic
-function Exele_TreeBuilder() {
+function EventMap() {
     //****Private variables
     let templates = [];
     let efDataHolder = {};
@@ -203,9 +203,7 @@ function Exele_TreeBuilder() {
 
                         if (_colorAttribute !== 'None') {
                             title += '\n\n(Coloring by: ' + _colorAttribute + ')';
-                            if (d.data.ef.attributes && d.data.ef.attributes.has(_colorAttribute)) {
-                                title += '\n\t' + _colorAttribute + ' Value: ' + d.data.ef.attributes.get(_colorAttribute);
-                            }
+                            title += '\n\t' + d.data.colorAttributeName + ' Value: ' + d.data.colorValue;
                         }
 
                         return title;
@@ -356,21 +354,22 @@ function Exele_TreeBuilder() {
                 ef: EF
             });
         }
+        
         // get the attribute templates to cache them here to show in the grid, we should move to own cache
         GetAllTemplateAttributes().then(templateAttributes => {
             templateAttributes.forEach(function(attributes, templateName) {
                 if (efDataHolder[templateName]) {
                     efDataHolder[templateName].attributes = attributes;
-                }    
+                }
             });
-            
+
             // Get attribute value for provide attribute and template.
             if (_template != "None" &&
                 (_sizeAttribute !== "None" || _colorAttribute !== "None")) {
-                
+
                 // Will build the treemap after pulling down attributes' values
                 GetAttributesValues(_template);
-            
+
             } else {
 
                 //reference the treeview and build it here
@@ -378,7 +377,6 @@ function Exele_TreeBuilder() {
 
             }
 
-            
         })
     }
 
@@ -387,7 +385,7 @@ function Exele_TreeBuilder() {
     // param `templateNames`: an array of EF template names
     //
     // returns a single promise containing an array of Objects containing a template name paired with its attribute names.
-    function GetAllTemplateAttributes(templateNames) {    
+    function GetAllTemplateAttributes(templateNames) {
         // Promise.all which returns lots of templates! Converts multiple requests to a single promise result,
         // which may be desirable because this may be the first thing we want to get when looking
         // for the attributes within an EF Template for an Element.
@@ -406,7 +404,7 @@ function Exele_TreeBuilder() {
         templateLinkBatchCalls.forEach((tCall, i) => {
             batchQuery1[i] = tCall.batchRequest;
         });
-        
+
         return makeDataCall(webAPIServerURL + '/batch', 'POST', JSON.stringify(batchQuery1), null, null)
             .then(function(batchResponse1) {        // use the template link to get the links and call method to get attribute templates
                 let batchQuery2 = {};
@@ -418,7 +416,7 @@ function Exele_TreeBuilder() {
                 }
 
                 let templates = this;
-                
+
                 return makeDataCall(webAPIServerURL + '/batch', 'POST', JSON.stringify(batchQuery2), null, null, templates)
                     .then(function(batchResponse2) {
                         var resultingTemplates = new Map();
@@ -426,10 +424,10 @@ function Exele_TreeBuilder() {
                         for(var resp in batchResponse2) {
                             var respObj = batchResponse2[resp];
                             var templateName = this[+resp].templateName;
-                            
+
                             resultingTemplates.set(templateName, respObj.Content.Items);
                         }
-                        
+
                         return resultingTemplates;
                     }.bind(templates));
              }.bind(templateLinkBatchCalls));
@@ -497,7 +495,7 @@ function Exele_TreeBuilder() {
         if (_colorAttribute !== 'None'
             && efDataHolder[_template]
             && efDataHolder[_template].attributes) {
-            
+
             var matchingAttribute = efDataHolder[_template].attributes.filter(att => att.Name === _colorAttribute);
             colorAttributeType = (matchingAttribute && matchingAttribute.length === 1 && matchingAttribute[0].Type ? matchingAttribute[0].Type : 'String');
         }
@@ -539,7 +537,9 @@ function Exele_TreeBuilder() {
                             // Accomodate attributes whose values are objects!
                             var colorValue = f.attributeValuesMap.get(_colorAttribute);
 
-                            if (typeof colorValue == 'object' && colorValue.Value) {
+                            if (_colorAttribute.Type === 'EnumerationValue') {
+                                colorValue = colorValue.Name;
+                            } else if (typeof colorValue == 'object' && colorValue.Value != null) {
                                 colorValue = colorValue.Value;
                             }
 
@@ -773,9 +773,9 @@ function Exele_TreeBuilder() {
     }
 }
 
-// *********Prototypes of Exele_TreeBuilder************
+// *********Prototypes of EventMap************
 
-Exele_TreeBuilder.prototype.Update = function (APIServer, elementPath, symbolElement, startTime, endTime, template, sizeAttribute, colorAttribute) {
+EventMap.prototype.Update = function (APIServer, elementPath, symbolElement, startTime, endTime, template, sizeAttribute, colorAttribute) {
     // store the symbol and the apiserver as private variables in the module, we should initiallize first.
     this.SetSymbol(symbolElement);
     this.SetWebAPIURL(APIServer);
@@ -787,18 +787,18 @@ Exele_TreeBuilder.prototype.Update = function (APIServer, elementPath, symbolEle
 }
 
 // get EF templates
-Exele_TreeBuilder.prototype.GetEFTemplates = function () {
+EventMap.prototype.GetEFTemplates = function () {
     return this.GetTemplates();
 }
 
 // get the Attributes provide a tepmlate
-Exele_TreeBuilder.prototype.GetEFAttributeNamesFromTemplate = function (templateName) {
+EventMap.prototype.GetEFAttributeNamesFromTemplate = function (templateName) {
     return this.GetEFAttributesFromTemplate(templateName)
         .map(att => att.Name)
         .sort((a, b) => d3.ascending(a, b));
 }
 
-Exele_TreeBuilder.prototype.GetNumericalEFAttributeNamesFromTemplate = function (templateName) {
+EventMap.prototype.GetNumericalEFAttributeNamesFromTemplate = function (templateName) {
     // Numerical attribute types this custom symbol supports
     var numericalAttributeTypes = [
         'Double',
@@ -822,6 +822,7 @@ var makeDataCall = function (url, type, data, successCallBack, errorCallBack) {
         type: type,
         data: data,
         contentType: "application/json; charset=UTF-8",
+        xhrFields: { withCredentials: true},
         success: successCallBack,
         error: errorCallBack
     });

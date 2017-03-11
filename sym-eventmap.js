@@ -14,7 +14,7 @@
         // put runtimeData in scope
         var runtimeData = scope.runtimeData;
 
-        var exeleTree = new Exele_TreeBuilder();
+        var exeleTree = new EventMap();
 
         // method use to get the current EF
         runtimeData.obtainTemplates = function() {
@@ -96,7 +96,7 @@
         typeName: 'EventMap',
         inject: ['timeProvider'],
         datasourceBehavior: PV.Extensibility.Enums.DatasourceBehaviors.Multiple,
-        iconUrl: 'Images/eventmap.svg',
+		iconUrl: 'Scripts/app/editor/symbols/ext/icons/eventmap.svg',
         visObjectType: symbolVis,
         getDefaultConfig: function () {
             return {
