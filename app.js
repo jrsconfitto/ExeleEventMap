@@ -379,9 +379,7 @@ function Exele_TreeBuilder() {
             }
 
             
-        }).catch(problems => {
-            console.log(problems);
-        });
+        })
     }
 
     // Finds all the attribute names for the passed array of template names
