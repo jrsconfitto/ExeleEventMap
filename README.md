@@ -51,6 +51,8 @@ Our goal for the Event Map symbol was to allow quick and easy visual comparison 
 
 We liked the idea of the using a treemap as it allows a user to easily view multiple dimensions using using both cell size and color.  We also decided to calculate total duration, provide additional context by show Event Frame attributes (by clicking), and including tooltips to include more information for exploring the data.
 
+## Examples of the symbol in use
+
 In the below image of our Event Map, we have shown a one to one ratio between the size of the cell, and the color.  The darker blue represents a higher value and the white represents a smaller value:
 
 ![An event map showing a spectrum from darker blues for higher values to lighter blues for smaller values](https://cloud.githubusercontent.com/assets/238079/23826247/baebfd56-0666-11e7-9af7-daecb9ed25fb.png)
