@@ -43,30 +43,6 @@ function updateEventMap($symbol) {
         selectedSizeAttribute = $(':selected', '#efSizeAttributes').val() || 'None',
         selectedColorAttribute = $(':selected', '#efColorAttributes').val() || 'None';
 
-    if (selectedSizeAttribute !== 'None') {
-        selectedSizeAttribute = {
-            Name: selectedSizeAttribute,
-            Type: $(':selected', '#efSizeAttributes').data('type')
-        };
-    } else {
-        selectedSizeAttribute = {
-            Name: 'None',
-            Type: 'String' // Because we'll color by the cell titles
-        }
-    }
-
-    if (selectedColorAttribute !== 'None') {
-        selectedColorAttribute = {
-            Name: selectedColorAttribute,
-            Type: $(':selected', '#efColorAttributes').data('type')
-        };
-    } else {
-        selectedColorAttribute = {
-            Name: 'None',
-            Type: 'String' // Because we'll color by the cell titles
-        }
-    }
-
     // Update treemap using selected parameters
     ExeleTree.Update(apiServer, elementPath, $('.exele-treemap-symbol'), tStart, tEnd, selectedTemplate, selectedSizeAttribute, selectedColorAttribute);
 
@@ -82,11 +58,13 @@ function handleError(e) {
 function fillSelect($select, items) {
 
     items.unshift('None');
+
     // Initialize the selected template and attributes
-    var options = items.map(function(t) {
-        return '<option data-type="' + (t.Type || '') + '" value="' + (t.Name || t || 'None') + '">' + (t.Name || t || 'None') + '</option>';
+    var options = items.map(function(name) {
+        return '<option value="' + name  + '">' + name  + '</option>';
     });
 
     var optionsHtml = options.reduce(function(a, b) { return a + b; }, '');
     $select.html(optionsHtml);
+
 }

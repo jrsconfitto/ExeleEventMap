@@ -6,10 +6,10 @@ function EventMap() {
     let efDataHolder = {};
     let myel = {};
     let symbolElement = {};
-    let webAPIServerURL = "";
-    var _template = "";
-    var _sizeAttribute = {};
-    var _colorAttribute = {};
+    let webAPIServerURL = '';
+    var _template = '';
+    var _sizeAttribute = '';
+    var _colorAttribute = '';
 
     let numericalAttributeTypes = [
         'Double',
@@ -194,15 +194,15 @@ function EventMap() {
                             + '\nStart: ' + d.data.startTime.toLocaleString()
                             + '\nEnd: ' + d.data.endTime.toLocaleString();
 
-                        if (_sizeAttribute && _sizeAttribute.Name !== 'None') {
-                            title += '\n\n(Sizing by: ' + _sizeAttribute.Name + ')';
-                            if (d.data.ef.attributes && d.data.ef.attributes.has(_sizeAttribute.Name)) {
-                                title += '\n\t' + _sizeAttribute.Name + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute.Name);
+                        if (_sizeAttribute !== 'None') {
+                            title += '\n\n(Sizing by: ' + _sizeAttribute + ')';
+                            if (d.data.ef.attributes && d.data.ef.attributes.has(_sizeAttribute)) {
+                                title += '\n\t' + _sizeAttribute + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute);
                             }
                         }
 
-                        if (_colorAttribute && _colorAttribute.Name !== 'None') {
-                            title += '\n\n(Coloring by: ' + _colorAttribute.Name + ')';
+                        if (_colorAttribute !== 'None') {
+                            title += '\n\n(Coloring by: ' + _colorAttribute + ')';
                             title += '\n\t' + d.data.colorAttributeName + ' Value: ' + d.data.colorValue;
                         }
 
@@ -354,39 +354,83 @@ function EventMap() {
                 ef: EF
             });
         }
+        
         // get the attribute templates to cache them here to show in the grid, we should move to own cache
-        GetAllTemplateAttributes();
+        GetAllTemplateAttributes().then(templateAttributes => {
+            templateAttributes.forEach(function(attributes, templateName) {
+                if (efDataHolder[templateName]) {
+                    efDataHolder[templateName].attributes = attributes;
+                }
+            });
 
-        // Get attribute value for provide attribute and template.
-        if (_template && _template != "None" &&
-            (_sizeAttribute && _sizeAttribute.Name != "None" || _colorAttribute && _colorAttribute.Name != "None")) {
-            // Will build the treemap after pulling down attributes' values
-            GetAttributesValues(_template);
-        } else {
-            //reference the treeview and build it here
-            BuildTreemap();
-        }
+            // Get attribute value for provide attribute and template.
+            if (_template != "None" &&
+                (_sizeAttribute !== "None" || _colorAttribute !== "None")) {
+
+                // Will build the treemap after pulling down attributes' values
+                GetAttributesValues(_template);
+
+            } else {
+
+                //reference the treeview and build it here
+                BuildTreemap();
+
+            }
+
+        })
     }
 
-    // adds attribute names to the model such that the config panel displays the Values
-    function GetAllTemplateAttributes() {
-        // loop throught each template in efDataHolder
-        for (let templates in efDataHolder) {
-            // use the template link to get the links and call method to get attribute templates
-            makeDataCall(efDataHolder[templates].Links + "?selectedFields=Links.AttributeTemplates", 'get', null, getAttributeTemplates)
-
-            // once we have the template, make call to get attribute templates and extract names (get)
-            function getAttributeTemplates(results) {
-                makeDataCall(results.Links.AttributeTemplates + "?selectedFields=Items.Name;Items.Type;", 'get', null, getAttributeTemplateNames);
+    // Finds all the attribute names for the passed array of template names
+    //
+    // param `templateNames`: an array of EF template names
+    //
+    // returns a single promise containing an array of Objects containing a template name paired with its attribute names.
+    function GetAllTemplateAttributes(templateNames) {
+        // Promise.all which returns lots of templates! Converts multiple requests to a single promise result,
+        // which may be desirable because this may be the first thing we want to get when looking
+        // for the attributes within an EF Template for an Element.
+        var templateLinkBatchCalls = Object.keys(efDataHolder).map(function(t) {
+          return {
+            templateName: t,
+            batchRequest: {
+                "Method": "GET",
+                "Resource": efDataHolder[t].Links
             }
+          };
+        });
 
-            // put attribute template names into array
-            function getAttributeTemplateNames(results) {
-                if (efDataHolder[templates]) {
-                    efDataHolder[templates].attributes = results.Items;
+        // Construct the initial batch query
+        let batchQuery1 = {};
+        templateLinkBatchCalls.forEach((tCall, i) => {
+            batchQuery1[i] = tCall.batchRequest;
+        });
+
+        return makeDataCall(webAPIServerURL + '/batch', 'POST', JSON.stringify(batchQuery1), null, null)
+            .then(function(batchResponse1) {        // use the template link to get the links and call method to get attribute templates
+                let batchQuery2 = {};
+                for (var batchResponse in batchResponse1) {
+                    batchQuery2[batchResponse] = {
+                        'Method': 'GET',
+                        'Resource': batchResponse1[batchResponse].Content.Links.AttributeTemplates + '?selectedFields=Items.Name;Items.Type'
+                    };
                 }
-            }
-        }
+
+                let templates = this;
+
+                return makeDataCall(webAPIServerURL + '/batch', 'POST', JSON.stringify(batchQuery2), null, null, templates)
+                    .then(function(batchResponse2) {
+                        var resultingTemplates = new Map();
+
+                        for(var resp in batchResponse2) {
+                            var respObj = batchResponse2[resp];
+                            var templateName = this[+resp].templateName;
+
+                            resultingTemplates.set(templateName, respObj.Content.Items);
+                        }
+
+                        return resultingTemplates;
+                    }.bind(templates));
+             }.bind(templateLinkBatchCalls));
     }
 
     //get a singleEf
@@ -445,12 +489,21 @@ function EventMap() {
     // d3-hierarchy provides more information on how to create this kind of data
     // structure: https://github.com/d3/d3-hierarchy
     function EFsToHierarchy() {
-        var colorType = (_colorAttribute && _colorAttribute.Type ? _colorAttribute.Type : 'String');
+        // Determine the attribute type used for setting the color scheme, so the treemap
+        // can use either discrete colors or sequential colors.
+        var colorAttributeType = 'String'; // Default to a type that will use the discrete color scheme
+        if (_colorAttribute !== 'None'
+            && efDataHolder[_template]
+            && efDataHolder[_template].attributes) {
+
+            var matchingAttribute = efDataHolder[_template].attributes.filter(att => att.Name === _colorAttribute);
+            colorAttributeType = (matchingAttribute && matchingAttribute.length === 1 && matchingAttribute[0].Type ? matchingAttribute[0].Type : 'String');
+        }
 
         var efDataRoot = {
             name: '',
             children: [],
-            colorType: (numericalAttributeTypes.indexOf(colorType) === -1 ? 'discrete' : 'sequential')
+            colorType: (numericalAttributeTypes.indexOf(colorAttributeType) === -1 ? 'discrete' : 'sequential')
         };
 
         // Converts the passed EFs into data objects for use in the treemap
@@ -480,9 +533,9 @@ function EventMap() {
                     if (f.attributeValuesMap) {
                         f.ef.attributes = f.attributeValuesMap;
 
-                        if (_colorAttribute && _colorAttribute.Name && f.ef.attributes.has(_colorAttribute.Name)) {
+                        if (_colorAttribute && f.ef.attributes.has(_colorAttribute)) {
                             // Accomodate attributes whose values are objects!
-                            var colorValue = f.attributeValuesMap.get(_colorAttribute.Name);
+                            var colorValue = f.attributeValuesMap.get(_colorAttribute);
 
                             if (_colorAttribute.Type === 'EnumerationValue') {
                                 colorValue = colorValue.Name;
@@ -491,7 +544,7 @@ function EventMap() {
                             }
 
                             color = {
-                                attributeName: _colorAttribute.Name,
+                                attributeName: _colorAttribute,
                                 value: colorValue
                             };
                         }
@@ -514,10 +567,10 @@ function EventMap() {
                         && f.ef
                         && _template == f.ef.templateName
                         && f.ef.attributes
-                        && f.ef.attributes.has(_sizeAttribute.Name)) {
+                        && f.ef.attributes.has(_sizeAttribute)) {
 
                         // Return the value of the selected attribute
-                        sizeValue = f.ef.attributes.get(_sizeAttribute.Name);
+                        sizeValue = f.ef.attributes.get(_sizeAttribute);
                     } else {
                         sizeValue = durationMinutes;
                     }
@@ -534,7 +587,7 @@ function EventMap() {
                         endTime: f.ef.EndTime,
                         durationMinutes: durationMinutes,
                         sizeValue: sizeValue,
-                        colorAttributeName: (color && color.attributeName ? color.attributeName : (_colorAttribute && _colorAttribute.Name ? _colorAttribute.Name : 'None')),
+                        colorAttributeName: (color && color.attributeName ? color.attributeName : _colorAttribute),
                         colorValue: (color && color.value ? color.value : f.ef.name)
                     }
 
@@ -544,7 +597,7 @@ function EventMap() {
             // Normalize the summing data, if necessary.
             if (_template && _sizeAttribute
                 && _template !== 'None'
-                && _sizeAttribute.Name !== 'None') {
+                && _sizeAttribute !== 'None') {
                 normalizeSummingData(efs);
             }
 
@@ -741,10 +794,8 @@ EventMap.prototype.GetEFTemplates = function () {
 // get the Attributes provide a tepmlate
 EventMap.prototype.GetEFAttributeNamesFromTemplate = function (templateName) {
     return this.GetEFAttributesFromTemplate(templateName)
-        .map(att => {
-            return { Name: att.Name, Type: att.Type };
-        })
-        .sort((a, b) => d3.ascending(a.Name, b.Name));
+        .map(att => att.Name)
+        .sort((a, b) => d3.ascending(a, b));
 }
 
 EventMap.prototype.GetNumericalEFAttributeNamesFromTemplate = function (templateName) {
@@ -760,10 +811,8 @@ EventMap.prototype.GetNumericalEFAttributeNamesFromTemplate = function (template
     // Return an empty array if we don't find a match
     return this.GetEFAttributesFromTemplate(templateName)
         .filter(att => numericalAttributeTypes.indexOf(att.Type) !== -1)
-        .map(att => {
-            return { Name: att.Name, Type: att.Type }
-        })
-        .sort((a, b) => d3.ascending(a.Name, b.Name));
+        .map(att => att.Name)
+        .sort((a, b) => d3.ascending(a, b));
 }
 
 // JQuery method used to get data
