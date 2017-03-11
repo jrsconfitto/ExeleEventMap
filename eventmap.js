@@ -195,10 +195,8 @@ function EventMap() {
                             + '\nEnd: ' + d.data.endTime.toLocaleString();
 
                         if (_sizeAttribute !== 'None') {
-                            title += '\n\n(Sizing by: ' + _sizeAttribute + ')';
-                            if (d.data.ef.attributes && d.data.ef.attributes.has(_sizeAttribute)) {
-                                title += '\n\t' + _sizeAttribute + ' Value: ' + d.data.ef.attributes.get(_sizeAttribute);
-                            }
+                            title += '\n\n(Sizing by: ' + d.data.sizeAttributeName + ')';
+                            title += '\n\t' + d.data.sizeAttributeName + ' Value: ' + d.data.sizeValue;
                         }
 
                         if (_colorAttribute !== 'None') {
@@ -554,6 +552,7 @@ function EventMap() {
                     // for treemap display calculations.
                     var durationMinutes = ((f.ef.EndTime - f.ef.StartTime) / 1000 / 60);
 
+                    var sizeAttributeName = (_sizeAttribute === 'None' ? 'Duration' : _sizeAttribute);
                     var sizeValue;
 
                     // Lots of things are being verified here before we use the attribute's value for cell sizing:
@@ -586,6 +585,7 @@ function EventMap() {
                         startTime: f.ef.StartTime,
                         endTime: f.ef.EndTime,
                         durationMinutes: durationMinutes,
+                        sizeAttributeName: (_sizeAttribute === 'None' ? 'Duration' : _sizeAttribute),
                         sizeValue: sizeValue,
                         colorAttributeName: (color && color.attributeName ? color.attributeName : _colorAttribute),
                         colorValue: (color && color.value ? color.value : f.ef.name)
