@@ -30,9 +30,7 @@ If a template filter is applied then attributes can be selected to control the s
 
 ## Use Cases
 
-The Event Map allows an end user to quickly discover outliers or patterns for might be occur.
-
-The Event Map symbol enables quick analysis a large number of Event Frames.  The visual representation of cell size and color make it easy to recognize patterns, relationships, and outlier events.  When viewing all event templates the frequency and duration of each type of event is readily apparent.  This can help answer questions such as:
+The Event Map allows an end user to quickly discover outliers, abnormal events and patterns.  The visual representation of cell size and color make it easy to analyze the events.  When viewing all event templates the frequency and duration of each type of event is readily apparent.  This can help answer questions such as:
 
 * Which events account for the most or least time for a particular asset?
 * What is the proportion of time for one event type compared to another?
