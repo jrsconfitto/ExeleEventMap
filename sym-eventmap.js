@@ -96,7 +96,7 @@
         typeName: 'EventMap',
         inject: ['timeProvider'],
         datasourceBehavior: PV.Extensibility.Enums.DatasourceBehaviors.Multiple,
-		iconUrl: '/Scripts/app/editor/symbols/ext/icons/eventmap.svg',
+		iconUrl: 'Scripts/app/editor/symbols/ext/icons/eventmap.svg',
         visObjectType: symbolVis,
         getDefaultConfig: function () {
             return {
