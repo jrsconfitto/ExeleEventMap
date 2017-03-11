@@ -10,7 +10,8 @@
         this.onDataUpdate = dataUpdate;
         this.onConfigChange = configChanged;
         this.onResize = resize;
-        var mytemplate = "";
+        
+        this.mytemplate = "";
         // put runtimeData in scope
         var runtimeData = scope.runtimeData;
 
@@ -23,7 +24,7 @@
         };
 
         // Initialize cached EF attributes
-        var cachedAttributes = ['None'].concat(exeleTree.GetEFAttributeNamesFromTemplate(mytemplate));
+        var cachedAttributes = ['None'].concat(exeleTree.GetEFAttributeNamesFromTemplate(this.mytemplate));
         // method used to get the current attributes from the template
         runtimeData.obtainAttributes = function() {
             // return like this so angular does not loop forever
@@ -31,7 +32,7 @@
         };
 
         // Initialize cached sizeable attributes
-        var cachedSizeableAttributes = ['None'].concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
+        var cachedSizeableAttributes = ['None'].concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(this.mytemplate));
         runtimeData.obtainSizeableAttributes = function() {
             return cachedSizeableAttributes;
         }
@@ -43,6 +44,7 @@
         
         function dataUpdate(data) {
             treemapUpdate(this.scope, this.elem);
+            adjustAttributes(this.mytemplate);
         }
 
         function configChanged(newConfig, oldConfig) {
@@ -51,17 +53,21 @@
 
             // set the template if the config changes
             if (oldConfig.TemplateSelected != newConfig.TemplateSelected) {
-                mytemplate = newConfig.TemplateSelected;
+                this.mytemplate = newConfig.TemplateSelected;
 
-                // Adjust the attributes data to align with the new template selection
-                //
-                // Remove any attributes past the first ("None") and then add new ones
-                cachedAttributes = cachedAttributes.slice(0, 1);
-                cachedAttributes = cachedAttributes.concat(exeleTree.GetEFAttributeNamesFromTemplate(mytemplate));
-
-                cachedSizeableAttributes = cachedSizeableAttributes.slice(0, 1);
-                cachedSizeableAttributes = cachedSizeableAttributes.concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(mytemplate));
+                adjustAttributes(this.mytemplate);    
             }
+        }
+
+        function adjustAttributes(templateName) {
+            // Adjust the attributes data to align with the new template selection
+            //
+            // Remove any attributes past the first ("None") and then add new ones
+            cachedAttributes = cachedAttributes.slice(0, 1);
+            cachedAttributes = cachedAttributes.concat(exeleTree.GetEFAttributeNamesFromTemplate(this.mytemplate));
+
+            cachedSizeableAttributes = cachedSizeableAttributes.slice(0, 1);
+            cachedSizeableAttributes = cachedSizeableAttributes.concat(exeleTree.GetNumericalEFAttributeNamesFromTemplate(templateName));
         }
 
         function resize(width, height) {

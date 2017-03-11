@@ -10,7 +10,7 @@
 <div class="c-config-content" style="width: 85%; margin: 15px 0 15px 15px;">
     &nbsp;Cell size attribute<br />
     <select ng-model="config.AttributeSelected"
-            ng-options="attribute.Name for attribute in runtimeData.obtainSizeableAttributes()"
+            ng-options="attribute for attribute in runtimeData.obtainSizeableAttributes()"
             class="config-option-list">
     </select>
 </div>
@@ -18,7 +18,7 @@
 <div class="c-config-content" style="width: 85%; margin: 15px 0 15px 15px;">
     &nbsp;Cell color attribute<br />
     <select ng-model="config.ColorAttributeSelected"
-            ng-options="attribute.Name for attribute in runtimeData.obtainAttributes()"
+            ng-options="attribute for attribute in runtimeData.obtainAttributes()"
             class="config-option-list">
     </select>
 </div>
